@@ -64,7 +64,7 @@ const ItemsRenderer = ({
             >
               {type}: {id}
               <div
-                className={`grid w-full min-h-32 ${GridRow(
+                className={`grid w-full h-full min-h-32 ${GridRow(
                   Number(rows)
                 )} ${GridCol(Number(columns))} ${SpanCol(
                   Number(colspan)

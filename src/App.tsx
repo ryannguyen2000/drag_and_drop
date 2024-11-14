@@ -142,6 +142,8 @@ const App: React.FC = () => {
               detail={{
                 columns: data.columns,
                 rows: data.rows,
+                colspan: data.colspan,
+                rowspan: data.rowspan,
                 type: data.type,
               }}
               id={data.id}
@@ -161,7 +163,7 @@ const App: React.FC = () => {
         </div>
         <PropertiesBar />
       </div>
-      <DragOverlay
+      {/* <DragOverlay
         style={{
           zIndex: 9999,
           pointerEvents: "none",
@@ -171,7 +173,7 @@ const App: React.FC = () => {
         {activeId ? (
           <div className="bg-slate-50 w-full h-full" style={{zIndex: 9999}} />
         ) : null}
-      </DragOverlay>
+      </DragOverlay> */}
     </DndContext>
   );
 };

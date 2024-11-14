@@ -5,7 +5,7 @@ const Draggable = ({
   detail,
   id,
   children,
-  className,
+  className = "",
 }: {
   id: string;
   detail: any;
@@ -26,7 +26,7 @@ const Draggable = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`cursor-grab ${className} ${over && "border-violet-500"}`}
+      className={`cursor-grab ${className} ${over ? "border-violet-500" : ""}`}
     >
       {children}
     </div>

@@ -41,7 +41,6 @@ const PropertiesBar = () => {
         ls.columns = col;
         ls.rows = row;
         ls.colspan = colspan;
-        ls.rowspan = rowspan;
       } else {
         mapToReplaceProperties(ls.childs);
       }
