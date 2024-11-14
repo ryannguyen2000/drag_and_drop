@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 
 const Sidebar = () => {
-  // Lấy `sidebar` từ Redux store để đảm bảo tự động cập nhật khi Redux state thay đổi
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
 
   return (
@@ -21,13 +20,11 @@ const Sidebar = () => {
       <div className="px-6 flex flex-wrap gap-2">
         {sidebar.map((item, index) => (
           <Draggable
-            className="flex items-center justify-center bg-green-100 w-full aspect-video rounded-xl"
+            className="w-24 h-24 bg-green-100 flex items-center justify-center rounded-xl"
             detail={{ columns: item.columns, rows: item.rows, type: item.type }}
             key={index}
             id={item.id}>
-            <div className="p-2 my-2 rounded-xl text-center truncate">
-              {item.id}
-            </div>
+            <div className="p-2 rounded-xl text-center truncate">{item.id}</div>
           </Draggable>
         ))}
       </div>

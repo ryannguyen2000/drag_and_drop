@@ -30,77 +30,71 @@ const App: React.FC = () => {
     console.log(activeId + " is dragging");
   }, [activeId]);
 
-  const FindToAdd = (id: string, detail: any, parent_id: string) => {
-    const newData = JSON.parse(JSON.stringify(data));
+const FindToAdd = (id: string, detail: any, parent_id: string) => {
+  const newData = JSON.parse(JSON.stringify(data));
 
-    const addChildToParent = (nodes: Obj[]) => {
-      nodes.forEach(node => {
-        if (
-          node.id === parent_id &&
-          !node.childs.some(child => child.id === id)
-        ) {
-          node.childs = [
-            ...node.childs,
-            {
-              id,
-              columns: detail.columns,
-              rows: detail.rows,
-              type: detail.type,
-              childs: [],
-            },
-          ];
-        } else if (node.childs.length > 0) {
-          addChildToParent(node.childs);
-        }
-      });
-    };
+  const removeChildFromParent = (nodes: Obj[]) => {
+    nodes.forEach(node => {
+      // Tìm và xóa item với `id` khỏi `node.childs`
+      node.childs = node.childs.filter(child => child.id !== id);
 
-    if (
-      newData.id === parent_id &&
-      !newData.childs.some(child => child.id === id)
-    ) {
-      newData.childs.push({
-        id,
-        columns: detail.columns,
-        rows: detail.rows,
-        type: detail.type,
-        childs: [],
-      });
-    } else {
-      addChildToParent(newData.childs);
-    }
-
-    dispatch(setData(newData));
-
-    setTimeout(() => {
-      console.log("Updated Data:", newData);
-    }, 1000);
+      // Đệ quy nếu `node.childs` có phần tử con
+      if (node.childs.length > 0) {
+        removeChildFromParent(node.childs);
+      }
+    });
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { over, active } = event;
+  // Xóa item khỏi layout gốc
+  removeChildFromParent([newData]);
 
-    if (over && active.id !== over.id) {
-      // Di chuyển item vào layout
-      FindToAdd(active.id.toString(), activeData, over.id.toString());
-
-      // Kiểm tra giá trị của `sidebar` trước khi cập nhật
-      console.log("Sidebar before filter:", sidebar);
-
-      // Tạo một bản sao mới của `sidebar` và lọc ra item có `id` trùng với `active.id`
-      const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
-
-      // Cập nhật lại `sidebar` bằng bản sao mới và kiểm tra xem có thay đổi không
-      dispatch(setSidebar(updatedSidebar));
-
-      // Kiểm tra `sidebar` sau khi cập nhật để xác nhận thay đổi
-      console.log("Sidebar after filter:", updatedSidebar);
-
-      // Đặt lại trạng thái active
-      dispatch(setActiveId(null));
-      dispatch(setActiveData(null));
-    }
+  const addChildToParent = (nodes: Obj[]) => {
+    nodes.forEach(node => {
+      // Nếu `node.id` là `parent_id` và `node.childs` không chứa `id` thì thêm mới
+      if (
+        node.id === parent_id &&
+        !node.childs.some(child => child.id === id)
+      ) {
+        node.childs = [
+          ...node.childs,
+          {
+            id,
+            columns: detail.columns,
+            rows: detail.rows,
+            type: detail.type,
+            childs: [],
+          },
+        ];
+      } else if (node.childs.length > 0) {
+        // Đệ quy vào `childs` nếu `node.childs` có phần tử
+        addChildToParent(node.childs);
+      }
+    });
   };
+
+  addChildToParent([newData]);
+
+  dispatch(setData(newData));
+
+  setTimeout(() => {
+    console.log("Updated Data:", newData);
+  }, 1000);
+};
+
+const handleDragEnd = (event: DragEndEvent) => {
+  const { over, active } = event;
+
+  if (over && active.id !== over.id) {
+    FindToAdd(active.id.toString(), activeData, over.id.toString());
+
+    console.log("Sidebar before filter:", sidebar);
+    const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
+    dispatch(setSidebar(updatedSidebar));
+    console.log("Sidebar after filter:", updatedSidebar);
+    dispatch(setActiveId(null));
+    dispatch(setActiveData(null));
+  }
+};
 
   const handleDragMove = (event: DragMoveEvent) => {
     console.log(event);
