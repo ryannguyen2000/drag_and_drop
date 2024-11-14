@@ -11,6 +11,14 @@ export interface DndState {
   row: string;
   colspan: string;
   rowspan: string;
+  properties: Properties;
+}
+
+interface Properties {
+  columns: string;
+  rows: string;
+  colspan: string;
+  rowspan: string;
 }
 
 export interface Obj {
@@ -18,6 +26,8 @@ export interface Obj {
   type: string;
   columns: string;
   rows: string;
+  colspan: string;
+  rowspan: string;
   childs: Obj[];
 }
 
@@ -29,6 +39,8 @@ const initialState: DndState = {
     type: "layout",
     columns: "2",
     rows: "2",
+    colspan: "1",
+    rowspan: "1",
     childs: [],
   },
   sidebar: getUniqueContentItems(sample_data),
@@ -36,6 +48,12 @@ const initialState: DndState = {
   col: "1",
   row: "1",
   rowspan: "1",
+  properties: {
+    columns: "1",
+    rows: "1",
+    colspan: "1",
+    rowspan: "1",
+  },
 };
 
 export const dndSlice = createSlice({
@@ -66,6 +84,9 @@ export const dndSlice = createSlice({
     setRowspan: (state, action) => {
       state.rowspan = action.payload;
     },
+    setProperties: (state, action) => {
+      state.properties = action.payload;
+    },
   },
 });
 
@@ -78,6 +99,7 @@ export const {
   setColumns,
   setRows,
   setRowspan,
+  setProperties,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;
