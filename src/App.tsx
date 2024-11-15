@@ -114,8 +114,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDragMove = (event: DragMoveEvent) => {};
-
   return (
     <DndContext
       collisionDetection={pointerWithin}
@@ -129,7 +127,6 @@ const App: React.FC = () => {
         dispatch(setActiveData(e.active.data.current));
       }}
       onDragEnd={handleDragEnd}
-      onDragMove={handleDragMove}
     >
       <div className="flex items-start w-full bg-violet-100">
         <Sidebar />
@@ -168,7 +165,10 @@ const App: React.FC = () => {
         }}
       >
         {activeId ? (
-          <div className="bg-slate-50 w-full h-full" style={{zIndex: 9999}} />
+          <div
+            className="bg-slate-50 w-full h-full rounded-xl"
+            style={{zIndex: 9999}}
+          />
         ) : null}
       </DragOverlay>
     </DndContext>

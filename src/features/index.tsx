@@ -38,7 +38,7 @@ const ItemsRenderer = ({
 
   const emptyCells = totalCells - totalChildren;
   return (
-    <div className="peer-hover:border-pink-400 border w-full">
+    <div className="peer-hover:border-pink-400 h-full border w-full">
       {type === "layout" && (
         <>
           {Array({length: Number(columns)}).map((_, index) => (
@@ -105,7 +105,7 @@ const ItemsRenderer = ({
       )}
       {type === "content" && (
         <div
-          className={`p-2 border border-dashed ${SpanRow(
+          className={`p-2 border h-full border-dashed ${SpanRow(
             Number(rowspan)
           )} ${SpanCol(Number(colspan))} ${
             type === "content" ? "bg-yellow-50" : "bg-blue-50"

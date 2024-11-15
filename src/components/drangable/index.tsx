@@ -34,7 +34,9 @@ const Draggable = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={` ${className} ${over ? "border-violet-500" : ""}`}
+      className={` ${className} cursor-pointer ${
+        over ? "border-violet-500" : ""
+      } relative group`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -47,7 +49,7 @@ const Draggable = ({
     >
       <Icon
         icon="ph:dots-six-vertical"
-        className="border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
+        className="group-hover:block hidden transition-all absolute top-0 right-0 bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
         fontSize={24}
         {...listeners}
         {...attributes}

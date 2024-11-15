@@ -15,30 +15,35 @@ const PropertiesBar = () => {
     (state: RootState) => state.dndSlice
   );
 
-  const [columns, setColumnsState] = useState<number>(
-    Number(activeData?.columns) || 0
+  const [columns, setColumnsState] = useState<number | string>(
+    Number(activeData?.columns) || ""
   );
-  const [rows, setRowsState] = useState<number>(Number(activeData?.rows) || 0);
-  const [colspan, setColspanState] = useState<number>(
-    Number(activeData?.colspan) || 0
+  const [rows, setRowsState] = useState<number | string>(
+    Number(activeData?.rows) || ""
   );
-  const [rowspan, setRowspanState] = useState<number>(
-    Number(activeData?.rowspan) || 0
+  const [colspan, setColspanState] = useState<number | string>(
+    Number(activeData?.colspan) || ""
+  );
+  const [rowspan, setRowspanState] = useState<number | string>(
+    Number(activeData?.rowspan) || ""
   );
 
   useEffect(() => {
     if (activeData) {
-      setColumnsState(Number(activeData.columns) || 0);
-      setRowsState(Number(activeData.rows) || 0);
-      setColspanState(Number(activeData.colspan) || 0);
-      setRowspanState(Number(activeData.rowspan) || 0);
+      setColumnsState(Number(activeData.columns) || "");
+      setRowsState(Number(activeData.rows) || "");
+      setColspanState(Number(activeData.colspan) || "");
+      setRowspanState(Number(activeData.rowspan) || "");
     }
   }, [activeData]);
 
   const handleColumnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newColumns = Number(e.target.value);
     if (!isNaN(newColumns)) {
-      setColumnsState(newColumns);
+      // Only update state if the current value is 0 and the new value is not 0
+      setColumnsState((prevState) =>
+        prevState === 0 ? newColumns : newColumns
+      );
       dispatch(setColumns(newColumns));
     }
   };
@@ -46,7 +51,8 @@ const PropertiesBar = () => {
   const handleRowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRows = Number(e.target.value);
     if (!isNaN(newRows)) {
-      setRowsState(newRows);
+      // Only update state if the current value is 0 and the new value is not 0
+      setRowsState((prevState) => (prevState === 0 ? newRows : newRows));
       dispatch(setRows(newRows));
     }
   };
@@ -54,7 +60,10 @@ const PropertiesBar = () => {
   const handleColspanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newColspan = Number(e.target.value);
     if (!isNaN(newColspan)) {
-      setColspanState(newColspan);
+      // Only update state if the current value is 0 and the new value is not 0
+      setColspanState((prevState) =>
+        prevState === 0 ? newColspan : newColspan
+      );
       dispatch(setColspan(newColspan));
     }
   };
@@ -62,7 +71,10 @@ const PropertiesBar = () => {
   const handleRowspanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRowspan = Number(e.target.value);
     if (!isNaN(newRowspan)) {
-      setRowspanState(newRowspan);
+      // Only update state if the current value is 0 and the new value is not 0
+      setRowspanState((prevState) =>
+        prevState === 0 ? newRowspan : newRowspan
+      );
       dispatch(setRowspan(newRowspan));
     }
   };
