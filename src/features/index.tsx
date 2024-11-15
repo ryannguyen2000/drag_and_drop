@@ -31,27 +31,21 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
+  const {activeId} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
+  const totalCells = Number(columns) * Number(rows);
+  const totalChildren = childs.length;
+
+  const emptyCells = totalCells - totalChildren;
   return (
-    <div
-      className="peer-hover:border-pink-400 border w-full"
-      onClick={() => {
-        dispatch(setActiveId(id));
-        type === "layout" && dispatch(setColumns(columns));
-        type === "layout" && dispatch(setRows(rows));
-        dispatch(setColspan(colspan));
-        dispatch(setRowspan(rowspan));
-      }}
-    >
+    <div className="peer-hover:border-pink-400 border w-full">
       {type === "layout" && (
         <>
           {Array({length: Number(columns)}).map((_, index) => (
             <Droppable
-              className={`p-6 w-full border-2 border-dashed ${
+              className={`p-2 w-full border border-dashed ${
                 type === "layout" ? "bg-blue-50" : "bg-blue-50"
-              } ${id === "root" && "min-h-screen"} ${SpanCol(
-                Number(colspan)
-              )} ${SpanRow(Number(rowspan))}`}
+              }`}
               detail={{
                 columns: columns,
                 rows: rows,
@@ -64,15 +58,18 @@ const ItemsRenderer = ({
             >
               {type}: {id}
               <div
-                className={`grid w-full h-full min-h-32 ${GridRow(
-                  Number(rows)
-                )} ${GridCol(Number(columns))} ${SpanCol(
-                  Number(colspan)
-                )} ${SpanRow(Number(rowspan))}`}
+                className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
+                  Number(columns)
+                )}`}
               >
                 {childs.length > 0 &&
                   childs.map((child: any) => (
                     <Draggable
+                      className={`${
+                        activeId === child.id && "border border-yellow-500"
+                      } ${SpanCol(Number(child.colspan))} ${SpanRow(
+                        Number(child.rowspan)
+                      )}`}
                       detail={{
                         columns: child.columns,
                         rows: child.rows,
@@ -95,6 +92,12 @@ const ItemsRenderer = ({
                       />
                     </Draggable>
                   ))}
+                {Array.from({length: emptyCells}).map((_, index) => (
+                  <div
+                    key={`empty-${index}`}
+                    className="border border-dashed min-h-12 w-full border-gray-300"
+                  />
+                ))}
               </div>
             </Droppable>
           ))}
@@ -102,7 +105,7 @@ const ItemsRenderer = ({
       )}
       {type === "content" && (
         <div
-          className={`p-6 border-2 border-dashed ${SpanRow(
+          className={`p-2 border border-dashed ${SpanRow(
             Number(rowspan)
           )} ${SpanCol(Number(colspan))} ${
             type === "content" ? "bg-yellow-50" : "bg-blue-50"
