@@ -34,7 +34,7 @@ const ItemsRenderer = ({
   const {activeId} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
   const totalCells = Number(columns) * Number(rows);
-  const totalChildren = childs.length;
+  const totalChildren = childs.length + Number(colspan) + Number(rowspan);
 
   const emptyCells = totalCells - totalChildren;
   return (
@@ -43,7 +43,7 @@ const ItemsRenderer = ({
         <>
           {Array({length: Number(columns)}).map((_, index) => (
             <Droppable
-              className={`p-2 w-full border border-dashed ${
+              className={`p-2 w-full h-full border border-dashed ${
                 type === "layout" ? "bg-blue-50" : "bg-blue-50"
               }`}
               detail={{
