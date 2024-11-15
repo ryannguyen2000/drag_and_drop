@@ -8,10 +8,11 @@ import {
   setRowspan,
 } from "../../store/DndSlice";
 import {RootState} from "../../store";
+import exportFromJSON from "export-from-json";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const {activeData, activeId} = useSelector(
+  const {activeData, activeId, data} = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -79,6 +80,17 @@ const PropertiesBar = () => {
     }
   };
 
+  const handleDownloadAsJson = () => {
+    const fileName = "JsonLayout";
+    const exportType = exportFromJSON.types.json;
+
+    exportFromJSON({data, fileName, exportType});
+  };
+
+  function handlePublishJsonData(): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <>
       {activeId && (
@@ -128,10 +140,16 @@ const PropertiesBar = () => {
               />
             </div>
             <button
-              onClick={() => console.log("result: ")}
+              onClick={() => handlePublishJsonData()}
               className="mt-12 w-full h-12 bg-green-100 hover:bg-violet-100 transition-all duration-500 rounded-full"
             >
               Publish
+            </button>
+            <button
+              onClick={() => handleDownloadAsJson()}
+              className="mt-12 w-full h-12 bg-green-100 hover:bg-violet-100 transition-all duration-500 rounded-full"
+            >
+              Download as JSON
             </button>
           </div>
         </div>
