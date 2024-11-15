@@ -1,5 +1,6 @@
-import {useDraggable, useDroppable} from "@dnd-kit/core";
-import {CSS} from "@dnd-kit/utilities";
+// Draggable component
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
 const Draggable = ({
   detail,
@@ -12,7 +13,7 @@ const Draggable = ({
   className?: string;
   children: React.ReactNode;
 }) => {
-  const {attributes, listeners, setNodeRef, over, transform} = useDraggable({
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id.toString(),
     data: detail,
   });
@@ -26,8 +27,7 @@ const Draggable = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`cursor-grab ${className} ${over ? "border-violet-500" : ""}`}
-    >
+      className={`cursor-grab ${className}`}>
       {children}
     </div>
   );
