@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {getUniqueContentItems} from "../utilities";
-import {sample_data} from "../config/common";
+import {sample_data} from "./config/common";
+import {getUniqueContentItems} from "./utilities";
 
 export interface DndState {
   activeId: string | null;

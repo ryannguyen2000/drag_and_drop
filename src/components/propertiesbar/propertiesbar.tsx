@@ -1,7 +1,6 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {
-  Obj,
   setColspan,
   setColumns,
   setData,
@@ -11,45 +10,75 @@ import {
 import {RootState} from "../../store";
 
 const PropertiesBar = () => {
-  const {col, row, colspan, rowspan, activeId, data} = useSelector(
+  const dispatch = useDispatch();
+  const {activeData, activeId} = useSelector(
     (state: RootState) => state.dndSlice
   );
 
+  const [columns, setColumnsState] = useState<number | string>(
+    Number(activeData?.columns) || ""
+  );
+  const [rows, setRowsState] = useState<number | string>(
+    Number(activeData?.rows) || ""
+  );
+  const [colspan, setColspanState] = useState<number | string>(
+    Number(activeData?.colspan) || ""
+  );
+  const [rowspan, setRowspanState] = useState<number | string>(
+    Number(activeData?.rowspan) || ""
+  );
+
   useEffect(() => {
-    if (
-      Number(col) > 0 &&
-      Number(row) > 0 &&
-      Number(rowspan) > 0 &&
-      Number(colspan) > 0
-    ) {
-      const ls = JSON.parse(JSON.stringify(data));
-
-      const mapToReplaceProperties = (data: Obj[]) => {
-        data.forEach((node) => {
-          if (node.id === activeId) {
-            node.columns = col;
-            node.rows = row;
-            node.colspan = colspan;
-            node.rowspan = rowspan;
-          } else if (node.childs.length > 0) {
-            mapToReplaceProperties(node.childs);
-          }
-        });
-      };
-
-      if (activeId === ls.id) {
-        ls.columns = col;
-        ls.rows = row;
-        ls.colspan = colspan;
-      } else {
-        mapToReplaceProperties(ls.childs);
-      }
-
-      dispatch(setData(ls));
+    if (activeData) {
+      setColumnsState(Number(activeData.columns) || "");
+      setRowsState(Number(activeData.rows) || "");
+      setColspanState(Number(activeData.colspan) || "");
+      setRowspanState(Number(activeData.rowspan) || "");
     }
-  }, [col, row, rowspan, colspan]);
+  }, [activeData]);
 
-  const dispatch = useDispatch();
+  const handleColumnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColumns = Number(e.target.value);
+    if (!isNaN(newColumns)) {
+      // Only update state if the current value is 0 and the new value is not 0
+      setColumnsState((prevState) =>
+        prevState === 0 ? newColumns : newColumns
+      );
+      dispatch(setColumns(newColumns));
+    }
+  };
+
+  const handleRowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newRows = Number(e.target.value);
+    if (!isNaN(newRows)) {
+      // Only update state if the current value is 0 and the new value is not 0
+      setRowsState((prevState) => (prevState === 0 ? newRows : newRows));
+      dispatch(setRows(newRows));
+    }
+  };
+
+  const handleColspanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColspan = Number(e.target.value);
+    if (!isNaN(newColspan)) {
+      // Only update state if the current value is 0 and the new value is not 0
+      setColspanState((prevState) =>
+        prevState === 0 ? newColspan : newColspan
+      );
+      dispatch(setColspan(newColspan));
+    }
+  };
+
+  const handleRowspanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newRowspan = Number(e.target.value);
+    if (!isNaN(newRowspan)) {
+      // Only update state if the current value is 0 and the new value is not 0
+      setRowspanState((prevState) =>
+        prevState === 0 ? newRowspan : newRowspan
+      );
+      dispatch(setRowspan(newRowspan));
+    }
+  };
+
   return (
     <>
       {activeId && (
@@ -61,37 +90,41 @@ const PropertiesBar = () => {
             <div className="flex flex-col items-start mt-3">
               <span>Columns</span>
               <input
-                type="text"
-                value={col}
-                onChange={(e) => dispatch(setColumns(e.target.value))}
+                type="number"
+                value={columns}
+                onChange={handleColumnChange}
                 className="h-10 w-full border rounded-lg focus-visible:outline-none px-3"
+                min="0"
               />
             </div>
             <div className="flex flex-col items-start mt-3">
               <span>Rows</span>
               <input
-                type="text"
-                value={row}
-                onChange={(e) => dispatch(setRows(e.target.value))}
+                type="number"
+                value={rows}
+                onChange={handleRowChange}
                 className="h-10 w-full border rounded-lg focus-visible:outline-none px-3"
+                min="0"
               />
             </div>
             <div className="flex flex-col items-start mt-3">
               <span>Columns span</span>
               <input
-                type="text"
+                type="number"
                 value={colspan}
-                onChange={(e) => dispatch(setColspan(e.target.value))}
+                onChange={handleColspanChange}
                 className="h-10 w-full border rounded-lg focus-visible:outline-none px-3"
+                min="1"
               />
             </div>
             <div className="flex flex-col items-start mt-3">
               <span>Rows span</span>
               <input
-                type="text"
+                type="number"
                 value={rowspan}
-                onChange={(e) => dispatch(setRowspan(e.target.value))}
+                onChange={handleRowspanChange}
                 className="h-10 w-full border rounded-lg focus-visible:outline-none px-3"
+                min="1"
               />
             </div>
             <button

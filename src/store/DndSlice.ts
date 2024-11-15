@@ -56,6 +56,26 @@ const initialState: DndState = {
   },
 };
 
+const updateItem = (
+  data: Obj,
+  id: string,
+  updatedValues: Partial<Obj>
+): Obj => {
+  if (data.id === id) {
+    // Cập nhật giá trị cho item tương ứng với id
+    return {...data, ...updatedValues};
+  }
+
+  // Nếu có child, đệ quy cập nhật
+  if (data.childs.length > 0) {
+    data.childs = data.childs.map((child) =>
+      updateItem(child, id, updatedValues)
+    );
+  }
+
+  return data;
+};
+
 export const dndSlice = createSlice({
   name: "dnd",
   initialState,
@@ -74,15 +94,39 @@ export const dndSlice = createSlice({
     },
     setColumns: (state, action) => {
       state.col = action.payload;
+      if (state.activeId) {
+        // Cập nhật columns cho item trong data
+        state.data = updateItem(state.data, state.activeId, {
+          columns: action.payload,
+        });
+      }
     },
     setRows: (state, action) => {
       state.row = action.payload;
+      if (state.activeId) {
+        // Cập nhật rows cho item trong data
+        state.data = updateItem(state.data, state.activeId, {
+          rows: action.payload,
+        });
+      }
     },
     setColspan: (state, action) => {
       state.colspan = action.payload;
+      if (state.activeId) {
+        // Cập nhật colspan cho item trong data
+        state.data = updateItem(state.data, state.activeId, {
+          colspan: action.payload,
+        });
+      }
     },
     setRowspan: (state, action) => {
       state.rowspan = action.payload;
+      if (state.activeId) {
+        // Cập nhật rowspan cho item trong data
+        state.data = updateItem(state.data, state.activeId, {
+          rowspan: action.payload,
+        });
+      }
     },
     setProperties: (state, action) => {
       state.properties = action.payload;
