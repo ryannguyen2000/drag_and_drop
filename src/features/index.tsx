@@ -41,7 +41,7 @@ const ItemsRenderer = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {type === "layout" && (
         <Droppable
           className={`p-2 w-full h-full border border-dashed bg-white ${
