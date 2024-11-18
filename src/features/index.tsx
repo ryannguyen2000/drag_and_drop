@@ -3,14 +3,9 @@ import Draggable from "../components/drangable";
 import Droppable from "../components/droppable";
 import {RootState} from "../store";
 import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
-import {
-  setActiveData,
-  setActiveId,
-  setColspan,
-  setColumns,
-  setRows,
-  setRowspan,
-} from "../store/DndSlice";
+import {setActiveData, setActiveId} from "../store/DndSlice";
+import {useEffect} from "react";
+import {ToastBlank} from "../components/toast";
 
 const ItemsRenderer = ({
   id,
@@ -33,110 +28,78 @@ const ItemsRenderer = ({
 }) => {
   const {activeId} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
+
   const totalCells = Number(columns) * Number(rows);
   const totalChildren = childs.length + Number(colspan) + Number(rowspan);
+  const emptyCells = Math.max(0, totalCells - totalChildren);
 
-  const emptyCells = totalCells - totalChildren;
+  if (currentDepth >= 6) {
+    ToastBlank({
+      msg: "Maximum deep level is 6",
+      className: "bg-yellow-300",
+    });
+  }
+
   return (
-    <div className="peer-hover:border-pink-400 h-full border w-full">
+    <div className="w-full">
       {type === "layout" && (
-        <>
-          {Array({length: Number(columns)}).map((_, index) => (
-            <Droppable
-              className={`p-2 w-full h-full border border-dashed ${
-                type === "layout" ? "bg-blue-50" : "bg-blue-50"
-              }`}
-              detail={{
-                columns: columns,
-                rows: rows,
-                rowspan: rowspan,
-                colspan: colspan,
-                type: type,
-              }}
-              key={id}
-              id={id}
-            >
-              {type}: {id}
-              <div
-                className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
-                  Number(columns)
-                )}`}
-              >
-                {childs.length > 0 &&
-                  childs.map((child: any) => (
-                    <Draggable
-                      className={`${
-                        activeId === child.id && "border border-yellow-500"
-                      } ${SpanCol(Number(child.colspan))} ${SpanRow(
-                        Number(child.rowspan)
-                      )}`}
-                      detail={{
-                        columns: child.columns,
-                        rows: child.rows,
-                        colspan: child.colspan,
-                        rowspan: child.rowspan,
-                        type: child.type,
-                      }}
-                      key={child.id}
-                      id={child.id}
-                    >
-                      <ItemsRenderer
-                        id={child.id}
-                        columns={child.columns}
-                        rows={child.rows}
-                        colspan={child.colspan}
-                        rowspan={child.rowspan}
-                        type={child.type}
-                        childs={child.childs}
-                        currentDepth={currentDepth + 1}
-                      />
-                    </Draggable>
-                  ))}
-                {Array.from({length: emptyCells}).map((_, index) => (
-                  <div
-                    key={`empty-${index}`}
-                    className="border border-dashed min-h-12 w-full border-gray-300"
-                  />
-                ))}
-              </div>
-            </Droppable>
-          ))}
-        </>
-      )}
-      {type === "content" && (
-        <div
-          className={`p-2 border h-full border-dashed ${SpanRow(
-            Number(rowspan)
-          )} ${SpanCol(Number(colspan))} ${
-            type === "content" ? "bg-yellow-50" : "bg-blue-50"
+        <Droppable
+          className={`p-2 w-full h-full border border-dashed bg-white ${
+            activeId === id && "border-green-500 border-2"
           }`}
+          columns={columns}
+          rows={rows}
+          rowspan={rowspan}
+          colspan={colspan}
+          type={type}
+          key={id}
+          id={id}
         >
-          {type}: {id}
-          {childs.length > 0 &&
-            childs.map((child: any) => (
+          <div
+            className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
+              Number(columns)
+            )}`}
+          >
+            {childs.map((child: any) => (
               <Draggable
-                detail={{
-                  columns: child.columns,
-                  rows: child.rows,
-                  colspan: child.colspan,
-                  rowspan: child.rowspan,
-                  type: child.type,
-                }}
+                className={`
+                } ${SpanCol(Number(child.colspan))} ${SpanRow(
+                  Number(child.rowspan)
+                )}`}
+                {...child}
                 key={child.id}
                 id={child.id}
               >
-                <ItemsRenderer
-                  id={child.id}
-                  columns={child.columns}
-                  rows={child.rows}
-                  colspan={child.colspan}
-                  rowspan={child.rowspan}
-                  type={child.type}
-                  childs={child.childs}
-                  currentDepth={currentDepth + 1}
-                />
+                <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
+            {Array.from({length: emptyCells}).map((_, index) => (
+              <div
+                key={`empty-${index}`}
+                className="border border-dashed min-h-12 w-full border-gray-500"
+              />
+            ))}
+          </div>
+        </Droppable>
+      )}
+
+      {type === "content" && (
+        <div
+          className={`p-2 border h-full border-dashed ${
+            activeId === id && "border-2 border-green-500"
+          } ${SpanRow(Number(rowspan))} ${SpanCol(
+            Number(colspan)
+          )} bg-yellow-50`}
+          onClick={() => {
+            dispatch(setActiveId(id));
+          }}
+        >
+          {type}: {id}
+          {childs.map((child: any) => (
+            <Draggable {...child} key={child.id} id={child.id}>
+              <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+            </Draggable>
+          ))}
         </div>
       )}
     </div>

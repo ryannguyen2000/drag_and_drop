@@ -1,49 +1,62 @@
 // Droppable component
 import {useDroppable} from "@dnd-kit/core";
-import {ReactNode} from "react";
-import {
-  setActiveId,
-  setColumns,
-  setRows,
-  setRowspan,
-  setColspan,
-} from "../../DndSlice";
-import {useDispatch} from "react-redux";
+import {ReactNode, useEffect} from "react";
+import {setActiveId, setActiveData} from "../../DndSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../store";
 
 const Droppable = ({
   id,
-  detail,
+  columns,
+  rows,
+  colspan,
+  rowspan,
+  type,
   children,
   className = "",
 }: {
   id: string;
-  detail: any;
+  columns: string;
+  rows: string;
+  colspan: string;
+  rowspan: string;
+  type: string;
   className?: string;
   children: ReactNode;
 }) => {
   const {isOver, setNodeRef} = useDroppable({
     id,
-    data: detail,
+    data: {
+      columns,
+      rows,
+      colspan,
+      rowspan,
+      type,
+    },
   });
 
+  const {activeData, activeId} = useSelector(
+    (state: RootState) => state.dndSlice
+  );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log(" active data: " + activeId);
+    console.log(" active data: " + JSON.stringify(activeData));
+  }, [activeData, activeId]);
 
   return (
     <div
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch(setActiveId(id));
-        detail.type === "layout" && dispatch(setColumns(detail.columns));
-        detail.type === "layout" && dispatch(setRows(detail.rows));
-        dispatch(setRowspan(detail.rowspan));
-        dispatch(setColspan(detail.colspan));
-      }}
       ref={setNodeRef}
       onDragOver={(e) => e.preventDefault()}
-      className={`${className} ${
+      className={`${className} min-h-12 ${
         isOver ? "border-red-400" : "border-gray-400"
       } p-2`}
+      onClick={(event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        dispatch(setActiveId(id));
+      }}
     >
       {children}
     </div>
