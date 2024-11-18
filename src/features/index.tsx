@@ -1,8 +1,8 @@
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Draggable from "../components/drangable";
 import Droppable from "../components/droppable";
-import {RootState} from "../store";
-import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
+import { RootState } from "../store";
+import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
 import {
   setActiveData,
   setActiveId,
@@ -31,19 +31,19 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
-  const {activeId} = useSelector((state: RootState) => state.dndSlice);
+  const { activeId } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
   const totalCells = Number(columns) * Number(rows);
-  const totalChildren = childs.length;
+  const totalChildren = childs.length + Number(colspan) + Number(rowspan);
 
   const emptyCells = totalCells - totalChildren;
   return (
     <div className="peer-hover:border-pink-400 h-full border w-full">
       {type === "layout" && (
         <>
-          {Array({length: Number(columns)}).map((_, index) => (
+          {Array({ length: Number(columns) }).map((_, index) => (
             <Droppable
-              className={`p-2 w-full border border-dashed ${
+              className={`p-2 w-full h-full border border-dashed ${
                 type === "layout" ? "bg-blue-50" : "bg-blue-50"
               }`}
               detail={{
@@ -54,14 +54,13 @@ const ItemsRenderer = ({
                 type: type,
               }}
               key={id}
-              id={id}
-            >
-              {type}: {id}
+              id={id}>
+              {/* Ẩn ID khi type === "layout" */}
+              {type === "layout" ? null : `${type}: ${id}`}
               <div
                 className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
                   Number(columns)
-                )}`}
-              >
+                )}`}>
                 {childs.length > 0 &&
                   childs.map((child: any) => (
                     <Draggable
@@ -78,8 +77,7 @@ const ItemsRenderer = ({
                         type: child.type,
                       }}
                       key={child.id}
-                      id={child.id}
-                    >
+                      id={child.id}>
                       <ItemsRenderer
                         id={child.id}
                         columns={child.columns}
@@ -92,7 +90,7 @@ const ItemsRenderer = ({
                       />
                     </Draggable>
                   ))}
-                {Array.from({length: emptyCells}).map((_, index) => (
+                {Array.from({ length: emptyCells }).map((_, index) => (
                   <div
                     key={`empty-${index}`}
                     className="border border-dashed min-h-12 w-full border-gray-300"
@@ -109,9 +107,9 @@ const ItemsRenderer = ({
             Number(rowspan)
           )} ${SpanCol(Number(colspan))} ${
             type === "content" ? "bg-yellow-50" : "bg-blue-50"
-          }`}
-        >
-          {type}: {id}
+          }`}>
+          {/* ID chỉ hiển thị nếu type là "content" */}
+          {type === "content" ? `${type}: ${id}` : null}
           {childs.length > 0 &&
             childs.map((child: any) => (
               <Draggable
@@ -123,8 +121,7 @@ const ItemsRenderer = ({
                   type: child.type,
                 }}
                 key={child.id}
-                id={child.id}
-              >
+                id={child.id}>
                 <ItemsRenderer
                   id={child.id}
                   columns={child.columns}

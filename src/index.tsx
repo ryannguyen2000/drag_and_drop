@@ -1,9 +1,9 @@
 import React, {useState} from "react";
-import Draggable from "../drangable";
 import {v4} from "uuid";
-import {sample_data} from "../../config/common";
-import {getUniqueContentItems} from "../../utilities";
 import {DragEndEvent, DragStartEvent} from "@dnd-kit/core";
+import Draggable from "./components/drangable";
+import {sample_data} from "./config/common";
+import {getUniqueContentItems} from "./utilities";
 
 const Sidebar = () => {
   return (
