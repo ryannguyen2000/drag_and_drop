@@ -1,11 +1,30 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Draggable from "../drangable";
 import {useSelector} from "react-redux";
 import {RootState} from "../../store";
 import {v4} from "uuid";
+import {io} from "socket.io-client";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000", {
+      withCredentials: true,
+      transports: ["websocket"],
+    });
+
+    socket.on("webhook-data", (data) => {
+      console.log("Received webhook event:", data);
+
+      alert(`New webhook event: ${JSON.stringify(data)}`);
+    });
+
+    // Cleanup khi component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <div className="h-[calc(100vh-4rem)] w-full sticky top-4 rounded-r-xl flex-col gap-12 flex items-center bg-white rounded-lg p-6 max-w-96 z-50">
