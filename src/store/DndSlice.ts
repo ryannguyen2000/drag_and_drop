@@ -7,10 +7,6 @@ export interface DndState {
   activeData: any | null;
   data: Obj;
   sidebar: any[];
-  col: string;
-  row: string;
-  colspan: string;
-  rowspan: string;
   properties: Properties;
 }
 
@@ -37,17 +33,13 @@ const initialState: DndState = {
   data: {
     id: "root",
     type: "layout",
-    columns: "2",
-    rows: "2",
+    columns: "1",
+    rows: "1",
     colspan: "1",
     rowspan: "1",
     childs: [],
   },
-  sidebar: getUniqueContentItems(sample_data),
-  colspan: "1",
-  col: "1",
-  row: "1",
-  rowspan: "1",
+  sidebar: sample_data.childs,
   properties: {
     columns: "1",
     rows: "1",
@@ -92,58 +84,13 @@ export const dndSlice = createSlice({
     setSidebar: (state, action) => {
       state.sidebar = action.payload;
     },
-    setColumns: (state, action) => {
-      state.col = action.payload;
-      if (state.activeId) {
-        // Cập nhật columns cho item trong data
-        state.data = updateItem(state.data, state.activeId, {
-          columns: action.payload,
-        });
-      }
-    },
-    setRows: (state, action) => {
-      state.row = action.payload;
-      if (state.activeId) {
-        // Cập nhật rows cho item trong data
-        state.data = updateItem(state.data, state.activeId, {
-          rows: action.payload,
-        });
-      }
-    },
-    setColspan: (state, action) => {
-      state.colspan = action.payload;
-      if (state.activeId) {
-        // Cập nhật colspan cho item trong data
-        state.data = updateItem(state.data, state.activeId, {
-          colspan: action.payload,
-        });
-      }
-    },
-    setRowspan: (state, action) => {
-      state.rowspan = action.payload;
-      if (state.activeId) {
-        // Cập nhật rowspan cho item trong data
-        state.data = updateItem(state.data, state.activeId, {
-          rowspan: action.payload,
-        });
-      }
-    },
     setProperties: (state, action) => {
       state.properties = action.payload;
     },
   },
 });
 
-export const {
-  setActiveId,
-  setActiveData,
-  setSidebar,
-  setData,
-  setColspan,
-  setColumns,
-  setRows,
-  setRowspan,
-  setProperties,
-} = dndSlice.actions;
+export const {setActiveId, setActiveData, setSidebar, setData, setProperties} =
+  dndSlice.actions;
 
 export default dndSlice.reducer;

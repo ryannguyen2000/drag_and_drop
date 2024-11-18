@@ -1,28 +1,36 @@
 import {useDraggable, useDroppable} from "@dnd-kit/core";
 import {CSS} from "@dnd-kit/utilities";
 import {Icon} from "@iconify/react";
-import {
-  setActiveId,
-  setColumns,
-  setRows,
-  setColspan,
-  setRowspan,
-} from "../../DndSlice";
+import {setActiveId, setActiveData} from "../../DndSlice";
 import {useDispatch} from "react-redux";
 const Draggable = ({
-  detail,
+  colspan,
+  rowspan,
+  columns,
+  type,
+  rows,
   id,
   children,
   className = "",
 }: {
   id: string;
-  detail: any;
+  colspan: string;
+  rowspan: string;
+  columns: string;
+  type: string;
+  rows: string;
   className?: string;
   children: React.ReactNode;
 }) => {
   const {attributes, listeners, setNodeRef, over, transform} = useDraggable({
     id: id.toString(),
-    data: detail,
+    data: {
+      colspan,
+      rowspan,
+      columns,
+      rows,
+      type,
+    },
   });
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -34,17 +42,13 @@ const Draggable = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={` ${className} cursor-pointer ${
+      className={`min-h-12 ${className} cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      onClick={(event) => {
+        event.stopPropagation();
+        event.preventDefault();
         dispatch(setActiveId(id));
-        detail.type === "layout" && dispatch(setColumns(detail.columns));
-        detail.type === "layout" && dispatch(setRows(detail.rows));
-        dispatch(setRowspan(detail.rowspan));
-        dispatch(setColspan(detail.colspan));
       }}
     >
       <Icon

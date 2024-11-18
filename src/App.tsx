@@ -7,6 +7,7 @@ import {
   DragEndEvent,
   DragMoveEvent,
   DragOverlay,
+  DragStartEvent,
   pointerWithin,
 } from "@dnd-kit/core";
 import {useDispatch, useSelector} from "react-redux";
@@ -15,12 +16,8 @@ import {
   Obj,
   setActiveData,
   setActiveId,
-  setColspan,
-  setColumns,
   setData,
   setProperties,
-  setRows,
-  setRowspan,
   setSidebar,
 } from "./store/DndSlice";
 import PropertiesBar from "./components/propertiesbar/propertiesbar";
@@ -30,10 +27,6 @@ const App: React.FC = () => {
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    console.log(activeId + " is dragging");
-  }, [activeId]);
 
   const FindToAdd = (id: string, detail: any, parent_id: string) => {
     const newData = JSON.parse(JSON.stringify(data));
@@ -95,51 +88,31 @@ const App: React.FC = () => {
     }
 
     dispatch(setData(newData));
-
-    setTimeout(() => {
-      console.log("Updated Data:", newData);
-    }, 1000);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const {over, active} = event;
 
     if (over && active.id !== over.id) {
-      FindToAdd(active.id.toString(), activeData, over.id.toString());
+      FindToAdd(active.id.toString(), active.data.current, over.id.toString());
 
-      console.log("Sidebar before filter:", sidebar);
       const updatedSidebar = sidebar.filter((sb) => sb.id !== active.id);
       dispatch(setSidebar(updatedSidebar));
-      console.log("Sidebar after filter:", updatedSidebar);
     }
   };
 
   return (
-    <DndContext
-      collisionDetection={pointerWithin}
-      onDragStart={(e: DragEndEvent) => {
-        dispatch(setColumns(e.active.data.current.columns));
-        dispatch(setRows(e.active.data.current.rows));
-        dispatch(setColspan(e.active.data.current.colspan));
-        dispatch(setRowspan(e.active.data.current.rowspan));
-
-        dispatch(setActiveId(e.active.id));
-        dispatch(setActiveData(e.active.data.current));
-      }}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext collisionDetection={pointerWithin} onDragEnd={handleDragEnd}>
       <div className="flex items-start w-full bg-violet-100">
         <Sidebar />
         <div className="bg-violet-100 w-full p-6 z-10">
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-screen">
             <Droppable
-              detail={{
-                columns: data.columns,
-                rows: data.rows,
-                colspan: data.colspan,
-                rowspan: data.rowspan,
-                type: data.type,
-              }}
+              columns={data.columns}
+              rows={data.rows}
+              colspan={data.colspan}
+              rowspan={data.rowspan}
+              type={data.type}
               id={data.id}
             >
               <ItemsRenderer
@@ -162,11 +135,12 @@ const App: React.FC = () => {
           zIndex: 9999,
           pointerEvents: "none",
           position: "fixed",
+          opacity: 0.4,
         }}
       >
         {activeId ? (
           <div
-            className="bg-slate-50 w-full h-full rounded-xl"
+            className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
             style={{zIndex: 9999}}
           />
         ) : null}

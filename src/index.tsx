@@ -11,7 +11,11 @@ const Sidebar = () => {
       <span className="mx-auto w-full font-bold text-3xl">Sidebar</span>
       <Draggable
         className="w-full min-h-28 bg-blue-100 flex items-center justify-center rounded-xl"
-        detail={{columns: "2", rows: "2", type: "layout"}}
+        columns={"2"}
+        rows={"2"}
+        type={"layout"}
+        colspan={"1"}
+        rowspan={"1"}
         id={v4()}
       >
         <div className={`p-2 my-2 border rounded-xl text-center truncate`}>
@@ -19,10 +23,10 @@ const Sidebar = () => {
         </div>
       </Draggable>
       <div className="px-6 flex flex-wrap gap-2">
-        {getUniqueContentItems(sample_data).map((item, index) => (
+        {sample_data.childs.map((item, index) => (
           <Draggable
             className="flex items-center justify-center bg-green-100 w-full aspect-video rounded-xl"
-            detail={{columns: item.columns, rows: item.rows, type: item.type}}
+            {...item}
             key={index}
             id={item.id}
           >
