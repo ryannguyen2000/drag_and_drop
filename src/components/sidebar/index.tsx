@@ -12,8 +12,13 @@ const Sidebar = () => {
       <span className="mx-auto w-full font-bold text-3xl">Sidebar</span>
       <Draggable
         className="w-full min-h-28 bg-blue-100 flex items-center justify-center rounded-xl"
-        detail={{ columns: "2", rows: "2", type: "layout" }}
-        id={v4()}>
+        columns="1"
+        rows="1"
+        type="layout"
+        colspan="1"
+        rowspan="1"
+        id={v4()}
+      >
         <div className="p-2 my-2 border rounded-xl text-center truncate">
           Layout
         </div>
@@ -22,7 +27,7 @@ const Sidebar = () => {
         {sidebar.map((item, index) => (
           <Draggable
             className="w-24 h-24 bg-green-100 flex items-center justify-center rounded-xl"
-            detail={{ columns: item.columns, rows: item.rows, type: item.type }}
+            {...item}
             key={index}
             id={item.id}>
             <div className="p-2 rounded-xl text-center truncate">{item.id}</div>
