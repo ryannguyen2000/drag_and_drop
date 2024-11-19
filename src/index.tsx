@@ -10,14 +10,13 @@ const Sidebar = () => {
     <div className="h-[calc(100vh-4rem)] w-full sticky top-4 rounded-r-xl flex-col gap-12 flex items-center bg-white rounded-lg p-6 max-w-96 z-50">
       <span className="mx-auto w-full font-bold text-3xl">Sidebar</span>
       <Draggable
-        className="w-full min-h-28 bg-blue-100 flex items-center justify-center rounded-xl"
+        className="w-full min-h-28 bg-red flex items-center justify-center rounded-xl"
         columns={"2"}
         rows={"2"}
         type={"layout"}
         colspan={"1"}
         rowspan={"1"}
-        id={v4()}
-      >
+        id={v4()}>
         <div className={`p-2 my-2 border rounded-xl text-center truncate`}>
           Layout
         </div>
@@ -25,11 +24,10 @@ const Sidebar = () => {
       <div className="px-6 flex flex-wrap gap-2">
         {sample_data.childs.map((item, index) => (
           <Draggable
-            className="flex items-center justify-center bg-green-100 w-full aspect-video rounded-xl"
+            className="flex items-center justify-center bg-red w-full aspect-video rounded-xl"
             {...item}
             key={index}
-            id={item.id}
-          >
+            id={item.id}>
             <div className={`p-2 my-2 rounded-xl text-center truncate`}>
               {item.id}
             </div>

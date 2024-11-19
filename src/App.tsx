@@ -1,33 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./components/sidebar";
 import Droppable from "./components/droppable";
 import ItemsRenderer from "./features";
 import {
   DndContext,
   DragEndEvent,
-  DragMoveEvent,
-  DragOverlay,
   DragStartEvent,
+  DragOverlay,
   pointerWithin,
 } from "@dnd-kit/core";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
-import {
-  Obj,
-  setActiveData,
-  setActiveId,
-  setData,
-  setProperties,
-  setSidebar,
-} from "./store/DndSlice";
+import { Obj, setData, setSidebar } from "./store/DndSlice";
 import PropertiesBar from "./components/propertiesbar/propertiesbar";
+import TrashBin from "./components/trashBin";
 
 const App: React.FC = () => {
-  const { activeId, activeData, data, sidebar } = useSelector(
+  const { activeId, data, sidebar } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
-
   const FindToAdd = (id: string, detail: any, parent_id: string) => {
     const newData = JSON.parse(JSON.stringify(data));
 
@@ -90,8 +82,38 @@ const App: React.FC = () => {
     dispatch(setData(newData));
   };
 
+  const hideBin = () => {
+    const bin = document.getElementById("bin_id");
+    if (!bin) return;
+    bin.style.display = "none";
+  };
+  const showBin = () => {
+    const bin = document.getElementById("bin_id");
+    if (!bin) return;
+    bin.style.display = "flex";
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    showBin();
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
+    hideBin();
+    if (over?.id === "trash-bin") {
+      const newData = JSON.parse(JSON.stringify(data));
+      const removeItem = (nodes: Obj[]): Obj[] =>
+        nodes
+          .filter(node => node.id !== active.id)
+          .map(node => ({
+            ...node,
+            childs: removeItem(node.childs),
+          }));
+
+      newData.childs = removeItem(newData.childs);
+      dispatch(setData(newData));
+      return;
+    }
 
     if (over && active.id !== over.id) {
       FindToAdd(active.id.toString(), active.data.current, over.id.toString());
@@ -102,10 +124,24 @@ const App: React.FC = () => {
   };
 
   return (
-    <DndContext collisionDetection={pointerWithin} onDragEnd={handleDragEnd}>
-      <div className="flex items-start w-full bg-violet-100">
+    <DndContext
+      collisionDetection={pointerWithin}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}>
+      <div className="flex items-start w-full bg-gray-100 border-2relative">
+        {
+          <div
+            id="bin_id"
+            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[100px] hidden justify-center items-center"
+            style={{
+              zIndex: 9999,
+            }}>
+            <TrashBin />
+          </div>
+        }
+
         <Sidebar />
-        <div className="bg-violet-100 w-full p-6 z-10">
+        <div className="bg-white w-full p-6 z-10">
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-screen">
             <Droppable
               columns={data.columns}
@@ -131,7 +167,7 @@ const App: React.FC = () => {
       </div>
       <DragOverlay
         style={{
-          zIndex: 9999,
+          zIndex: 999,
           pointerEvents: "none",
           position: "fixed",
           opacity: 0.4,
@@ -139,7 +175,7 @@ const App: React.FC = () => {
         {activeId ? (
           <div
             className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
-            style={{ zIndex: 9999 }}
+            style={{ zIndex: 999 }}
           />
         ) : null}
       </DragOverlay>

@@ -128,7 +128,7 @@ const PropertiesBar = () => {
   return (
     <>
       {activeId && (
-        <div className="h-[calc(100vh-4rem)] w-full sticky top-4 right-0 rounded-l-xl flex-col gap-12 flex items-center bg-white rounded-lg p-6 max-w-96 z-50">
+        <div className="h-[calc(100vh-4rem)] w-full sticky top-4 right-0 rounded-l-xl flex-col gap-12 flex items-center bg-gray-100 rounded-lg p-6 max-w-96 z-50">
           <span className="mx-auto w-full text-end font-bold text-3xl">
             Properties
           </span>
@@ -179,14 +179,12 @@ const PropertiesBar = () => {
             </div>
             <button
               onClick={() => handlePublishJsonData()}
-              className="mt-12 w-full h-12 bg-green-100 hover:bg-violet-100 transition-all duration-500 rounded-full"
-            >
+              className="mt-12 w-full h-12 bg-black text-white rounded-full">
               Publish
             </button>
             <button
               onClick={() => handleDownloadAsJson()}
-              className="mt-12 w-full h-12 bg-green-100 hover:bg-violet-100 transition-all duration-500 rounded-full"
-            >
+              className="mt-12 w-full h-12 bg-black text-white rounded-full">
               Download as JSON
             </button>
           </div>
