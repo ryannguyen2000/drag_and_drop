@@ -179,12 +179,12 @@ const PropertiesBar = () => {
             </div>
             <button
               onClick={() => handlePublishJsonData()}
-              className="mt-12 w-full h-12 bg-black text-white rounded-full">
+              className="mt-12 w-full h-12 bg-[#444] text-white rounded-full">
               Publish
             </button>
             <button
               onClick={() => handleDownloadAsJson()}
-              className="mt-12 w-full h-12 bg-black text-white rounded-full">
+              className="mt-12 w-full h-12 bg-[#444] text-white rounded-full">
               Download as JSON
             </button>
           </div>
