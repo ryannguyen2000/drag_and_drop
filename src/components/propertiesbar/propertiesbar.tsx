@@ -4,6 +4,8 @@ import {setData} from "../../store/DndSlice";
 import {RootState} from "../../store";
 import exportFromJSON from "export-from-json";
 import {Obj} from "../../DndSlice";
+import axios from "axios";
+import {ToastError, ToastSuccess} from "../toast";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
@@ -121,9 +123,17 @@ const PropertiesBar = () => {
     exportFromJSON({data, fileName, exportType});
   };
 
-  function handlePublishJsonData(): void {
-    throw new Error("Function not implemented.");
-  }
+  const handlePublishJsonData = async () => {
+    const response = await axios.post(
+      "https://serverless-tn-layout-production.up.railway.app/publish",
+      data
+    );
+    if (response.status === 200 || response.status === 201) {
+      ToastSuccess({msg: "Published successfully"});
+    } else {
+      ToastError({msg: "Oops! Something went wrong to available publish"});
+    }
+  };
 
   return (
     <>
