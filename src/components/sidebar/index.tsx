@@ -52,7 +52,9 @@ const Sidebar = () => {
             key={index}
             id={item.id}
           >
-            <div className="p-2 rounded-xl text-center truncate">{item.id}</div>
+            <div className="p-2 rounded-xl text-center truncate">
+              {item.variation}
+            </div>
           </Draggable>
         ))}
       </div>
