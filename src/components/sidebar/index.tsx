@@ -1,26 +1,28 @@
 import React, {useEffect, useState} from "react";
 import Draggable from "../drangable";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../store";
 import {v4} from "uuid";
 import {io} from "socket.io-client";
+import {setSidebar} from "../../DndSlice";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const socket = io("http://localhost:3000", {
-      withCredentials: true,
-      transports: ["websocket"],
-    });
+    const socket = io(
+      "https://serverless-tn-layout-production.up.railway.app",
+      {
+        withCredentials: true,
+        transports: ["websocket"],
+      }
+    );
 
     socket.on("webhook-data", (data) => {
-      console.log("Received webhook event:", data);
-
-      alert(`New webhook event: ${JSON.stringify(data)}`);
+      dispatch(setSidebar(data));
     });
 
-    // Cleanup khi component unmount
     return () => {
       socket.disconnect();
     };
@@ -50,7 +52,9 @@ const Sidebar = () => {
             key={index}
             id={item.id}
           >
-            <div className="p-2 rounded-xl text-center truncate">{item.id}</div>
+            <div className="p-2 rounded-xl text-center truncate">
+              {item.variation}
+            </div>
           </Draggable>
         ))}
       </div>
