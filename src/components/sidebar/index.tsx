@@ -20,7 +20,9 @@ const Sidebar = () => {
     );
 
     socket.on("webhook-data", (data) => {
+      console.log(data);
       dispatch(setSidebar(data));
+      // alert("Webhook " + data);
     });
 
     return () => {
