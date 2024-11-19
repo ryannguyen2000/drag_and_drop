@@ -48,21 +48,49 @@ const initialState: DndState = {
   },
 };
 
+// const updateItem = (
+//   data: Obj,
+//   id: string,
+//   updatedValues: Partial<Obj>
+// ): Obj => {
+//   if (data.id === id) {
+//     // Cập nhật giá trị cho item tương ứng với id
+//     return {...data, ...updatedValues};
+//   }
+
+//   // Nếu có child, đệ quy cập nhật
+//   if (data.childs.length > 0) {
+//     data.childs = data.childs.map((child) =>
+//       updateItem(child, id, updatedValues)
+//     );
+//   }
+
+//   return data;
+// };
+
 const updateItem = (
   data: Obj,
   id: string,
   updatedValues: Partial<Obj>
 ): Obj => {
   if (data.id === id) {
-    // Cập nhật giá trị cho item tương ứng với id
-    return {...data, ...updatedValues};
+    // Cập nhật trực tiếp khi tìm thấy item
+    return { ...data, ...updatedValues };
   }
 
-  // Nếu có child, đệ quy cập nhật
-  if (data.childs.length > 0) {
-    data.childs = data.childs.map((child) =>
-      updateItem(child, id, updatedValues)
-    );
+  // Nếu không có childs, không cần tiếp tục
+  if (!data.childs || data.childs.length === 0) {
+    return data;
+  }
+
+  // Cập nhật đệ quy cho các childs (nếu cần)
+  const updatedChilds = data.childs.map(child =>
+    updateItem(child, id, updatedValues)
+  );
+
+  // Chỉ cập nhật childs nếu có thay đổi
+  if (updatedChilds !== data.childs) {
+    return { ...data, childs: updatedChilds };
   }
 
   return data;

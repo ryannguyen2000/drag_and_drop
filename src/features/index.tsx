@@ -1,4 +1,4 @@
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Draggable from "../components/drangable";
 import Droppable from "../components/droppable";
 import {RootState} from "../store";
@@ -26,7 +26,7 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
-  const {activeId} = useSelector((state: RootState) => state.dndSlice);
+  const { activeId } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   const totalCells = Number(columns) * Number(rows);
@@ -53,13 +53,11 @@ const ItemsRenderer = ({
           colspan={colspan}
           type={type}
           key={id}
-          id={id}
-        >
+          id={id}>
           <div
             className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
               Number(columns)
-            )}`}
-          >
+            )}`}>
             {childs.map((child: any) => (
               <Draggable
                 className={`
@@ -68,12 +66,11 @@ const ItemsRenderer = ({
                 )}`}
                 {...child}
                 key={child.id}
-                id={child.id}
-              >
+                id={child.id}>
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({length: emptyCells}).map((_, index) => (
+            {Array.from({ length: emptyCells }).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed min-h-12 w-full border-gray-500"
@@ -89,11 +86,10 @@ const ItemsRenderer = ({
             activeId === id && "border-2 border-green-500"
           } ${SpanRow(Number(rowspan))} ${SpanCol(
             Number(colspan)
-          )} bg-yellow-50`}
+          )} bg-gray-100`}
           onClick={() => {
             dispatch(setActiveId(id));
-          }}
-        >
+          }}>
           {type}: {id}
           {childs.map((child: any) => (
             <Draggable {...child} key={child.id} id={child.id}>
