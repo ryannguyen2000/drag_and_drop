@@ -161,3 +161,103 @@ export const SpanRow = (row_span_number: number) => {
     return "row-span-1";
   }
 };
+export const Gap = (row_span_number: number) => {
+  if (row_span_number === 0) {
+    return "gap-0";
+  }
+  if (row_span_number === 1) {
+    return "gap-1";
+  }
+  if (row_span_number === 2) {
+    return "gap-2";
+  }
+  if (row_span_number === 3) {
+    return "gap-3";
+  }
+  if (row_span_number === 4) {
+    return "gap-4";
+  }
+  if (row_span_number === 5) {
+    return "gap-5";
+  }
+  if (row_span_number === 6) {
+    return "gap-6";
+  }
+  if (row_span_number === 7) {
+    return "gap-7";
+  }
+  if (row_span_number === 8) {
+    return "gap-8";
+  }
+  if (row_span_number === 9) {
+    return "gap-9";
+  }
+  if (row_span_number === 10) {
+    return "gap-10";
+  }
+  if (row_span_number === 11) {
+    return "gap-11";
+  }
+  if (row_span_number === 12) {
+    return "gap-12";
+  }
+  if (row_span_number === 14) {
+    return "gap-14";
+  }
+  if (row_span_number === 16) {
+    return "gap-16";
+  }
+  if (row_span_number === 18) {
+    return "gap-18";
+  }
+  if (row_span_number === 20) {
+    return "gap-20";
+  }
+  if (row_span_number === 24) {
+    return "gap-24";
+  }
+  if (row_span_number === 26) {
+    return "gap-26";
+  }
+  if (row_span_number === 28) {
+    return "gap-28";
+  }
+  if (row_span_number === 32) {
+    return "gap-32";
+  }
+  if (row_span_number === 36) {
+    return "gap-36";
+  }
+  if (row_span_number === 40) {
+    return "gap-40";
+  }
+  if (row_span_number === 44) {
+    return "gap-44";
+  }
+  if (row_span_number === 48) {
+    return "gap-48";
+  }
+  if (row_span_number === 52) {
+    return "gap-52";
+  }
+  if (row_span_number === 56) {
+    return "gap-56";
+  }
+  if (row_span_number === 60) {
+    return "gap-60";
+  }
+  if (row_span_number === 64) {
+    return "gap-64";
+  }
+  if (row_span_number === 72) {
+    return "gap-72";
+  }
+  if (row_span_number === 80) {
+    return "gap-80";
+  }
+  if (row_span_number === 96) {
+    return "gap-96";
+  } else {
+    return "gap-0";
+  }
+};

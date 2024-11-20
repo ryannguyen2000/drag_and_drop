@@ -7,6 +7,7 @@ import {setActiveData, setActiveId} from "../store/DndSlice";
 import {useEffect} from "react";
 import {ToastBlank} from "../components/toast";
 import {convertAlign, convertJustify} from "../utilities/flex";
+import {Gap} from "../utilities/grid";
 
 const ItemsRenderer = ({
   id,
@@ -68,11 +69,11 @@ const ItemsRenderer = ({
           <div
             className={`flex h-full w-full ${convertJustify(
               justifyContent
-            )} ${convertAlign(alignItems)}`}
+            )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
           >
             {childs.map((child: any) => (
               <Draggable
-                className={`h-full w-full`}
+                className={`h-fit w-fit`}
                 {...child}
                 key={child.id}
                 id={child.id}
