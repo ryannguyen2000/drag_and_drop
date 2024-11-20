@@ -15,6 +15,15 @@ interface Properties {
   rows: string;
   colspan: string;
   rowspan: string;
+  gap: string;
+  justifyContent:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-around"
+    | "space-between"
+    | "space-evenly";
+  alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
 }
 
 export interface Obj {
@@ -22,8 +31,17 @@ export interface Obj {
   type: string;
   columns: string;
   rows: string;
+  gap: string;
   colspan: string;
   rowspan: string;
+  justifyContent:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-around"
+    | "space-between"
+    | "space-evenly";
+  alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   childs: Obj[];
 }
 
@@ -32,11 +50,14 @@ const initialState: DndState = {
   activeData: null,
   data: {
     id: "root",
-    type: "layout",
+    type: "grid",
     columns: "1",
+    gap: "1",
     rows: "1",
     colspan: "1",
     rowspan: "1",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
     childs: [],
   },
   sidebar: sample_data.childs,
@@ -44,29 +65,12 @@ const initialState: DndState = {
     columns: "1",
     rows: "1",
     colspan: "1",
+    gap: "1",
     rowspan: "1",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
   },
 };
-
-// const updateItem = (
-//   data: Obj,
-//   id: string,
-//   updatedValues: Partial<Obj>
-// ): Obj => {
-//   if (data.id === id) {
-//     // Cập nhật giá trị cho item tương ứng với id
-//     return {...data, ...updatedValues};
-//   }
-
-//   // Nếu có child, đệ quy cập nhật
-//   if (data.childs.length > 0) {
-//     data.childs = data.childs.map((child) =>
-//       updateItem(child, id, updatedValues)
-//     );
-//   }
-
-//   return data;
-// };
 
 const updateItem = (
   data: Obj,
@@ -75,7 +79,7 @@ const updateItem = (
 ): Obj => {
   if (data.id === id) {
     // Cập nhật trực tiếp khi tìm thấy item
-    return { ...data, ...updatedValues };
+    return {...data, ...updatedValues};
   }
 
   // Nếu không có childs, không cần tiếp tục
@@ -84,13 +88,13 @@ const updateItem = (
   }
 
   // Cập nhật đệ quy cho các childs (nếu cần)
-  const updatedChilds = data.childs.map(child =>
+  const updatedChilds = data.childs.map((child) =>
     updateItem(child, id, updatedValues)
   );
 
   // Chỉ cập nhật childs nếu có thay đổi
   if (updatedChilds !== data.childs) {
-    return { ...data, childs: updatedChilds };
+    return {...data, childs: updatedChilds};
   }
 
   return data;
