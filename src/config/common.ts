@@ -1,10 +1,13 @@
 export const sample_data = {
   id: "root",
-  type: "layout",
+  type: "grid",
   columns: "1",
   rows: "1",
   colspan: "1",
   rowspan: "1",
+  gap: "1",
+  alignItems: "flex-start",
+  justifyContent: "flex-start",
   childs: [
     {
       id: "item1",
@@ -13,6 +16,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -22,6 +28,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -31,6 +40,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -40,6 +52,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -49,6 +64,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -58,6 +76,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -67,6 +88,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -76,6 +100,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -85,6 +112,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -94,6 +124,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -103,6 +136,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -112,6 +148,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -121,6 +160,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -130,6 +172,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
     {
@@ -139,6 +184,9 @@ export const sample_data = {
       rows: "1",
       colspan: "1",
       rowspan: "1",
+      gap: "1",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
       childs: [],
     },
   ],

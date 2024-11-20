@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import Draggable from "../components/drangable";
 import Droppable from "../components/droppable";
 import {RootState} from "../store";
@@ -6,6 +6,8 @@ import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
 import {setActiveData, setActiveId} from "../store/DndSlice";
 import {useEffect} from "react";
 import {ToastBlank} from "../components/toast";
+import {convertAlign, convertJustify} from "../utilities/flex";
+import {Gap} from "../utilities/grid";
 
 const ItemsRenderer = ({
   id,
@@ -13,6 +15,9 @@ const ItemsRenderer = ({
   rows,
   colspan,
   rowspan,
+  alignItems,
+  justifyContent,
+  gap,
   type,
   childs,
   currentDepth,
@@ -22,11 +27,14 @@ const ItemsRenderer = ({
   rows: string;
   colspan: string;
   rowspan: string;
+  gap: string;
+  alignItems: string;
+  justifyContent: string;
   type: string;
   childs: any[];
   currentDepth: number;
 }) => {
-  const { activeId } = useSelector((state: RootState) => state.dndSlice);
+  const {activeId} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   const totalCells = Number(columns) * Number(rows);
@@ -42,7 +50,7 @@ const ItemsRenderer = ({
 
   return (
     <div className="w-full h-full">
-      {type === "layout" && (
+      {type === "flex" && (
         <Droppable
           className={`p-2 w-full h-full border border-dashed bg-white ${
             activeId === id && "border-green-500 border-2"
@@ -51,13 +59,58 @@ const ItemsRenderer = ({
           rows={rows}
           rowspan={rowspan}
           colspan={colspan}
+          alignItems={alignItems}
+          justifyContent={justifyContent}
+          gap={gap}
           type={type}
           key={id}
-          id={id}>
+          id={id}
+        >
+          <div
+            className={`flex h-full w-full ${convertJustify(
+              justifyContent
+            )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
+          >
+            {childs.map((child: any) => (
+              <Draggable
+                className={`h-fit w-fit`}
+                {...child}
+                key={child.id}
+                id={child.id}
+              >
+                <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+              </Draggable>
+            ))}
+            {Array.from({length: emptyCells}).map((_, index) => (
+              <div
+                key={`empty-${index}`}
+                className="border border-dashed w-full border-gray-500"
+              />
+            ))}
+          </div>
+        </Droppable>
+      )}
+      {type === "grid" && (
+        <Droppable
+          className={`p-2 min-h-12 w-full h-full border border-dashed bg-white ${
+            activeId === id && "border-green-500 border-2"
+          }`}
+          columns={columns}
+          rows={rows}
+          rowspan={rowspan}
+          colspan={colspan}
+          alignItems={alignItems}
+          justifyContent={justifyContent}
+          gap={gap}
+          type={type}
+          key={id}
+          id={id}
+        >
           <div
             className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
               Number(columns)
-            )}`}>
+            )}`}
+          >
             {childs.map((child: any) => (
               <Draggable
                 className={`
@@ -66,11 +119,12 @@ const ItemsRenderer = ({
                 )}`}
                 {...child}
                 key={child.id}
-                id={child.id}>
+                id={child.id}
+              >
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({ length: emptyCells }).map((_, index) => (
+            {Array.from({length: emptyCells}).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed min-h-12 w-full border-gray-500"
@@ -89,7 +143,8 @@ const ItemsRenderer = ({
           )} bg-gray-100`}
           onClick={() => {
             dispatch(setActiveId(id));
-          }}>
+          }}
+        >
           {type}: {id}
           {childs.map((child: any) => (
             <Draggable {...child} key={child.id} id={child.id}>

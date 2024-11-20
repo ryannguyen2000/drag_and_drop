@@ -11,6 +11,9 @@ const Droppable = ({
   rows,
   colspan,
   rowspan,
+  gap,
+  alignItems,
+  justifyContent,
   type,
   children,
   className = "",
@@ -20,6 +23,9 @@ const Droppable = ({
   rows: string;
   colspan: string;
   rowspan: string;
+  gap: string;
+  alignItems: string;
+  justifyContent: string;
   type: string;
   className?: string;
   children: ReactNode;
@@ -32,6 +38,9 @@ const Droppable = ({
       colspan,
       rowspan,
       type,
+      gap,
+      alignItems,
+      justifyContent,
     },
   });
 
@@ -49,7 +58,7 @@ const Droppable = ({
     <div
       ref={setNodeRef}
       onDragOver={(e) => e.preventDefault()}
-      className={`${className} min-h-12 ${
+      className={`${className} ${
         isOver ? "border-red-400" : "border-gray-400"
       } p-2`}
       onClick={(event) => {
