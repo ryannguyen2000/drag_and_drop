@@ -4,15 +4,51 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../store";
 import {v4} from "uuid";
 import {io} from "socket.io-client";
-import {setSidebar} from "../../DndSlice";
+import {setData, setSidebar} from "../../DndSlice";
 import {formatText} from "../../utilities/text";
 import {Icon} from "@iconify/react/dist/iconify.js";
 import {getPastelColor} from "../../utilities/colors";
+import {DndContext, useDroppable} from "@dnd-kit/core";
+import {ToastError, ToastSuccess} from "../toast";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
   const dispatch = useDispatch();
 
+  const [modal, setModal] = useState(false);
+
+  const [jsonData, setJsonData] = useState<any>(null);
+  const {setNodeRef, isOver} = useDroppable({
+    id: "json-drop-zone",
+  });
+  useEffect(() => {
+    console.log(JSON.stringify(jsonData));
+  }, [jsonData]);
+
+  const handleFile = (file: File) => {
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsedData = JSON.parse(e.target?.result as string);
+          dispatch(setData(parsedData));
+          ToastSuccess({msg: "File imported successfully!"});
+          setModal(false);
+        } catch (error) {
+          ToastError({msg: "Invalid JSON file"});
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      ToastError({msg: "Please upload a valid JSON file"});
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    handleFile(file);
+  };
   useEffect(() => {
     const socket = io(
       "https://serverless-tn-layout-production.up.railway.app",
@@ -35,7 +71,56 @@ const Sidebar = () => {
 
   return (
     <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-12 flex  bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center ">
-      <div className="mx-auto w-full font-bold text-3xl ">Elements</div>
+      {modal && (
+        <div
+          className="flex items-center justify-center top-0 left-0 animate-fade fixed z-[900] w-screen h-screen bg-black/30"
+          onClick={() => setModal(false)}
+        >
+          <div
+            className="p-6 bg-white rounded-2xl w-full max-w-96 aspect-video animate-delay-200 animate-fade-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between font-semibold">
+              Import
+              <Icon
+                icon="ph:x-light"
+                className="cursor-pointer"
+                fontSize={24}
+                onClick={() => setModal(false)}
+              />
+            </div>
+            <DndContext
+              onDragEnd={(event) => {
+                const file = event.active.data.current as File | undefined;
+                if (file) handleFile(file);
+              }}
+            >
+              <div
+                id="json-drop-zone"
+                ref={setNodeRef}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                className={`h-full flex items-center justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-50 ${
+                  isOver ? "border-2 border-green-400" : ""
+                }`}
+              >
+                <span className="text-slate-500">
+                  {isOver ? "Release to drop JSON" : "Drop JSON here"}
+                </span>
+              </div>
+            </DndContext>
+          </div>
+        </div>
+      )}
+      <div className="mx-auto w-full font-bold text-3xl flex items-center justify-between">
+        <span>Elements</span>
+        <div
+          onClick={() => setModal(true)}
+          className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center"
+        >
+          Import
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4 px-4 w-full">
         <Draggable
           className="w-full h-16 col-span-1 bg-[#444] text-white flex items-center justify-center rounded-xl"
