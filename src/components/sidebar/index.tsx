@@ -41,6 +41,12 @@ const Sidebar = () => {
     const file = event.dataTransfer.files[0];
     handleFile(file);
   };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
   useEffect(() => {
     const socket = io(
       "https://serverless-tn-layout-production.up.railway.app",
@@ -90,9 +96,25 @@ const Sidebar = () => {
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
-                className={`h-full flex items-center justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-50`}
+                className={`h-full flex flex-col items-center relative justify-center mt-6 border-dashed border  rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]`}
               >
-                <span className="text-slate-500">Drop JSON here</span>
+                <div className="w-full relative h-full flex flex-col justify-center items-center z-[2]">
+                  <span className="text-slate-500">Drop JSON here</span>
+                  <span className="text-slate-500 text-sm">or</span>
+                  <label
+                    htmlFor="import-json-field"
+                    className="mt-2 bg-white cursor-pointer select-none px-4 py-2 border rounded-xl hover:bg-cyan-100 transition-all duration-500"
+                  >
+                    Browse
+                    <input
+                      onChange={handleInputChange}
+                      type="file"
+                      id="import-json-field"
+                      hidden
+                      accept=".json"
+                    />
+                  </label>
+                </div>
               </div>
             </DndContext>
           </div>
