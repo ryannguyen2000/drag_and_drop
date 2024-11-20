@@ -4,9 +4,11 @@ import {render} from "solid-js/web";
 import toast, {
   IconTheme,
   Renderable,
+  Toast,
   Toaster,
   ToastPosition,
-} from "solid-toast";
+} from "react-hot-toast";
+import {useEffect, useState} from "react";
 
 export type HandleToastPromiseProps = {
   status: "success" | "error";
@@ -46,6 +48,7 @@ type ToastTimerProps = {
   containerClassName?: string | undefined;
   timerClassName?: string | undefined;
   unmountDelay?: number | undefined;
+  duration?: number;
 } & ToastProps;
 
 export const ToastBlank = ({
@@ -115,7 +118,6 @@ export const ToastCustom = ({
       icon: icon,
       position: position,
       ariaProps: ariaProps,
-      unmountDelay: unmountDelay,
       id: id,
     });
   }
@@ -128,7 +130,6 @@ export const ToastCustom = ({
       icon: icon,
       position: position,
       ariaProps: ariaProps,
-      unmountDelay: unmountDelay,
       id: id,
     });
   }
@@ -141,7 +142,6 @@ export const ToastCustom = ({
       icon: icon,
       position: position,
       ariaProps: ariaProps,
-      unmountDelay: unmountDelay,
       id: id,
     });
   }
@@ -154,48 +154,75 @@ export const ToastCustom = ({
       icon: icon,
       position: position,
       ariaProps: ariaProps,
-      unmountDelay: unmountDelay,
       id: id,
     });
   }
 };
+const ToastContent = ({
+  className,
+  containerClassName,
+  timerClassName,
+  msg,
+  duration = 4000,
+  t,
+}: ToastTimerProps & {t: Toast}) => {
+  const [life, setLife] = useState(100);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLife((l) => {
+        if (l <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return l - 100 / (duration / 10);
+      });
+    }, 10);
+
+    // Cleanup interval when the component unmounts or the toast is dismissed
+    return () => clearInterval(interval);
+  }, [duration]);
+
+  useEffect(() => {
+    if (life <= 0) {
+      // Dismiss the toast once the timer runs out, outside of the rendering phase
+      toast.dismiss(t.id);
+    }
+  }, [life, t.id]);
+
+  return (
+    <div className={clsx("relative", containerClassName)}>
+      <div
+        style={{width: `${life}%`, height: "100%"}}
+        className={clsx("absolute", timerClassName)}
+      ></div>
+      <span className={clsx("relative", className)}>{msg}</span>
+    </div>
+  );
+};
+
 export const ToastTimer = ({
   className,
   containerClassName = "bg-pink-100 shadow-md px-4 py-3 rounded overflow-hidden text-pink-700",
   timerClassName = "bg-pink-200 h-full top-0 left-0",
   msg = "Timer In The Background",
   duration = 4000,
-  unmountDelay = 0,
 }: ToastTimerProps) => {
   toast.custom(
-    (t) => {
-      const [life, setLife] = createSignal(100);
-
-      createEffect(() => {
-        if (t.paused) return;
-        const interval = setInterval(() => {
-          console.log(t.paused);
-          setLife((l) => l - 0.5);
-        }, 10);
-
-        onCleanup(() => clearInterval(interval));
-      });
-
-      return (
-        <div className={clsx("relative", containerClassName)}>
-          <div
-            style={{width: `${life()}%`}}
-            className={clsx("absolute", timerClassName)}
-          ></div>
-          <span className={clsx("relative", className)}>{msg}</span>
-        </div>
-      ) as unknown as string;
-    },
-    {
-      duration: duration,
-      unmountDelay: unmountDelay,
-    }
+    (t) => (
+      <ToastContent
+        className={className}
+        containerClassName={containerClassName}
+        timerClassName={timerClassName}
+        msg={msg}
+        duration={duration}
+        t={t}
+      />
+    ),
+    {duration}
   );
+
+  return null; // The component itself does not render anything directly
 };
 
 export const ToastPromise = ({
