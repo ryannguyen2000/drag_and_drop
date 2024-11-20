@@ -17,14 +17,6 @@ const Sidebar = () => {
 
   const [modal, setModal] = useState(false);
 
-  const [jsonData, setJsonData] = useState<any>(null);
-  const {setNodeRef, isOver} = useDroppable({
-    id: "json-drop-zone",
-  });
-  useEffect(() => {
-    console.log(JSON.stringify(jsonData));
-  }, [jsonData]);
-
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
       const reader = new FileReader();
@@ -96,17 +88,11 @@ const Sidebar = () => {
               }}
             >
               <div
-                id="json-drop-zone"
-                ref={setNodeRef}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
-                className={`h-full flex items-center justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-50 ${
-                  isOver ? "border-2 border-green-400" : ""
-                }`}
+                className={`h-full flex items-center justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-50`}
               >
-                <span className="text-slate-500">
-                  {isOver ? "Release to drop JSON" : "Drop JSON here"}
-                </span>
+                <span className="text-slate-500">Drop JSON here</span>
               </div>
             </DndContext>
           </div>
