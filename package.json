@@ -15,6 +15,8 @@
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
     "clsx": "^2.1.1",
+    "dexie": "^4.0.10",
+    "dexie-react-hooks": "^1.1.7",
     "dnd-kit": "^0.0.2",
     "export-from-json": "^1.7.4",
     "express": "^4.21.1",

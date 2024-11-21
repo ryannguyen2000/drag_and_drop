@@ -1,9 +1,9 @@
 // Droppable component
-import {useDroppable} from "@dnd-kit/core";
-import {ReactNode, useEffect} from "react";
-import {setActiveId, setActiveData} from "../../DndSlice";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../store";
+import { useDroppable } from "@dnd-kit/core";
+import { ReactNode, useEffect } from "react";
+import { setActiveId, setActiveData } from "../../DndSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const Droppable = ({
   id,
@@ -30,7 +30,7 @@ const Droppable = ({
   className?: string;
   children: ReactNode;
 }) => {
-  const {isOver, setNodeRef} = useDroppable({
+  const { isOver, setNodeRef } = useDroppable({
     id,
     data: {
       columns,
@@ -44,14 +44,14 @@ const Droppable = ({
     },
   });
 
-  const {activeData, activeId} = useSelector(
+  const { activeData, activeId } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log(" active data: " + activeId);
-    console.log(" active data: " + JSON.stringify(activeData));
+    // console.log(" active data: " + activeId);
+    // console.log(" active data: " + JSON.stringify(activeData));
   }, [activeData, activeId]);
 
   return (

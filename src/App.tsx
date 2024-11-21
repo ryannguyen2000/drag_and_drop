@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./components/sidebar";
 import Droppable from "./components/droppable";
 import ItemsRenderer from "./features";
@@ -9,17 +9,50 @@ import {
   DragOverlay,
   pointerWithin,
 } from "@dnd-kit/core";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "./store";
-import {Obj, setData, setSidebar} from "./store/DndSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./store";
+import { Obj, setData, setSidebar } from "./store/DndSlice";
 import PropertiesBar from "./components/propertiesbar/propertiesbar";
 import TrashBin from "./components/trashBin";
+import { cacheDataToIndexedDB } from "./services/indexedDB/services";
+import {
+  deserializeFromStringToJson,
+  serializeFromJsonToString,
+} from "./utilities/text";
+import { db } from "./config/db";
 
 const App: React.FC = () => {
-  const {activeId, data, sidebar} = useSelector(
+  const { activeId, data, sidebar } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
+
+  // Initialize Redux State from IndexedDB
+  useEffect(() => {
+    const fetchData = async () => {
+      const indexedDBData = await db.tool_db
+        .where("doc_id")
+        .equals("doc_1")
+        .toArray();
+
+      if (
+        indexedDBData &&
+        indexedDBData.length > 0 &&
+        data.childs.length === 0
+      ) {
+        const storedData = deserializeFromStringToJson(indexedDBData[0]?.data);
+        dispatch(setData(storedData));
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleStoreDataToStorageAndState = (propsData: any) => {
+    const serializedData = serializeFromJsonToString(propsData);
+    cacheDataToIndexedDB(serializedData, "doc_1");
+  };
+
   const FindToAdd = (id: string, detail: any, parent_id: string) => {
     const newData = JSON.parse(JSON.stringify(data));
 
@@ -86,6 +119,7 @@ const App: React.FC = () => {
     }
 
     dispatch(setData(newData));
+    handleStoreDataToStorageAndState(newData);
   };
 
   const hideBin = () => {
@@ -93,6 +127,7 @@ const App: React.FC = () => {
     if (!bin) return;
     bin.style.display = "none";
   };
+
   const showBin = () => {
     const bin = document.getElementById("bin_id");
     if (!bin) return;
@@ -104,7 +139,7 @@ const App: React.FC = () => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const {over, active} = event;
+    const { over, active } = event;
     hideBin();
     if (over?.id === "trash-bin") {
       const newData = JSON.parse(JSON.stringify(data));
@@ -118,6 +153,7 @@ const App: React.FC = () => {
 
       newData.childs = removeItem(newData.childs);
       dispatch(setData(newData));
+      handleStoreDataToStorageAndState(newData);
       return;
     }
 
@@ -135,6 +171,7 @@ const App: React.FC = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      {/* Delete Layout ICON */}
       <div className="flex items-start w-full relative">
         {
           <div
@@ -148,7 +185,10 @@ const App: React.FC = () => {
           </div>
         }
 
+        {/* Sidebar */}
         <Sidebar />
+
+        {/* Main Content */}
         <div className="bg-white w-full p-6 z-10">
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-[calc(100vh-7rem)]">
             <Droppable
@@ -178,8 +218,12 @@ const App: React.FC = () => {
             </Droppable>
           </div>
         </div>
+
+        {/* Properties data */}
         <PropertiesBar />
       </div>
+
+      {/* Overlay */}
       <DragOverlay
         style={{
           zIndex: 999,
@@ -191,7 +235,7 @@ const App: React.FC = () => {
         {activeId ? (
           <div
             className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
-            style={{zIndex: 999}}
+            style={{ zIndex: 999 }}
           />
         ) : null}
       </DragOverlay>

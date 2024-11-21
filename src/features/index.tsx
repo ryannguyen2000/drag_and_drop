@@ -1,14 +1,13 @@
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Draggable from "../components/drangable";
 import Droppable from "../components/droppable";
-import {RootState} from "../store";
-import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
-import {setActiveData, setActiveId} from "../store/DndSlice";
-import {useEffect} from "react";
-import {ToastBlank} from "../components/toast";
-import {convertAlign, convertJustify} from "../utilities/flex";
-import {Gap} from "../utilities/grid";
-
+import { RootState } from "../store";
+import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
+import { setActiveData, setActiveId } from "../store/DndSlice";
+import { useEffect } from "react";
+import { ToastBlank } from "../components/toast";
+import { convertAlign, convertJustify } from "../utilities/flex";
+import { Gap } from "../utilities/grid";
 const ItemsRenderer = ({
   id,
   columns,
@@ -34,7 +33,7 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
-  const {activeId} = useSelector((state: RootState) => state.dndSlice);
+  const { activeId } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   const totalCells = Number(columns) * Number(rows);
@@ -81,7 +80,7 @@ const ItemsRenderer = ({
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({length: emptyCells}).map((_, index) => (
+            {Array.from({ length: emptyCells }).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed w-full border-gray-500"
@@ -124,7 +123,7 @@ const ItemsRenderer = ({
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({length: emptyCells}).map((_, index) => (
+            {Array.from({ length: emptyCells }).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed min-h-12 w-full border-gray-500"
