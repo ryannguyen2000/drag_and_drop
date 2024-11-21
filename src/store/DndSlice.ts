@@ -1,128 +1,126 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {getUniqueContentItems} from "../utilities";
-import {sample_data} from "../config/common";
+import { createSlice } from "@reduxjs/toolkit";
+import { getUniqueContentItems } from "../utilities";
+import { sample_data } from "../config/common";
 
 export interface DndState {
-  activeId: string | null;
-  activeData: any | null;
-  data: Obj;
-  sidebar: any[];
-  properties: Properties;
+    activeId: string | null;
+    activeData: any | null;
+    data: Obj;
+    sidebar: any[];
+    properties: Properties;
 }
 
 interface Properties {
-  columns: string;
-  rows: string;
-  colspan: string;
-  rowspan: string;
-  gap: string;
-  justifyContent:
+    columns: string;
+    rows: string;
+    colspan: string;
+    rowspan: string;
+    gap: string;
+    justifyContent:
     | "flex-start"
     | "flex-end"
     | "center"
     | "space-around"
     | "space-between"
     | "space-evenly";
-  alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+    alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+    style?: React.CSSProperties
 }
 
 export interface Obj {
-  id: string;
-  type: string;
-  columns: string;
-  rows: string;
-  gap: string;
-  colspan: string;
-  rowspan: string;
-  justifyContent:
-    | "flex-start"
-    | "flex-end"
-    | "center"
-    | "space-around"
-    | "space-between"
-    | "space-evenly";
-  alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
-  childs: Obj[];
+    id: string;
+    type: string;
+    columns: string;
+    rows: string;
+    gap: string;
+    colspan: string;
+    rowspan: string;
+    justifyContent: string;
+    alignItems: string;
+    style?: React.CSSProperties
+    childs: Obj[];
 }
 
 const initialState: DndState = {
-  activeId: null,
-  activeData: null,
-  data: {
-    id: "root",
-    type: "grid",
-    columns: "1",
-    gap: "1",
-    rows: "1",
-    colspan: "1",
-    rowspan: "1",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    childs: [],
-  },
-  sidebar: sample_data.childs,
-  properties: {
-    columns: "1",
-    rows: "1",
-    colspan: "1",
-    gap: "1",
-    rowspan: "1",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-  },
+    activeId: null,
+    activeData: null,
+    data: {
+        id: "root",
+        type: "grid",
+        columns: "1",
+        gap: "1",
+        rows: "1",
+        colspan: "1",
+        rowspan: "1",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        style: {},
+        childs: [],
+    },
+    sidebar: sample_data.childs,
+    properties: {
+        columns: "1",
+        rows: "1",
+        colspan: "1",
+        gap: "1",
+        rowspan: "1",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        style: {},
+    },
 };
 
 const updateItem = (
-  data: Obj,
-  id: string,
-  updatedValues: Partial<Obj>
+    data: Obj,
+    id: string,
+    updatedValues: Partial<Obj>
 ): Obj => {
-  if (data.id === id) {
-    // Cập nhật trực tiếp khi tìm thấy item
-    return {...data, ...updatedValues};
-  }
+    if (data.id === id) {
+        // Cập nhật trực tiếp khi tìm thấy item
+        return { ...data, ...updatedValues };
+    }
 
-  // Nếu không có childs, không cần tiếp tục
-  if (!data.childs || data.childs.length === 0) {
+    // Nếu không có childs, không cần tiếp tục
+    if (!data.childs || data.childs.length === 0) {
+        return data;
+    }
+
+    // Cập nhật đệ quy cho các childs (nếu cần)
+    const updatedChilds = data.childs.map((child) =>
+        updateItem(child, id, updatedValues)
+    );
+
+    // Chỉ cập nhật childs nếu có thay đổi
+    if (updatedChilds !== data.childs) {
+        return { ...data, childs: updatedChilds };
+    }
+
     return data;
-  }
-
-  // Cập nhật đệ quy cho các childs (nếu cần)
-  const updatedChilds = data.childs.map((child) =>
-    updateItem(child, id, updatedValues)
-  );
-
-  // Chỉ cập nhật childs nếu có thay đổi
-  if (updatedChilds !== data.childs) {
-    return {...data, childs: updatedChilds};
-  }
-
-  return data;
 };
 
 export const dndSlice = createSlice({
-  name: "dnd",
-  initialState,
-  reducers: {
-    setActiveId: (state, action) => {
-      state.activeId = action.payload;
+    name: "dnd",
+    initialState,
+    reducers: {
+        setActiveId: (state, action) => {
+            state.activeId = action.payload;
+        },
+        setActiveData: (state, action) => {
+            state.activeData = action.payload;
+        },
+        setData: (state, action) => {
+            state.data = action.payload;
+        },
+        setSidebar: (state, action) => {
+            state.sidebar = action.payload;
+        },
+        setProperties: (state, action) => {
+            state.properties = action.payload;
+        },
     },
-    setActiveData: (state, action) => {
-      state.activeData = action.payload;
-    },
-    setData: (state, action) => {
-      state.data = action.payload;
-    },
-    setSidebar: (state, action) => {
-      state.sidebar = action.payload;
-    },
-    setProperties: (state, action) => {
-      state.properties = action.payload;
-    },
-  },
 });
 
-export const {setActiveId, setActiveData, setSidebar, setData, setProperties} =
-  dndSlice.actions;
+export const { setActiveId, setActiveData, setSidebar, setData, setProperties } =
+    dndSlice.actions;
 
 export default dndSlice.reducer;

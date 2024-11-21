@@ -14,6 +14,7 @@ import { RootState } from "./store";
 import { Obj, setData, setSidebar } from "./store/DndSlice";
 import PropertiesBar from "./components/propertiesbar/propertiesbar";
 import TrashBin from "./components/trashBin";
+import { style } from "solid-js/web";
 import { cacheDataToIndexedDB } from "./services/indexedDB/services";
 import {
   deserializeFromStringToJson,
@@ -198,6 +199,7 @@ const App: React.FC = () => {
               rowspan={data.rowspan}
               alignItems={data.alignItems}
               justifyContent={data.justifyContent}
+              style={data.style}
               gap={data.gap}
               type={data.type}
               id={data.id}
@@ -211,6 +213,7 @@ const App: React.FC = () => {
                 rowspan={data.rowspan}
                 alignItems={data.alignItems}
                 justifyContent={data.justifyContent}
+                style={data.style}
                 gap={data.gap}
                 currentDepth={1}
                 type={data.type}
