@@ -1,9 +1,9 @@
 import {useDraggable, useDroppable} from "@dnd-kit/core";
 import {CSS} from "@dnd-kit/utilities";
 import {Icon} from "@iconify/react";
-import {setActiveId, setActiveData} from "../../DndSlice";
 import {useDispatch} from "react-redux";
 import {CSSProperties} from "react";
+import { setActiveId } from "../../store/DndSlice";
 const Draggable = ({
   colspan,
   rowspan,

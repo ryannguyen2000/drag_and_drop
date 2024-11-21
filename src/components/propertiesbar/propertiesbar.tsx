@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setData } from "../../store/DndSlice";
+import { Obj, setData } from "../../store/DndSlice";
 import { RootState } from "../../store";
 import exportFromJSON from "export-from-json";
-import { Obj } from "../../DndSlice";
 import axios from "axios";
-import { ToastError, ToastSuccess } from "../toast";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import {  ToastError, ToastSuccess  } from "../toast";
+import {  Icon  } from "@iconify/react/dist/iconify.js";
+import { serializeFromJsonToString } from "../../utilities/text";
+import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
 import DimensionInput from "../commom/input";
 import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
 
@@ -119,6 +120,12 @@ const PropertiesBar = () => {
         }
     }, [activeId]);
 
+     // function store data to indexedDB
+  const handleStoreDataToStorageAndState = (propsData: any) => {
+    const serializedData = serializeFromJsonToString(propsData);
+    cacheDataToIndexedDB(serializedData, "doc_1");
+  };
+
     const SetPropertyJson = (id: any) => {
         const copyData: Obj = JSON.parse(JSON.stringify(data));
         if (id === copyData.id) {
@@ -167,9 +174,14 @@ const PropertiesBar = () => {
             });
         }
 
-        const updatedChilds = RefactorData(copyData.childs);
-        dispatch(setData({ ...copyData, childs: updatedChilds }));
-    };
+    const updatedChilds = RefactorData(copyData.childs);
+
+    const newData = { ...copyData, childs: updatedChilds };
+    dispatch(setData(newData));
+    if (newData?.childs.length > 0) {
+      handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
+    }
+  };
 
     useEffect(() => {
         SetPropertyJson(activeId);

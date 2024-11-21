@@ -1,21 +1,28 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Draggable from "../drangable";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../store";
-import {v4} from "uuid";
-import {io} from "socket.io-client";
-import {setData, setSidebar} from "../../DndSlice";
-import {formatText} from "../../utilities/text";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {getPastelColor} from "../../utilities/colors";
-import {DndContext, useDroppable} from "@dnd-kit/core";
-import {ToastError, ToastSuccess} from "../toast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { v4 } from "uuid";
+import { io } from "socket.io-client";
+import { formatText, serializeFromJsonToString } from "../../utilities/text";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { getPastelColor } from "../../utilities/colors";
+import { DndContext, useDroppable } from "@dnd-kit/core";
+import { ToastError, ToastSuccess } from "../toast";
+import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
+import { setData, setSidebar } from "../../store/DndSlice";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
   const dispatch = useDispatch();
 
   const [modal, setModal] = useState(false);
+
+  // function store data to indexedDB
+  const handleStoreDataToStorageAndState = (propsData: any) => {
+    const serializedData = serializeFromJsonToString(propsData);
+    cacheDataToIndexedDB(serializedData, "doc_1");
+  };
 
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
@@ -24,15 +31,18 @@ const Sidebar = () => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
           dispatch(setData(parsedData));
-          ToastSuccess({msg: "File imported successfully!"});
+          if (parsedData?.childs.length > 0) {
+            handleStoreDataToStorageAndState(parsedData);
+          }
+          ToastSuccess({ msg: "File imported successfully!" });
           setModal(false);
         } catch (error) {
-          ToastError({msg: "Invalid JSON file"});
+          ToastError({ msg: "Invalid JSON file" });
         }
       };
       reader.readAsText(file);
     } else {
-      ToastError({msg: "Please upload a valid JSON file"});
+      ToastError({ msg: "Please upload a valid JSON file" });
     }
   };
 
@@ -172,7 +182,7 @@ const Sidebar = () => {
       <div className="px-4 w-full gap-2 grid grid-cols-4 ">
         {sidebar.map((item, index) => (
           <Draggable
-            styling={{backgroundColor: getPastelColor(index, 4)}}
+            styling={{ backgroundColor: getPastelColor(index, 4) }}
             className="col-span-1 w-full h-16 text-white flex items-center justify-center rounded-xl"
             {...item}
             key={index}

@@ -1,6 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import Draggable from "../components/drangable";
-import Droppable from "../components/droppable";
 import { RootState } from "../store";
 import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
 import { setActiveData, setActiveId } from "../store/DndSlice";
@@ -8,6 +6,8 @@ import { useEffect } from "react";
 import { ToastBlank } from "../components/toast";
 import { convertAlign, convertJustify } from "../utilities/flex";
 import { Gap } from "../utilities/grid";
+import Droppable from "../components/droppable";
+import Draggable from "../components/drangable";
 
 const ItemsRenderer = ({
     id,

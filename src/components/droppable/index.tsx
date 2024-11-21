@@ -1,10 +1,9 @@
 // Droppable component
 import { useDroppable } from "@dnd-kit/core";
 import { ReactNode, useEffect } from "react";
-import { setActiveId, setActiveData } from "../../DndSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { style } from "solid-js/web";
+import { setActiveId } from "../../store/DndSlice";
 
 const Droppable = ({
     id,
@@ -16,6 +15,7 @@ const Droppable = ({
     alignItems,
     justifyContent,
     type,
+    style,
     children,
     className = "",
 }: {

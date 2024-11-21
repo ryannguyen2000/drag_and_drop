@@ -35,14 +35,8 @@ export interface Obj {
     gap: string;
     colspan: string;
     rowspan: string;
-    justifyContent:
-    | "flex-start"
-    | "flex-end"
-    | "center"
-    | "space-around"
-    | "space-between"
-    | "space-evenly";
-    alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+    justifyContent: string;
+    alignItems: string;
     style?: React.CSSProperties
     childs: Obj[];
 }
