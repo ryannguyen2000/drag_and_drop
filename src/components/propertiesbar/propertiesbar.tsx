@@ -216,49 +216,31 @@ const PropertiesBar = () => {
   return (
     <>
       {activeId && (
-        <div className="h-[calc(100vh)] w-full animate-fade-left animate-duration-500 sticky top-4 right-0 rounded-l-xl flex-col flex items-center bg-gray-100 rounded-lg p-6 max-w-96 z-20 before:absolute before:content[] before:rounded-full before:w-full before:aspect-square before:bg-white before:z-0 before:-translate-y-[57%] overflow-hidden">
-          <div className="flex items-center justify-center gap-4 h-fit z-10">
-            <button
-              onClick={() => handleDownloadAsJson()}
-              className="h-10 aspect-square group hover:px-3 flex items-center hover:bg-slate-500 transition-all duration-500 justify-center w-10 hover:w-full  text-sm bg-[#444] text-white rounded-full"
-            >
-              <Icon icon="ph:arrow-line-down" fontSize={20} />
-              <span className="text-nowrap opacity-0 select-none ml-0 group-hover:ml-2 pointer-events-none group-hover:opacity-100 w-0 group-hover:w-full transition-all duration-500">
-                Download as JSON
-              </span>
-            </button>
-            <button
-              onClick={() => handlePublishJsonData()}
-              className="h-10 px-4  text-sm bg-[#444] text-white rounded-full"
-            >
-              Publish
-            </button>
-          </div>
-          <span className="mx-auto w-full text-center font-semibold text-gray-500 capitalize text-normal  z-10 mt-12">
-            Properties of
-          </span>
+        <div className="h-[calc(100vh)] w-full gap-10  animate-fade-left animate-duration-500 sticky top-4 right-0 rounded-l-xl flex-col flex items-center bg-gray-100 rounded-lg p-6 max-w-96 z-20 before:absolute before:content[] before:rounded-full before:w-full before:aspect-square before:bg-white before:z-0 before:-translate-y-[57%] overflow-hidden">
+          <div className="flex flex-col">
+            <span className="mx-auto w-full text-center font-semibold text-gray-500 capitalize text-normal  z-10 mt-12">
+              Properties of
+            </span>
 
-          {isLayout === "content" && (
-            <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
-              {isLayout}
-            </span>
-          )}
-          {isLayout === "grid" && (
-            <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
-              {isLayout + " layout"}
-            </span>
-          )}
-          {isLayout === "flex" && (
-            <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
-              {isLayout + " layout"}
-            </span>
-          )}
+            {isLayout === "content" && (
+              <span
+                className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
+                {isLayout}
+              </span>
+            )}
+            {isLayout === "grid" && (
+              <span
+                className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
+                {isLayout + " layout"}
+              </span>
+            )}
+            {isLayout === "flex" && (
+              <span
+                className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
+                {isLayout + " layout"}
+              </span>
+            )}
+          </div>
 
           <div className="flex flex-col w-full z-10 mt-12">
             <div className="grid grid-cols-2 gap-6">
@@ -342,26 +324,25 @@ const PropertiesBar = () => {
                   <div
                     className={`h-10 relative w-full border border-gray-300 rounded-lg flex-col px-3 py-2 bg-white`}
                     onClick={() =>
-                      setJustifyShow((prev) => {
+                      setJustifyShow(prev => {
                         !prev === true && setAlignShow(false);
                         return !prev;
                       })
-                    }
-                  >
+                    }>
                     <span>{justifyContent}</span>
                     <div
                       className={`flex-col rounded-xl absolute w-full left-0 shadow-xl top-full bg-white z-[2] overflow-hidden ${
                         justifyShow ? "flex" : "hidden"
-                      }`}
-                    >
+                      }`}>
                       {justifyList.map((item, index) => (
                         <span
                           key={index}
                           className={`w-full hover:bg-slate-100 transition-all duration-500 cursor-pointer px-4 py-2 ${
                             justifyContent === item.title && "bg-slate-100"
                           }`}
-                          onClick={() => handleJustifyContentChange(item.title)}
-                        >
+                          onClick={() =>
+                            handleJustifyContentChange(item.title)
+                          }>
                           {item.title}
                         </span>
                       ))}
@@ -377,26 +358,23 @@ const PropertiesBar = () => {
                   <div
                     className={`h-10 relative w-full border border-gray-300 rounded-lg flex-col px-3 py-2 bg-white `}
                     onClick={() =>
-                      setAlignShow((prev) => {
+                      setAlignShow(prev => {
                         !prev === true && setJustifyShow(false);
                         return !prev;
                       })
-                    }
-                  >
+                    }>
                     <span>{alignItems}</span>
                     <div
                       className={`flex-col rounded-xl absolute top-full shadow-xl z-[2] w-full left-0 bg-white overflow-hidden ${
                         alignShow ? "flex" : "hidden"
-                      }`}
-                    >
+                      }`}>
                       {alignList.map((item, index) => (
                         <span
                           key={index}
                           className={`w-full hover:bg-slate-100 transition-all duration-500 cursor-pointer px-4 py-2 ${
                             alignItems === item.title && "bg-slate-100"
                           }`}
-                          onClick={() => handleAlignItemsChange(item.title)}
-                        >
+                          onClick={() => handleAlignItemsChange(item.title)}>
                           {item.title}
                         </span>
                       ))}
@@ -405,6 +383,21 @@ const PropertiesBar = () => {
                 </div>
               )}
             </div>
+          </div>
+          <div className="flex items-center justify-center gap-4 h-fit z-10">
+            <button
+              onClick={() => handleDownloadAsJson()}
+              className="h-10 aspect-square group hover:px-3 flex items-center hover:bg-slate-500 transition-all duration-500 justify-center w-10 hover:w-full  text-sm bg-[#444] text-white rounded-full">
+              <Icon icon="ph:arrow-line-down" fontSize={20} />
+              <span className="text-nowrap opacity-0 select-none ml-0 group-hover:ml-2 pointer-events-none group-hover:opacity-100 w-0 group-hover:w-full transition-all duration-500">
+                Download as JSON
+              </span>
+            </button>
+            <button
+              onClick={() => handlePublishJsonData()}
+              className="h-10 px-4  text-sm bg-[#444] text-white rounded-full">
+              Publish
+            </button>
           </div>
         </div>
       )}
