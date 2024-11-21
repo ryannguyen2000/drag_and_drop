@@ -1,3 +1,5 @@
+import {Editor, HomePage} from "../pages";
+
 export const sample_data = {
     id: "root",
     type: "grid",
@@ -207,3 +209,14 @@ export const sample_data = {
         },
     ],
 };
+
+export const Routes = [
+  {
+    path: "/",
+    element: HomePage,
+  },
+  {
+    path: "/editor",
+    element: Editor,
+  },
+];

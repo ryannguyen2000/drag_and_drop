@@ -1,59 +1,25 @@
-import React, {useEffect, useRef, useState} from "react";
-import Sidebar from "./components/sidebar";
-import Droppable from "./components/droppable";
-import ItemsRenderer from "./features";
 import {
-  DndContext,
-  DragEndEvent,
   DragStartEvent,
-  DragOverlay,
+  DragEndEvent,
+  DndContext,
   pointerWithin,
+  DragOverlay,
 } from "@dnd-kit/core";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "./store";
-import {Obj, setData, setSidebar} from "./store/DndSlice";
-import TrashBin from "./components/trashBin";
-import {style} from "solid-js/web";
-import {cacheDataToIndexedDB} from "./services/indexedDB/services";
-import {
-  deserializeFromStringToJson,
-  serializeFromJsonToString,
-} from "./utilities/text";
-import {db} from "./config/db";
-import PropertiesBar from "./components/propertiesbar/propertiesbar";
+import React from "react";
+import {useSelector, useDispatch} from "react-redux";
+import Droppable from "../../components/droppable";
+import PropertiesBar from "../../components/propertiesbar/propertiesbar";
+import Sidebar from "../../components/sidebar";
+import TrashBin from "../../components/trashBin";
+import ItemsRenderer from "../../features";
+import {RootState} from "../../store";
+import {Obj, setData, setSidebar} from "../../store/DndSlice";
 
-const App: React.FC = () => {
+const Editor: React.FC = () => {
   const {activeId, data, sidebar, deepLevel} = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
-
-  // Initialize Redux State from IndexedDB
-  useEffect(() => {
-    const fetchData = async () => {
-      const indexedDBData = await db.tool_db
-        .where("doc_id")
-        .equals("doc_1")
-        .toArray();
-
-      if (
-        indexedDBData &&
-        indexedDBData.length > 0 &&
-        data.childs.length === 0
-      ) {
-        const storedData = deserializeFromStringToJson(indexedDBData[0]?.data);
-        dispatch(setData(storedData));
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleStoreDataToStorageAndState = (propsData: any) => {
-    const serializedData = serializeFromJsonToString(propsData);
-    cacheDataToIndexedDB(serializedData, "doc_1");
-  };
-
   const FindToAdd = (id: string, detail: any, parent_id: string) => {
     const newData = JSON.parse(JSON.stringify(data));
 
@@ -120,7 +86,6 @@ const App: React.FC = () => {
     }
 
     dispatch(setData(newData));
-    handleStoreDataToStorageAndState(newData);
   };
 
   const hideBin = () => {
@@ -128,7 +93,6 @@ const App: React.FC = () => {
     if (!bin) return;
     bin.style.display = "none";
   };
-
   const showBin = () => {
     const bin = document.getElementById("bin_id");
     if (!bin) return;
@@ -154,7 +118,6 @@ const App: React.FC = () => {
 
       newData.childs = removeItem(newData.childs);
       dispatch(setData(newData));
-      handleStoreDataToStorageAndState(newData);
       return;
     }
 
@@ -174,7 +137,6 @@ const App: React.FC = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* Delete Layout ICON */}
       <div className="flex items-start w-full relative">
         {
           <div
@@ -188,10 +150,7 @@ const App: React.FC = () => {
           </div>
         }
 
-        {/* Sidebar */}
         <Sidebar />
-
-        {/* Main Content */}
         <div className="bg-white w-full p-6 z-10">
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-[calc(100vh-7rem)]">
             <Droppable
@@ -201,7 +160,6 @@ const App: React.FC = () => {
               rowspan={data.rowspan}
               alignItems={data.alignItems}
               justifyContent={data.justifyContent}
-              style={data.style}
               gap={data.gap}
               type={data.type}
               id={data.id}
@@ -215,7 +173,6 @@ const App: React.FC = () => {
                 rowspan={data.rowspan}
                 alignItems={data.alignItems}
                 justifyContent={data.justifyContent}
-                style={data.style}
                 gap={data.gap}
                 currentDepth={1}
                 type={data.type}
@@ -223,12 +180,8 @@ const App: React.FC = () => {
             </Droppable>
           </div>
         </div>
-
-        {/* Properties data */}
         <PropertiesBar />
       </div>
-
-      {/* Overlay */}
       <DragOverlay
         style={{
           zIndex: 999,
@@ -248,4 +201,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default Editor;
