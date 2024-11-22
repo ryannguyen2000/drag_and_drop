@@ -1,13 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
-import { setActiveData, setActiveId } from "../store/DndSlice";
-import { useEffect } from "react";
-import { ToastBlank } from "../components/toast";
+import { setActiveId, setDeepLevel } from "../store/DndSlice";
+import { ToastBlank, ToastCustom, ToastDismiss } from "../components/toast";
 import { convertAlign, convertJustify } from "../utilities/flex";
 import { Gap } from "../utilities/grid";
 import Droppable from "../components/droppable";
 import Draggable from "../components/drangable";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useEffect } from "react";
 
 const ItemsRenderer = ({
     id,
@@ -43,12 +44,23 @@ const ItemsRenderer = ({
     const totalChildren = childs.length + Number(colspan) + Number(rowspan);
     const emptyCells = Math.max(0, totalCells - totalChildren);
 
-    if (currentDepth >= 6) {
-        ToastBlank({
+    if (currentDepth > 6) {
+        ToastDismiss();
+        ToastCustom({
             msg: "Maximum deep level is 6",
-            className: "bg-yellow-300",
+            icon: (
+                <Icon
+                    icon="ph:warning-fill"
+                    className="text-yellow-400"
+                    fontSize={16}
+                />
+            ),
         });
+        return <></>;
     }
+    useEffect(() => {
+        dispatch(setDeepLevel(currentDepth));
+    }, []);
 
     return (
         <div className="w-full h-full">
@@ -158,7 +170,7 @@ const ItemsRenderer = ({
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
 export default ItemsRenderer;
