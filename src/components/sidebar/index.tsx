@@ -17,24 +17,25 @@ const Sidebar = () => {
 
   const [modal, setModal] = useState(false);
 
-  const handleFile = (file: File) => {
-    if (file && file.type === "application/json") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const parsedData = JSON.parse(e.target?.result as string);
-          dispatch(setData(parsedData));
-          ToastSuccess({msg: "File imported successfully!"});
-          setModal(false);
-        } catch (error) {
-          ToastError({msg: "Invalid JSON file"});
-        }
-      };
-      reader.readAsText(file);
-    } else {
-      ToastError({msg: "Please upload a valid JSON file"});
-    }
-  };
+const handleFile = (file: File) => {
+  if (file && file.type === "application/json") {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsedData = JSON.parse(e.target?.result as string);
+        dispatch(setData(parsedData));
+        ToastSuccess({ msg: "File imported successfully!" });
+        setModal(false);
+      } catch (error) {
+        ToastError({ msg: "Invalid JSON file" });
+      }
+    };
+    reader.readAsText(file);
+  } else {
+    ToastError({ msg: "Please upload a valid JSON file" });
+  }
+};
+
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();

@@ -43,6 +43,7 @@ export interface Obj {
     | "space-evenly";
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   childs: Obj[];
+  image?: string;
 }
 
 const initialState: DndState = {
@@ -78,26 +79,18 @@ const updateItem = (
   updatedValues: Partial<Obj>
 ): Obj => {
   if (data.id === id) {
-    // Cập nhật trực tiếp khi tìm thấy item
-    return {...data, ...updatedValues};
+    return { ...data, ...updatedValues };
   }
 
-  // Nếu không có childs, không cần tiếp tục
   if (!data.childs || data.childs.length === 0) {
     return data;
   }
 
-  // Cập nhật đệ quy cho các childs (nếu cần)
-  const updatedChilds = data.childs.map((child) =>
+  const updatedChilds = data.childs.map(child =>
     updateItem(child, id, updatedValues)
   );
 
-  // Chỉ cập nhật childs nếu có thay đổi
-  if (updatedChilds !== data.childs) {
-    return {...data, childs: updatedChilds};
-  }
-
-  return data;
+  return { ...data, childs: updatedChilds };
 };
 
 export const dndSlice = createSlice({
@@ -119,10 +112,21 @@ export const dndSlice = createSlice({
     setProperties: (state, action) => {
       state.properties = action.payload;
     },
+    setImage: (state, action) => {
+      const { id, image } = action.payload;
+      state.data = updateItem(state.data, id, { image });
+    },
   },
 });
 
-export const {setActiveId, setActiveData, setSidebar, setData, setProperties} =
-  dndSlice.actions;
+export const {
+  setActiveId,
+  setActiveData,
+  setSidebar,
+  setData,
+  setProperties,
+  setImage,
+} = dndSlice.actions;
+
 
 export default dndSlice.reducer;

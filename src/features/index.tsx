@@ -35,120 +35,128 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
-  const { activeId } = useSelector((state: RootState) => state.dndSlice);
-  const dispatch = useDispatch();
+   const { activeId } = useSelector((state: RootState) => state.dndSlice);
+   const dispatch = useDispatch();
 
-  const totalCells = Number(columns) * Number(rows);
-  const totalChildren = childs.length + Number(colspan) + Number(rowspan);
-  const emptyCells = Math.max(0, totalCells - totalChildren);
+   const totalCells = Number(columns) * Number(rows);
+   const totalChildren = childs.length + Number(colspan) + Number(rowspan);
+   const emptyCells = Math.max(0, totalCells - totalChildren);
 
-  if (currentDepth >= 6) {
-    ToastBlank({
-      msg: "Maximum deep level is 6",
-      className: "bg-yellow-300",
-    });
-  }
+   if (currentDepth >= 6) {
+     ToastBlank({
+       msg: "Maximum deep level is 6",
+       className: "bg-yellow-300",
+     });
+   }
 
-  return (
-    <div className="w-full h-full">
-      {type === "flex" && (
-        <Droppable
-          className={`p-2 w-full h-full border border-dashed bg-white ${
-            activeId === id && "border-green-500 border-2"
-          }`}
-          columns={columns}
-          rows={rows}
-          rowspan={rowspan}
-          colspan={colspan}
-          alignItems={alignItems}
-          justifyContent={justifyContent}
-          gap={gap}
-          type={type}
-          key={id}
-          id={id}>
-          <div
-            className={`flex h-full w-full ${convertJustify(
-              justifyContent
-            )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}>
-            {childs.map((child: any) => (
-              <Draggable
-                className={`h-fit w-fit`}
-                {...child}
-                key={child.id}
-                id={child.id}>
-                <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
-              </Draggable>
-            ))}
-            {Array.from({ length: emptyCells }).map((_, index) => (
-              <div
-                key={`empty-${index}`}
-                className="border border-dashed w-full border-gray-500"
-              />
-            ))}
-          </div>
-        </Droppable>
-      )}
-      {type === "grid" && (
-        <Droppable
-          className={`p-2 min-h-12 w-full h-full border border-dashed bg-white ${
-            activeId === id && "border-green-500 border-2"
-          }`}
-          columns={columns}
-          rows={rows}
-          rowspan={rowspan}
-          colspan={colspan}
-          alignItems={alignItems}
-          justifyContent={justifyContent}
-          gap={gap}
-          type={type}
-          key={id}
-          id={id}>
-          <div
-            className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
-              Number(columns)
-            )}`}>
-            {childs.map((child: any) => (
-              <Draggable
-                className={`
+   return (
+     <div className="w-full h-full">
+       {type === "flex" && (
+         <Droppable
+           className={`p-2 w-full h-full border border-dashed bg-white ${
+             activeId === id && "border-green-500 border-2"
+           }`}
+           columns={columns}
+           rows={rows}
+           rowspan={rowspan}
+           colspan={colspan}
+           alignItems={alignItems}
+           justifyContent={justifyContent}
+           gap={gap}
+           type={type}
+           key={id}
+           id={id}>
+           <div
+             className={`flex h-full w-full ${convertJustify(
+               justifyContent
+             )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}>
+             {childs.map((child: any) => (
+               <Draggable
+                 className={`h-fit w-fit`}
+                 {...child}
+                 key={child.id}
+                 id={child.id}>
+                 <div
+                   className="w-full h-full"
+                   style={{
+                     backgroundImage: `url(${child.image || ""})`,
+                     backgroundSize: "cover",
+                     backgroundPosition: "center",
+                   }}>
+                   <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+                 </div>
+               </Draggable>
+             ))}
+             {Array.from({ length: emptyCells }).map((_, index) => (
+               <div
+                 key={`empty-${index}`}
+                 className="border border-dashed w-full border-gray-500"
+               />
+             ))}
+           </div>
+         </Droppable>
+       )}
+       {type === "grid" && (
+         <Droppable
+           className={`p-2 min-h-12 w-full h-full border border-dashed bg-white ${
+             activeId === id && "border-green-500 border-2"
+           }`}
+           columns={columns}
+           rows={rows}
+           rowspan={rowspan}
+           colspan={colspan}
+           alignItems={alignItems}
+           justifyContent={justifyContent}
+           gap={gap}
+           type={type}
+           key={id}
+           id={id}>
+           <div
+             className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
+               Number(columns)
+             )}`}>
+             {childs.map((child: any) => (
+               <Draggable
+                 className={`
                 } ${SpanCol(Number(child.colspan))} ${SpanRow(
-                  Number(child.rowspan)
-                )}`}
-                {...child}
-                key={child.id}
-                id={child.id}>
-                <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
-              </Draggable>
-            ))}
-            {Array.from({ length: emptyCells }).map((_, index) => (
-              <div
-                key={`empty-${index}`}
-                className="border border-dashed min-h-12 w-full border-gray-500"
-              />
-            ))}
-          </div>
-        </Droppable>
-      )}
+                   Number(child.rowspan)
+                 )}`}
+                 {...child}
+                 key={child.id}
+                 id={child.id}>
+                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+               </Draggable>
+             ))}
+             {Array.from({ length: emptyCells }).map((_, index) => (
+               <div
+                 key={`empty-${index}`}
+                 className="border border-dashed min-h-12 w-full border-gray-500"
+               />
+             ))}
+           </div>
+         </Droppable>
+       )}
 
-      {type === "content" && (
-        <div
-          className={`p-2 border h-full border-dashed ${
-            activeId === id && "border-2 border-green-500"
-          } ${SpanRow(Number(rowspan))} ${SpanCol(
-            Number(colspan)
-          )} bg-gray-100`}
-          onClick={() => {
-            dispatch(setActiveId(id));
-          }}>
-          {formatText(type)}: {formatText(id)}
-          {childs.map((child: any) => (
-            <Draggable {...child} key={child.id} id={child.id}>
-              <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
-            </Draggable>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+       {type === "content" && (
+         <div
+           className={`p-2 border h-full border-dashed ${
+             activeId === id && "border-2 border-green-500"
+           } ${SpanRow(Number(rowspan))} ${SpanCol(
+             Number(colspan)
+           )} bg-gray-100`}
+           onClick={() => {
+             dispatch(setActiveId(id));
+           }}>
+           {formatText(type)}: {formatText(id)}
+           {childs.map((child: any) => (
+             <Draggable {...child} key={child.id} id={child.id}>
+               <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+             </Draggable>
+           ))}
+         </div>
+       )}
+     </div>
+   );
 };
 
 export default ItemsRenderer;

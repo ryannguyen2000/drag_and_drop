@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {setData} from "../../store/DndSlice";
-import {RootState} from "../../store";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setData, setImage } from "../../store/DndSlice";
+import { RootState } from "../../store";
 import exportFromJSON from "export-from-json";
-import {Obj} from "../../DndSlice";
+import { Obj } from "../../DndSlice";
 import axios from "axios";
-import {ToastError, ToastSuccess} from "../toast";
-import {Icon} from "@iconify/react/dist/iconify.js";
+import { ToastError, ToastSuccess } from "../toast";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const justifyList = [
   {
@@ -48,7 +48,7 @@ const alignList = [
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const {activeData, activeId, data} = useSelector(
+  const { activeData, activeId, data } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -56,6 +56,8 @@ const PropertiesBar = () => {
   const [alignShow, setAlignShow] = useState<boolean>(false);
 
   // properties state
+  const [image, setImageState] = useState<string>(activeData?.image || "");
+
   const [columns, setColumnsState] = useState<number | string>(
     Number(activeData?.columns) || ""
   );
@@ -90,7 +92,7 @@ const PropertiesBar = () => {
           : setIsLayout("content");
       }
       const getDetail = (childs: any[]) => {
-        childs.map((child) => {
+        childs.map(child => {
           if (child.id === activeId) {
             child.type === "grid"
               ? setIsLayout("grid")
@@ -104,6 +106,7 @@ const PropertiesBar = () => {
             setGap(Number(child.gap));
             setJustifyContent(child.justifyContent);
             setAlignItems(child.alignItems);
+            setImageState(activeData?.image || "");
             console.log(child);
           }
           if (child.childs) {
@@ -115,31 +118,16 @@ const PropertiesBar = () => {
     }
   }, [activeId]);
 
-  const SetPropertyJson = (id: any) => {
-    const copyData: Obj = JSON.parse(JSON.stringify(data));
-    if (id === copyData.id) {
-      const childsList = copyData.childs;
-      dispatch(
-        setData({
-          ...copyData,
-          columns: columns.toString(),
-          rows: rows.toString(),
-          colspan: colspan.toString(),
-          rowspan: rowspan.toString(),
-          gap: gap.toString(),
-          justifyContent: justifyContent.toString(),
-          alignItems: alignItems.toString(),
-          childs: childsList,
-        })
-      );
-      return;
-    }
+  const SetPropertyJson = (id: string | null) => {
+    if (!id) return;
 
-    function RefactorData(child: Obj[]): Obj[] {
-      return child.map((item) => {
-        if (item.id === id) {
+    const copyData: Obj = JSON.parse(JSON.stringify(data));
+
+    const updateChilds = (childs: Obj[]): Obj[] => {
+      return childs.map(child => {
+        if (child.id === id) {
           return {
-            ...item,
+            ...child,
             columns: columns.toString(),
             rows: rows.toString(),
             colspan: colspan.toString(),
@@ -147,22 +135,32 @@ const PropertiesBar = () => {
             gap: gap.toString(),
             justifyContent: justifyContent.toString(),
             alignItems: alignItems.toString(),
+            image: image, // Đồng bộ `image`
           };
         }
-
-        if (item.childs) {
-          return {
-            ...item,
-            childs: RefactorData(item.childs),
-          };
+        if (child.childs) {
+          return { ...child, childs: updateChilds(child.childs) };
         }
-
-        return item;
+        return child;
       });
-    }
+    };
 
-    const updatedChilds = RefactorData(copyData.childs);
-    dispatch(setData({...copyData, childs: updatedChilds}));
+    const updatedData =
+      id === copyData.id
+        ? {
+            ...copyData,
+            columns: columns.toString(),
+            rows: rows.toString(),
+            colspan: colspan.toString(),
+            rowspan: rowspan.toString(),
+            gap: gap.toString(),
+            justifyContent: justifyContent.toString(),
+            alignItems: alignItems.toString(),
+            image: image,
+          }
+        : { ...copyData, childs: updateChilds(copyData.childs) };
+
+    dispatch(setData(updatedData));
   };
 
   useEffect(() => {
@@ -198,7 +196,7 @@ const PropertiesBar = () => {
     const fileName = "JsonLayout";
     const exportType = exportFromJSON.types.json;
 
-    exportFromJSON({data, fileName, exportType});
+    exportFromJSON({ data, fileName, exportType });
   };
 
   const handlePublishJsonData = async () => {
@@ -207,9 +205,33 @@ const PropertiesBar = () => {
       data
     );
     if (response.status === 200 || response.status === 201) {
-      ToastSuccess({msg: "Published successfully"});
+      ToastSuccess({ msg: "Published successfully" });
     } else {
-      ToastError({msg: "Oops! Something went wrong to available publish"});
+      ToastError({ msg: "Oops! Something went wrong to available publish" });
+    }
+  };
+
+  useEffect(() => {
+    if (activeData) {
+      setImageState(activeData.image || "");
+    }
+  }, [activeData]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const imageData = e.target?.result as string;
+        setImageState(imageData); // Cập nhật vào state cục bộ
+
+        // Đồng bộ vào Redux
+        if (activeId) {
+          dispatch(setImage({ id: activeId, image: imageData }));
+          ToastSuccess({ msg: "Image uploaded successfully!" });
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -398,6 +420,27 @@ const PropertiesBar = () => {
               className="h-10 px-4  text-sm bg-[#444] text-white rounded-full">
               Publish
             </button>
+          </div>
+
+          <div className="flex flex-col mt-4 w-full">
+            <label className="text-sm font-medium text-gray-400">
+              Upload Background Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="h-10 w-full border rounded-lg px-3 mt-2"
+            />
+            {image && (
+              <div className="mt-2">
+                <img
+                  src={image}
+                  alt="Preview"
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
