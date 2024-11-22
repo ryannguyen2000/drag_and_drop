@@ -7,9 +7,10 @@ import axios from "axios";
 import {  ToastError, ToastSuccess  } from "../toast";
 import {  Icon  } from "@iconify/react/dist/iconify.js";
 import { serializeFromJsonToString } from "../../utilities/text";
-import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
+import { cacheDataToIndexedDB, getCachedDataFromIndexedDB } from "../../services/indexedDB/services";
 import DimensionInput from "../commom/input";
 import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
+import { saveDocument } from "../../services/documents/api";
 
 const justifyList = [
     {
@@ -283,9 +284,6 @@ const PropertiesBar = () => {
         });
     };
 
-
-
-
     useEffect(() => {
         if (styles) {
             console.log("🚀 ~ useEffect ~ styles:", styles)
@@ -309,8 +307,17 @@ const PropertiesBar = () => {
         } else {
             ToastError({ msg: "Oops! Something went wrong to available publish" });
         }
-    };
 
+        // Save document to DB
+        const layoutJSON = await getCachedDataFromIndexedDB("doc_1");
+        const payload = {
+          projectId: "lalala-layout-test-sifo#950slfk@",
+          documentId: "docio3#98204ksf8",
+          documentName: "Lalala Prismic Test",
+          layoutJson: layoutJSON ? layoutJSON[0]?.data : {},
+        };
+        await saveDocument(payload);
+    };
 
     return (
         <>
