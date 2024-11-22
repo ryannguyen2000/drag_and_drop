@@ -36,6 +36,13 @@ export const splitDimensions = (dimension: string) => {
   return values; // Trả về 4 giá trị nếu có
 };
 
+export function extractImageUrl(styleString) {
+    const regex = /url\((['"]?)(.*?)\1\)/; // Biểu thức chính quy để tìm URL trong `url(...)`
+    const match = styleString.match(regex);
+    return match ? match[2] : null; // Trả về URL nếu tìm thấy, nếu không trả về `null`
+}
+
+
 /**
  * The function `serializeFromJsonToString` removes specific keys from a JSON object and returns the
  * cleaned JSON string.
