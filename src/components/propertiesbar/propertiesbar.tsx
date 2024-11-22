@@ -4,12 +4,14 @@ import { Obj, setData } from "../../store/DndSlice";
 import { RootState } from "../../store";
 import exportFromJSON from "export-from-json";
 import axios from "axios";
-import {  ToastError, ToastSuccess  } from "../toast";
-import {  Icon  } from "@iconify/react/dist/iconify.js";
+import { ToastError, ToastSuccess } from "../toast";
+import { Icon } from "@iconify/react/dist/iconify.js";
 import { serializeFromJsonToString } from "../../utilities/text";
 import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
 import DimensionInput from "../commom/input";
 import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
+import ColorPickerInput from "../commom/color";
+import BackgroundChoosen from "../commom/background-choosen";
 
 const justifyList = [
     {
@@ -82,6 +84,9 @@ const PropertiesBar = () => {
     );
     const [styles, setStyles] = useState<React.CSSProperties>(activeData?.style)
 
+    const [backGroundtype, setBackgroundType] = useState<"image" | "color">("color");
+    const [modalBackground, setModalBackground] = useState<boolean>(false);
+
     const [isLayout, setIsLayout] = useState<string>("grid");
 
     useEffect(() => {
@@ -120,11 +125,11 @@ const PropertiesBar = () => {
         }
     }, [activeId]);
 
-     // function store data to indexedDB
-  const handleStoreDataToStorageAndState = (propsData: any) => {
-    const serializedData = serializeFromJsonToString(propsData);
-    cacheDataToIndexedDB(serializedData, "doc_1");
-  };
+    // function store data to indexedDB
+    const handleStoreDataToStorageAndState = (propsData: any) => {
+        const serializedData = serializeFromJsonToString(propsData);
+        cacheDataToIndexedDB(serializedData, "doc_1");
+    };
 
     const SetPropertyJson = (id: any) => {
         const copyData: Obj = JSON.parse(JSON.stringify(data));
@@ -174,14 +179,14 @@ const PropertiesBar = () => {
             });
         }
 
-    const updatedChilds = RefactorData(copyData.childs);
+        const updatedChilds = RefactorData(copyData.childs);
 
-    const newData = { ...copyData, childs: updatedChilds };
-    dispatch(setData(newData));
-    if (newData?.childs.length > 0) {
-      handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
-    }
-  };
+        const newData = { ...copyData, childs: updatedChilds };
+        dispatch(setData(newData));
+        if (newData?.childs.length > 0) {
+            handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
+        }
+    };
 
     useEffect(() => {
         SetPropertyJson(activeId);
@@ -283,6 +288,88 @@ const PropertiesBar = () => {
         });
     };
 
+    const handleBackgroundColorChange = (newColor) => {
+        if (!newColor.startsWith('#')) {
+            newColor = `#${newColor}`;
+        }
+        setStyles((prevStyles) => {
+            const updatedStyles = { ...prevStyles };
+            delete updatedStyles.backgroundImage; // Xóa hình ảnh
+            updatedStyles.backgroundColor = newColor; // Thêm màu mới
+            return updatedStyles;
+        });
+    };
+
+    const [backgroundImage, setBackgroundImage] = useState("https://via.placeholder.com/300x200")
+    const handleBackgroundImageChange = (newImage) => {
+        setBackgroundImage(newImage);
+        setStyles((prevStyles) => {
+            const updatedStyles = { ...prevStyles };
+            delete updatedStyles.backgroundColor; // Xóa màu nền
+            updatedStyles.backgroundImage = `url(${newImage})`; // Thêm hình ảnh mới
+            return updatedStyles;
+        });
+    };
+
+    const handleStyleChange = (property, value) => {
+        setStyles((prevStyles) => ({
+            ...prevStyles,
+            [property]: value,
+        }));
+    };
+
+    const handleBorderChange = (
+        value: string | number,
+        property: "width" | "style" | "color",
+        unit?: string
+    ) => {
+        setStyles((prevStyles) => {
+            const newStyles = { ...prevStyles };
+
+            // Khởi tạo border nếu chưa tồn tại
+            if (!newStyles?.border) {
+                newStyles.border = "none"; // Giá trị mặc định
+            }
+
+            // Kiểm tra nếu border là chuỗi, nếu không thì chuyển thành chuỗi
+            const borderParts = typeof newStyles?.border === "string" ? newStyles?.border.split(" ") : ["0px", "solid", "black"];
+
+            if (property === "width") {
+                borderParts[0] = `${value}${unit || "px"}`; // Cập nhật width
+            } else if (property === "style") {
+                borderParts[1] = value as string; // Cập nhật style
+            } else if (property === "color") {
+                borderParts[2] = value as string; // Cập nhật color
+            }
+
+            // Cập nhật lại chuỗi border
+            newStyles.border = borderParts.join(" ");
+
+            return newStyles;
+        });
+    };
+
+
+    const handleBorderRadiusChange = (
+        value: string | number,
+        corner: "borderTopLeftRadius" | "borderTopRightRadius" | "borderBottomLeftRadius" | "borderBottomRightRadius",
+        unit: string
+    ) => {
+        if (value === 0 || value === "0") {
+            // Nếu giá trị là 0, xóa thuộc tính tương ứng
+            setStyles((prevStyles) => {
+                const newStyles = { ...prevStyles };
+                delete newStyles[corner];
+                return newStyles;
+            });
+        } else {
+            // Cập nhật giá trị của góc nếu giá trị khác 0
+            setStyles((prevStyles) => ({
+                ...prevStyles,
+                [corner]: `${value}${unit}`,
+            }));
+        }
+    };
 
 
 
@@ -434,12 +521,12 @@ const PropertiesBar = () => {
                         )}
                         <div className="grid grid-cols-2 gap-6">
                             {isLayout === "flex" && (
-                                <div className="flex flex-col items-start mt-3 animate-fade-up">
+                                <div className="flex flex-col items-start mt-3 animate-fade-up z-[50]">
                                     <span className="text-sm font-medium text-gray-400">
                                         Justify Content
                                     </span>
                                     <div
-                                        className={`h-10 relative w-full border border-gray-300 rounded-lg flex-col px-3 py-2 bg-white`}
+                                        className={`h-10 relative w-full border border-gray-300  rounded-lg flex-col px-3 py-2 bg-white`}
                                         onClick={() =>
                                             setJustifyShow((prev) => {
                                                 !prev === true && setAlignShow(false);
@@ -449,7 +536,7 @@ const PropertiesBar = () => {
                                     >
                                         <span>{justifyContent}</span>
                                         <div
-                                            className={`flex-col rounded-xl absolute w-full left-0 shadow-xl top-full bg-white z-[2] overflow-hidden ${justifyShow ? "flex" : "hidden"
+                                            className={`flex-col rounded-xl absolute w-full left-0 shadow-xl top-full bg-white  overflow-hidden ${justifyShow ? "flex" : "hidden"
                                                 }`}
                                         >
                                             {justifyList.map((item, index) => (
@@ -467,7 +554,7 @@ const PropertiesBar = () => {
                                 </div>
                             )}
                             {isLayout === "flex" && (
-                                <div className="flex flex-col items-start mt-3 animate-fade-up">
+                                <div className="flex flex-col items-start mt-3 animate-fade-up z-[50]">
                                     <span className="text-sm font-medium text-gray-400">
                                         Align Items
                                     </span>
@@ -482,7 +569,7 @@ const PropertiesBar = () => {
                                     >
                                         <span>{alignItems}</span>
                                         <div
-                                            className={`flex-col rounded-xl absolute top-full shadow-xl z-[2] w-full left-0 bg-white overflow-hidden ${alignShow ? "flex" : "hidden"
+                                            className={`flex-col rounded-xl absolute top-full shadow-xl w-full left-0 bg-white overflow-hidden ${alignShow ? "flex" : "hidden"
                                                 }`}
                                         >
                                             {alignList.map((item, index) => (
@@ -602,7 +689,6 @@ const PropertiesBar = () => {
                                             })}
                                         </ul>
                                     </details>
-
                                     {/* MARGIN */}
                                     <details className="group w-full [&_summary::-webkit-details-marker]:hidden">
                                         <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
@@ -659,7 +745,7 @@ const PropertiesBar = () => {
                                     {/* BACKGROUND */}
                                     <details className="group w-full  [&_summary::-webkit-details-marker]:hidden">
                                         <summary
-                                            className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900"
+                                            className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg border bg-white p-4 text-gray-900"
                                         >
                                             <span className="font-semibold text-gray-800 capitalize">Background</span>
                                             <svg
@@ -672,59 +758,114 @@ const PropertiesBar = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </summary>
+                                        <div className="flex items-center justify-center border border-slate-100 bg-white">
+                                            <button title="Image" className={`h-10 w-full ${backGroundtype === 'image' && 'bg-slate-200'} flex justify-center items-center`} onClick={() => setBackgroundType('image')}>
+                                                <Icon icon="tabler:photo-filled" />
+                                            </button>
+                                            <button title="Color" className={`h-10 w-full ${backGroundtype === 'color' && 'bg-slate-200'} flex justify-center items-center`} onClick={() => setBackgroundType('color')}>
+                                                <Icon icon="tabler:color-filter" />
+                                            </button>
+                                        </div>
+                                        {backGroundtype === 'color' ?
+                                            <ul className="grid grid-cols-1 gap-3 w-full p-4 bg-white shadow-lg rounded-b-xl">
+                                                <li>
+                                                    <span className="text-sm font-medium text-gray-400">
+                                                        Color
+                                                    </span>
+                                                    <ColorPickerInput value={styles?.backgroundColor} onChange={handleBackgroundColorChange} />
+                                                </li>
+                                            </ul> :
+                                            <ul className="grid grid-cols-2 gap-3 w-full p-4 bg-white shadow-lg rounded-b-xl">
+                                                <li className="col-span-2">
+                                                    <div className="aspect-[6/2]">
+                                                        <div className="w-full h-full bg-slate-300 flex justify-center items-center cursor-pointer" onClick={() => setModalBackground(true)}>
+                                                            <img
+                                                                src={backgroundImage}
+                                                                alt=""
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <span className="text-sm font-medium text-gray-400">
+                                                        Repeat
+                                                    </span>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <select
+                                                            id="repeat"
+                                                            className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
+                                                            value={styles?.backgroundRepeat}
+                                                            onChange={(e) => handleStyleChange("backgroundRepeat", e.target.value)}
+                                                        >
+                                                            <option value="no-repeat">None repeat</option>
+                                                            <option value="repeat">Repeat</option>
+                                                            <option value="repeat-x">Repeat X</option>
+                                                            <option value="repeat-y">Repeat Y</option>
+                                                            <option value="space">Space</option>
+                                                            <option value="round">Round</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <span className="text-sm font-medium text-gray-400">
+                                                        Size
+                                                    </span>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <select
+                                                            id="size"
+                                                            className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
+                                                            value={styles?.backgroundSize}
+                                                            onChange={(e) => handleStyleChange("backgroundSize", e.target.value)}
+                                                        >
+                                                            <option value="auto">Auto</option>
+                                                            <option value="cover">Cover</option>
+                                                            <option value="contain">Contain</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <span className="text-sm font-medium text-gray-400">
+                                                        Position
+                                                    </span>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <select
+                                                            id="position"
+                                                            className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
+                                                            value={styles?.backgroundPosition}
+                                                            onChange={(e) => handleStyleChange("backgroundPosition", e.target.value)}
+                                                        >
+                                                            <option value="center">Center</option>
+                                                            <option value="top">Top</option>
+                                                            <option value="left">Left</option>
+                                                            <option value="right">Right</option>
+                                                            <option value="bottom">Bottom</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <span className="text-sm font-medium text-gray-400">
+                                                        Attachment
+                                                    </span>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <select
+                                                            id="attachment"
+                                                            className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
+                                                            value={styles?.backgroundAttachment}
+                                                            onChange={(e) => handleStyleChange("backgroundAttachment", e.target.value)}
 
-                                        <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Top
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Right
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Bottom
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Left
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
-                                            </li>
-                                        </ul>
+                                                        >
+                                                            <option value="scroll">Scroll</option>
+                                                            <option value="fixed">Fixed</option>
+                                                            <option value="local">Local</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+                                            </ul>}
                                     </details>
                                     {/* BORDER */}
                                     <details className="group w-full  [&_summary::-webkit-details-marker]:hidden">
-                                        <summary
-                                            className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900"
-                                        >
+                                        <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
                                             <span className="font-semibold text-gray-800 capitalize">Border</span>
                                             <svg
                                                 className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
@@ -736,51 +877,38 @@ const PropertiesBar = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </summary>
-
                                         <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
                                             <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Top
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
+                                                <span className="text-sm font-medium text-gray-400">Width</span>
+                                                <DimensionInput
+                                                    defaultValue={parseInt((styles?.border && typeof styles?.border === "string") ? styles?.border.split(" ")[0] : "0")}
+                                                    onChange={(value) => handleBorderChange(value?.inputValue, "width", value?.unit)}
+                                                />
                                             </li>
                                             <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Right
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
+                                                <span className="text-sm font-medium text-gray-400">Style</span>
+                                                <select
+                                                    value={(styles?.border && typeof styles?.border === "string") ? styles?.border.split(" ")[1] : "solid"}
+                                                    onChange={(e) => handleBorderChange(e.target.value, "style")}
+                                                    className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
+                                                >
+                                                    <option value="none">None</option>
+                                                    <option value="solid">Solid</option>
+                                                    <option value="dotted">Dotted</option>
+                                                    <option value="dashed">Dashed</option>
+                                                    <option value="double">Double</option>
+                                                    <option value="groove">Groove</option>
+                                                    <option value="ridge">Ridge</option>
+                                                    <option value="inset">Inset</option>
+                                                    <option value="outset">Outset</option>
+                                                </select>
                                             </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Bottom
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Left
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-
-                                                </div>
+                                            <li className="col-span-2">
+                                                <span className="text-sm font-medium text-gray-400">Color</span>
+                                                <ColorPickerInput
+                                                    value={(styles?.border && typeof styles?.border === "string") ? styles?.border.split(" ")[2] : "#000000"}
+                                                    onChange={(color) => handleBorderChange(color, "color")}
+                                                />
                                             </li>
                                         </ul>
                                     </details>
@@ -801,46 +929,49 @@ const PropertiesBar = () => {
                                             </svg>
                                         </summary>
                                         <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Top Left
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Top Right
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Bottom Right
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <span className="text-sm font-medium text-gray-400">
-                                                    Bottom Left
-                                                </span>
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        className="h-10 w-full border border-gray-300 rounded-lg focus-visible:outline-none px-3" />
-                                                </div>
-                                            </li>
+                                            {["borderRadius"].map((property) => {
+                                                const radiusValue = styles?.hasOwnProperty(property)
+                                                    ? styles[property as keyof typeof styles]
+                                                    : "0px 0px 0px 0px";
+                                                const [topLeft, topRight, bottomRight, bottomLeft] = splitDimensions(String(radiusValue));
+
+                                                return (
+                                                    <>
+                                                        <li key="topLeft">
+                                                            <span className="text-sm font-medium text-gray-400">Top Left</span>
+                                                            <DimensionInput
+                                                                defaultValue={Number.parseInt(topLeft)}
+                                                                defaultUnit={topLeft.replace(/[0-9]/g, "") || "px"}
+                                                                onChange={(value) => handleBorderRadiusChange(value.inputValue, "borderTopLeftRadius", value.unit)}
+                                                            />
+                                                        </li>
+                                                        <li key="topRight">
+                                                            <span className="text-sm font-medium text-gray-400">Top Right</span>
+                                                            <DimensionInput
+                                                                defaultValue={Number.parseInt(topRight)}
+                                                                defaultUnit={topRight.replace(/[0-9]/g, "") || "px"}
+                                                                onChange={(value) => handleBorderRadiusChange(value.inputValue, "borderTopRightRadius", value.unit)}
+                                                            />
+                                                        </li>
+                                                        <li key="bottomRight">
+                                                            <span className="text-sm font-medium text-gray-400">Bottom Right</span>
+                                                            <DimensionInput
+                                                                defaultValue={Number.parseInt(bottomRight)}
+                                                                defaultUnit={bottomRight.replace(/[0-9]/g, "") || "px"}
+                                                                onChange={(value) => handleBorderRadiusChange(value.inputValue, "borderBottomRightRadius", value.unit)}
+                                                            />
+                                                        </li>
+                                                        <li key="bottomLeft">
+                                                            <span className="text-sm font-medium text-gray-400">Bottom Left</span>
+                                                            <DimensionInput
+                                                                defaultValue={Number.parseInt(bottomLeft)}
+                                                                defaultUnit={bottomLeft.replace(/[0-9]/g, "") || "px"}
+                                                                onChange={(value) => handleBorderRadiusChange(value.inputValue, "borderBottomLeftRadius", value.unit)}
+                                                            />
+                                                        </li>
+                                                    </>
+                                                );
+                                            })}
                                         </ul>
                                     </details>
                                 </div>
@@ -848,6 +979,10 @@ const PropertiesBar = () => {
                         </div>
                     </div>
                 </div >
+            )}
+            {/* MODAL IMGAGE */}
+            {modalBackground && (
+                <BackgroundChoosen setModalBackground={setModalBackground} handleSelect={(image) => handleBackgroundImageChange(image.url)} />
             )}
         </>
     );

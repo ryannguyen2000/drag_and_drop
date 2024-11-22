@@ -72,6 +72,7 @@ const ItemsRenderer = ({
                         className={`flex h-full w-full ${convertJustify(
                             justifyContent
                         )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
+                        style={style}
                     >
                         {childs.map((child: any) => (
                             <Draggable
@@ -112,6 +113,7 @@ const ItemsRenderer = ({
                         className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
                             Number(columns)
                         )}`}
+                        style={style}
                     >
                         {childs.map((child: any) => (
                             <Draggable
@@ -142,6 +144,7 @@ const ItemsRenderer = ({
                         } ${SpanRow(Number(rowspan))} ${SpanCol(
                             Number(colspan)
                         )} bg-gray-100`}
+                    style={style}
                     onClick={() => {
                         dispatch(setActiveId(id));
                     }}
