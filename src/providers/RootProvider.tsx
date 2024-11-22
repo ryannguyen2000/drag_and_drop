@@ -1,4 +1,4 @@
-import React, {Component, FC, Suspense} from "react";
+import React, {Component, FC, ReactNode, Suspense} from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,11 +6,14 @@ import {
   Navigate,
   RouteProps,
 } from "react-router-dom";
-import {HomePage} from "../pages";
+import Middleware from "../middleware";
 
 type RouteConfig = {
   path: string;
-  element: React.ComponentType;
+  value: string;
+  title: string;
+  icon: string;
+  element: ReactNode;
 };
 
 type RootProviderProps = {
@@ -22,9 +25,16 @@ const RootProvider: FC<RootProviderProps> = ({routers}) => {
     <Router>
       <Suspense fallback={<>Loading...</>}>
         <Routes>
-          {routers.map((route, index) => (
-            <Route key={index} path="/" element={<route.element />} />
-          ))}
+          <Route element={<Middleware />}>
+            {routers.map((route, index) => (
+              <Route
+                key={index}
+                path={route.path}
+                element={route.element}
+                loader={true}
+              />
+            ))}
+          </Route>
         </Routes>
       </Suspense>
     </Router>

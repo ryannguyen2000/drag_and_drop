@@ -15,7 +15,7 @@ import ItemsRenderer from "../../features";
 import {RootState} from "../../store";
 import {Obj, setData, setSidebar} from "../../store/DndSlice";
 
-const Editor: React.FC = () => {
+const Editor = () => {
   const {activeId, data, sidebar, deepLevel} = useSelector(
     (state: RootState) => state.dndSlice
   );
