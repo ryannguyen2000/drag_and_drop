@@ -27,12 +27,7 @@ const RootProvider: FC<RootProviderProps> = ({routers}) => {
         <Routes>
           <Route element={<Middleware />}>
             {routers.map((route, index) => (
-              <Route
-                key={index}
-                path={route.path}
-                element={route.element}
-                loader={true}
-              />
+              <Route key={index} path={route.path} element={route.element} />
             ))}
           </Route>
         </Routes>
