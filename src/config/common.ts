@@ -1,5 +1,10 @@
 import {Editor, HomePage} from "../pages";
 
+export const colors = {
+  c1: "#4c8aff",
+  c2: "#52F988",
+};
+
 export const sample_data = {
   id: "root",
   type: "grid",
