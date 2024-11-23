@@ -6,7 +6,6 @@ const Middleware = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [allow, setAllow] = useState(false);
-  // middle check route
   // useEffect(() => {
   //   const check = async () => {
   //     if (!GetACookie("dcid") && location.pathname === "/editor") {
