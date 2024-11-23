@@ -13,8 +13,11 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "./store";
 import {Obj, setData, setSidebar} from "./store/DndSlice";
 import TrashBin from "./components/trashBin";
-import {style} from "solid-js/web";
-import {cacheDataToIndexedDB} from "./services/indexedDB/services";
+import { style } from "solid-js/web";
+import {
+  cacheDataToIndexedDB,
+  getCachedDataFromIndexedDB,
+} from "./services/indexedDB/services";
 import {
   deserializeFromStringToJson,
   serializeFromJsonToString,
@@ -31,10 +34,7 @@ const App: React.FC = () => {
   // Initialize Redux State from IndexedDB
   useEffect(() => {
     const fetchData = async () => {
-      const indexedDBData = await db.tool_db
-        .where("doc_id")
-        .equals("doc_1")
-        .toArray();
+      const indexedDBData = await getCachedDataFromIndexedDB("doc_1");
 
       if (
         indexedDBData &&

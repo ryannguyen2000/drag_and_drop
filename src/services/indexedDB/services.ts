@@ -9,21 +9,22 @@ import { generateCurrentTimeStamp } from "../../utilities/dateTime";
  * @returns If the data exists in the IndexedDB and is not older than one day, the function will return
  * the cached data object. Otherwise, it will return `null`.
  */
-export async function getCachedDataFromIndexedDB(id: number) {
-  const dexieData = await db.tool_db.where("id").equals(id).toArray();
+export async function getCachedDataFromIndexedDB(id: string) {
+  // const dexieData = await db.tool_db.where("id").equals(id).toArray();
 
-  // Verify if data exists and is not older than one day
-  if (dexieData.length > 0) {
-    const dataAge = Date.now() - dexieData[0].last_updated;
-    const oneDayInMillis = 24 * 60 * 60 * 1000;
+  // // Verify if data exists and is not older than one day
+  // if (dexieData.length > 0) {
+  //   const dataAge = Date.now() - dexieData[0].last_updated;
+  //   const oneDayInMillis = 24 * 60 * 60 * 1000;
 
-    if (dataAge < oneDayInMillis) {
-      return dexieData[0]; // Return cached data if within 1 day
-    }
+  //   if (dataAge < oneDayInMillis) {
+  //     return dexieData[0]; // Return cached data if within 1 day
+  //   }
 
-    return null;
-  }
-  return null;
+  //   return null;
+  // }
+  // return null;
+  return await db.tool_db.where("doc_id").equals(id).toArray();
 }
 
 /**

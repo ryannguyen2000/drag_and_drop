@@ -1,5 +1,5 @@
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {Editor, HomePage} from "../pages";
+import { Editor, HomePage } from "../pages";
+import DocumentsPage from "../pages/documents";
 
 export const Routers = [
   {
@@ -21,6 +21,6 @@ export const Routers = [
     title: "Documents",
     value: "docunments",
     icon: "ph:house-simple",
-    element: <Editor />,
+    element: <DocumentsPage />,
   },
 ];
