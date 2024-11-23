@@ -1,9 +1,10 @@
 import {useDraggable, useDroppable} from "@dnd-kit/core";
 import {CSS} from "@dnd-kit/utilities";
 import {Icon} from "@iconify/react";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {CSSProperties} from "react";
-import { setActiveId } from "../../store/DndSlice";
+import {RootState} from "../../store";
+import {setActiveId} from "../../store/DndSlice";
 const Draggable = ({
   colspan,
   rowspan,
@@ -48,6 +49,7 @@ const Draggable = ({
     transform: CSS.Translate.toString(transform),
     ...styling,
   };
+  const {deepLevel} = useSelector((state: RootState) => state.dndSlice);
 
   const dispatch = useDispatch();
 
@@ -66,7 +68,11 @@ const Draggable = ({
     >
       <Icon
         icon="ph:dots-six-vertical"
-        className="group-hover:block hidden transition-all rounded-bl-lg absolute top-0 right-0 text-gray-700 bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
+        style={{
+          right: `${deepLevel > 1 ? deepLevel * 0.5 : "0"}rem`,
+          ...style,
+        }}
+        className="group-hover:block hidden transition-all rounded-bl-lg absolute top-0 text-gray-700 !bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
         fontSize={24}
         {...listeners}
         {...attributes}

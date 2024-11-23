@@ -1,4 +1,4 @@
-export type saveDocumentType = {
+export type saveDocumentRequest = {
   projectId: string;
   documentId: string;
   documentName: string;

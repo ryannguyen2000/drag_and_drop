@@ -1,9 +1,13 @@
-import {configureStore} from "@reduxjs/toolkit";
-import {dndSlice} from "./DndSlice";
+import { configureStore } from "@reduxjs/toolkit";
+import { dndSlice } from "./DndSlice";
+import { DocumentSlice } from "./documents/documentSlice";
+import { GlobalSlice } from "./global/globalSlice";
 
 export const store = configureStore({
   reducer: {
     dndSlice: dndSlice.reducer,
+    documentSlice: DocumentSlice.reducer,
+    globalSlice: GlobalSlice.reducer,
   },
 });
 
