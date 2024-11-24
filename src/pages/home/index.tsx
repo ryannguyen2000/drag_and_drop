@@ -19,6 +19,9 @@ import {ToastError, ToastSuccess} from "../../components/toast";
 import Grid from "../../components/background/gridBackground";
 import {DocumentCardSkeleton} from "../../components/card/documentCard";
 import CardSkeleton from "../../components/skeleton";
+import {GetACookie, SaveACookie} from "../../utilities/cookies";
+import {EncryptBasic} from "../../utilities/hash_aes";
+import {Enum} from "../../config/common";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -53,7 +56,16 @@ const HomePage = () => {
     fetchDataProjects();
   }, []);
 
-  const handleClickProject = () => {
+  const handleClickProject = (id: string) => {
+    if (GetACookie("pid")) {
+      navigate("/documents");
+      return;
+    }
+    SaveACookie({
+      key: "pid",
+      token: EncryptBasic(id, Enum.srkey).toString(),
+      expired: 1,
+    });
     navigate("/documents");
   };
 
@@ -249,7 +261,9 @@ const HomePage = () => {
                         triggerElement={
                           <div
                             key={index}
-                            onClick={() => handleClickProject()}
+                            onClick={() =>
+                              handleClickProject(project?.projectId)
+                            }
                             className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10"
                           >
                             <img

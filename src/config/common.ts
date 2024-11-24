@@ -5,6 +5,10 @@ export const colors = {
   c2: "#52F988",
 };
 
+export const Enum = {
+  srkey: "fkzeVxJ3Y8baiqTWkGj3GrQOdk59dc",
+};
+
 export const sample_data = {
   id: "root",
   type: "grid",
