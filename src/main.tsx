@@ -7,7 +7,6 @@ import {store} from "./store/index.ts";
 import {Toaster} from "react-hot-toast";
 import RootProvider from "./providers/RootProvider.tsx";
 import {Routers} from "./routers/index.tsx";
-import "react-contexify/dist/ReactContexify.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
