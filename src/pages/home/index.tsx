@@ -17,6 +17,8 @@ import {ContextMenu} from "../../components/context-menu";
 import {processImageFile} from "../../utilities/images";
 import {ToastError, ToastSuccess} from "../../components/toast";
 import Grid from "../../components/background/gridBackground";
+import {DocumentCardSkeleton} from "../../components/card/documentCard";
+import CardSkeleton from "../../components/skeleton";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -28,16 +30,23 @@ const HomePage = () => {
   const [projectImage, setProjectImage] = useState<any>();
 
   const [createLoading, setCreateLoading] = useState(false);
+  const [getLoading, setGetLoading] = useState(false);
 
   const {projectList} = useSelector((state: RootState) => state.projects);
   const dispatch = useDispatch();
 
   const fetchDataProjects = async () => {
-    const response = (await GetData(
-      `${import.meta.env.VITE__API_HOST}/api/projects`
-    )) as any;
-    if (response) {
-      dispatch(setListProjects(response));
+    setGetLoading(true);
+    try {
+      const response = (await GetData(
+        `${import.meta.env.VITE__API_HOST}/api/projects`
+      )) as any;
+      if (response) {
+        dispatch(setListProjects(response));
+      }
+    } catch (error) {
+    } finally {
+      setGetLoading(false);
     }
   };
   useEffect(() => {
@@ -102,6 +111,17 @@ const HomePage = () => {
       setCreateLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (getLoading) {
+      const to = setTimeout(() => {
+        setGetLoading(false);
+      }, 10000);
+      return () => {
+        clearTimeout(to);
+      };
+    }
+  }, [getLoading]);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -215,60 +235,67 @@ const HomePage = () => {
         <div className="w-full min-w-[1200px] h-screen relative pl-12 pb-12 pt-6 grid grid-cols-12 gap-48 overflow-hidden z-10">
           <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-none">
             <div className=" w-full h-fit grid grid-cols-4 gap-4 p-6">
-              {projectList?.length > 0 ? (
-                projectList?.map((project, index) => (
-                  <ContextMenu
-                    id={project._id}
-                    key={index}
-                    triggerElement={
-                      <div
+              {!getLoading ? (
+                <>
+                  {projectList?.length > 0 ? (
+                    projectList?.map((project, index) => (
+                      <ContextMenu
+                        id={project._id}
                         key={index}
-                        onClick={() => handleClickProject()}
-                        className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10"
-                      >
-                        <img
-                          src={``}
-                          className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]"
-                          alt=""
-                          loading="lazy"
-                          crossOrigin="anonymous"
-                        />
-                        <h2 className="text-base font-semibold line-clamp-1">
-                          {project?.projectName}
-                        </h2>
-                        <p className="text-xs line-clamp-1 text-gray-500">
-                          {project?.createdAt &&
-                            new Date(project?.createdAt).toLocaleString()}
-                        </p>
-                        <span
-                          onClick={(e) =>
-                            handleNavigateProjectUrl(e, project?.projectUrl)
-                          }
-                          className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit"
-                        >
-                          {project?.projectUrl}
-                        </span>
-                        <Icon
-                          icon="ph:mouse-right-click-fill"
-                          fontSize={16}
-                          className="bottom-5 right-5 absolute opacity-30"
-                        />
-                      </div>
-                    }
-                    options={[
-                      {
-                        label: "Delete",
-                        handle: () => handleDeleteProject(project?.projectId),
-                        className: "!bg-red-400",
-                        icon: <Icon icon="ph:trash-simple" fontSize={20} />,
-                      },
-                    ]}
-                  />
-                ))
+                        triggerElement={
+                          <div
+                            key={index}
+                            onClick={() => handleClickProject()}
+                            className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10"
+                          >
+                            <img
+                              src={``}
+                              className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]"
+                              alt=""
+                              loading="lazy"
+                              crossOrigin="anonymous"
+                            />
+                            <h2 className="text-base font-semibold line-clamp-1">
+                              {project?.projectName}
+                            </h2>
+                            <p className="text-xs line-clamp-1 text-gray-500">
+                              {project?.createdAt &&
+                                new Date(project?.createdAt).toLocaleString()}
+                            </p>
+                            <span
+                              onClick={(e) =>
+                                handleNavigateProjectUrl(e, project?.projectUrl)
+                              }
+                              className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit"
+                            >
+                              {project?.projectUrl}
+                            </span>
+                            <Icon
+                              icon="ph:mouse-right-click-fill"
+                              fontSize={16}
+                              className="bottom-5 right-5 absolute opacity-30"
+                            />
+                          </div>
+                        }
+                        options={[
+                          {
+                            label: "Delete",
+                            handle: () =>
+                              handleDeleteProject(project?.projectId),
+                            className: "!bg-red-400",
+                            icon: <Icon icon="ph:trash-simple" fontSize={20} />,
+                          },
+                        ]}
+                      />
+                    ))
+                  ) : (
+                    <h1 className="col-span-12 text-center text-gray-300 font-bold text-xl">
+                      No project found
+                    </h1>
+                  )}
+                </>
               ) : (
-                <h1 className="col-span-12 text-center text-gray-300 font-bold text-xl">
-                  No project found
-                </h1>
+                <CardSkeleton count={4} size={3} />
               )}
             </div>
           </div>
