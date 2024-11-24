@@ -1,45 +1,273 @@
-import React, {FC} from "react";
 import {useNavigate} from "react-router-dom";
 import HueAnimate from "../../components/hue-animate";
-import {Background} from "../../assets/images";
 import {Icon} from "@iconify/react/dist/iconify.js";
-import {colors} from "../../config/common";
+import Modal from "../../components/modal";
+import {
+  ChangeEvent,
+  MouseEvent,
+  MouseEventHandler,
+  useEffect,
+  useState,
+} from "react";
+import {DeleteData, GetData, PostData} from "../../apis";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../store";
+import {setListProjects} from "../../store/ProjectSlice";
+import {ContextMenu} from "../../components/context-menu";
+import {processImageFile} from "../../utilities/images";
+import {ToastError, ToastSuccess} from "../../components/toast";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [openProjectModal, setOpenProjectModal] = useState(false);
+  const [projectId, setProjectId] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [projectUrl, setProjectUrl] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [projectImage, setProjectImage] = useState<any>();
+
+  const [createLoading, setCreateLoading] = useState(false);
+
+  const {projectList} = useSelector((state: RootState) => state.projects);
+  const dispatch = useDispatch();
+
+  const fetchDataProjects = async () => {
+    const response = (await GetData(
+      `${import.meta.env.VITE__API_HOST}/api/projects`
+    )) as any;
+    if (response) {
+      dispatch(setListProjects(response));
+    }
+  };
+  useEffect(() => {
+    fetchDataProjects();
+  }, []);
+
+  const handleClickProject = () => {
+    navigate("/documents");
+  };
+
+  const handleNavigateProjectUrl = (
+    e: MouseEvent<HTMLSpanElement>,
+    projectUrl: string
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(projectUrl, "_blank");
+  };
+
+  const handleDeleteProject = async (id: any) => {
+    const response = await DeleteData(
+      `${import.meta.env.VITE__API_HOST}/api/projects/${id}`
+    );
+    if (response) {
+      fetchDataProjects();
+      ToastSuccess({msg: "Project deleted successfully"});
+    }
+  };
+
+  const handleImageImport = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        setProjectImage(file);
+      } catch (error) {
+        //
+      }
+    }
+  };
+
+  const handleSubmitCreateProject = async () => {
+    const formData = {
+      projectId: projectId.trim(),
+      projectName: projectName,
+      thumnail: "___",
+      websiteUrl: websiteUrl.trim(),
+      projectUrl: projectUrl.trim(),
+    };
+    setCreateLoading(true);
+    try {
+      const response = await PostData(
+        `${import.meta.env.VITE__API_HOST}/api/projects`,
+        formData
+      );
+      if (response) {
+        fetchDataProjects();
+        ToastSuccess({msg: "Projects created successfully"});
+      }
+    } catch (error) {
+      //
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      <HueAnimate />
-      <div className="w-full min-w-[1200px] h-screen relative px-12 pb-12 pt-6 grid grid-cols-12 gap-48 overflow-hidden z-10">
-        {/* <div className="relative w-full   h-fit before:content[] before:absolute before:w-full before:h-7 before:bg-gradient-to-t before:from-black/5 before:to-transparent before:pointer-events-none before:select-none before:bottom-0 before:left-0"> */}
-        <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-thin">
-          <div className=" w-full h-fit grid grid-cols-4 gap-4 p-6">
-            <div className="flex flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-lg transition-all duration-500 hover:z-10">
-              <img
-                src={``}
-                className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]"
-                alt=""
-                loading="lazy"
-                crossOrigin="anonymous"
+      <Modal
+        open={openProjectModal}
+        onClose={() => setOpenProjectModal(false)}
+        title="Create project"
+        isFooter
+        loading={createLoading}
+        onCancel={() => setOpenProjectModal(false)}
+        onSubmit={() => handleSubmitCreateProject()}
+        className="max-w-lg"
+        footerClassName="flex gap-4 justify-end"
+      >
+        <div className="mb-4">
+          <label
+            htmlFor="id-input"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Project Id <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            id="id-input"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            placeholder="PRISMIC_REPO_ID"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="flex flex-col">
+            <label
+              htmlFor="name-input"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Project Name<span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              id="name-input"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="Your project name"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor="name-input"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Thumnail<span className="text-red-400">*</span>
+            </label>
+            <label htmlFor="input" className="w-full cursor-pointer">
+              <div className="border w-full overflow-hidden rounded-lg h-10 bg-white grid grid-cols-3 ">
+                <div className=" bg-slate-100 flex items-center justify-center text-sm col-span-1">
+                  Browse
+                </div>
+                <div className="flex items-center justify-start px-2 text-gray-400 text-sm text-nowrap col-span-2  w-full">
+                  <span className="!truncate">{"No file choose"}</span>
+                </div>
+              </div>
+              <input
+                type="file"
+                hidden
+                id="input"
+                accept=".png,.jpg,.jpeg"
+                onChange={(e) => handleImageImport(e)}
               />
-              {/* <div className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]" /> */}
-              <h2 className="text-base font-semibold line-clamp-1">
-                This is the title
-              </h2>
-              <p className="text-xs line-clamp-1 text-gray-500">
-                This is the description
-              </p>
-              <a
-                href=""
-                className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit"
-              >
-                This is the url
-              </a>
-            </div>
-            {/* More project here */}
+            </label>
           </div>
         </div>
-        {/* </div> */}
+        <div className="mb-4">
+          <label
+            htmlFor="purl-input"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Project Url<span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            id="purl-input"
+            value={projectUrl}
+            onChange={(e) => setProjectUrl(e.target.value)}
+            placeholder="PRISMIC_HOST_URL"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="wurl-input"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Website Url <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            id="wurl-input"
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+            placeholder="YOUR_WEBSITE_URL_TO_APPLY_THIS_LAYOUT"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10 "
+          />
+        </div>
+      </Modal>
+      <HueAnimate />
+      <div className="w-full min-w-[1200px] h-screen relative pl-12 pb-12 pt-6 grid grid-cols-12 gap-48 overflow-hidden z-10">
+        <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-none">
+          <div className=" w-full h-fit grid grid-cols-4 gap-4 p-6">
+            {projectList?.length > 0 ? (
+              projectList?.map((project, index) => (
+                <ContextMenu
+                  id={project.id}
+                  key={index}
+                  triggerElement={
+                    <div
+                      key={index}
+                      onClick={() => handleClickProject()}
+                      className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10"
+                    >
+                      <img
+                        src={``}
+                        className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]"
+                        alt=""
+                        loading="lazy"
+                        crossOrigin="anonymous"
+                      />
+                      <h2 className="text-base font-semibold line-clamp-1">
+                        {project?.projectName}
+                      </h2>
+                      <p className="text-xs line-clamp-1 text-gray-500">
+                        {project?.createdAt &&
+                          new Date(project?.createdAt).toLocaleString()}
+                      </p>
+                      <span
+                        onClick={(e) =>
+                          handleNavigateProjectUrl(e, project?.projectUrl)
+                        }
+                        className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit"
+                      >
+                        {project?.projectUrl}
+                      </span>
+                      <Icon
+                        icon="ph:mouse-right-click-fill"
+                        fontSize={16}
+                        className="bottom-5 right-5 absolute opacity-30"
+                      />
+                    </div>
+                  }
+                  options={[
+                    {
+                      label: "Delete",
+                      handle: () => handleDeleteProject(project?.projectId),
+                      className: "bg-red-400",
+                      icon: <Icon icon="ph:trash-simple" fontSize={20} />,
+                    },
+                  ]}
+                />
+              ))
+            ) : (
+              <h1 className="col-span-12 text-center text-gray-300 font-bold text-xl">
+                No project found
+              </h1>
+            )}
+          </div>
+        </div>
         <div className="col-start-9 col-span-4 relative ">
           <div className="w-full h-[calc(100vh+10rem)] bg-white border-l border-gray-100 shadow-xl right-0 absolute rounded-tl-[80%] rounded-bl-[80%] top-1/2 -translate-y-1/2">
             <div className="absolute top-[10%] w-full flex flex-col items-center">
@@ -77,7 +305,10 @@ const HomePage = () => {
                 More info
               </div>
             </div>
-            <div className="absolute bg-white shadow-lg cursor-pointer border border-gray-100 w-16 h-16 rounded-full top-[50%] -translate-x-[52%] -translate-y-[50%] flex items-center justify-center hover:scale-125 transition-all duration-500 group">
+            <div
+              onClick={() => setOpenProjectModal(true)}
+              className="absolute bg-white shadow-lg cursor-pointer border border-gray-100 w-16 h-16 rounded-full top-[50%] -translate-x-[52%] -translate-y-[50%] flex items-center justify-center hover:scale-125 transition-all duration-500 group"
+            >
               <Icon
                 icon="ph:plus"
                 fontSize={24}
@@ -100,7 +331,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      {/* <button onClick={() => navigate("/editor")}>Go editor</button> */}
     </div>
   );
 };
