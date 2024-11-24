@@ -88,6 +88,10 @@ const HomePage = () => {
   };
 
   const handleSubmitCreateProject = async () => {
+    if (!projectId || !projectName || !projectUrl || !websiteUrl) {
+      ToastError({msg: "Please fill all fields"});
+      return;
+    }
     const formData = {
       projectId: projectId.trim(),
       projectName: projectName,
