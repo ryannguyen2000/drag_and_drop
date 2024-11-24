@@ -1,4 +1,7 @@
-import React, {useState, useRef, ReactNode} from "react";
+import React, {useState, useRef, ReactNode, useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../store";
+import {setShowContextMenu} from "../../store/ProjectSlice";
 
 type ContextMenuProps = {
   options?: {
@@ -22,18 +25,20 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     x: 0,
     y: 0,
   });
-  const [show, setShow] = useState(false);
+  const {showContextMenu} = useSelector((state: RootState) => state.projects);
   const menuRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
 
   const handleContextMenu = (event: React.MouseEvent) => {
+    event.stopPropagation();
     event.preventDefault();
     setPosition({x: event.clientX, y: event.clientY});
-    setShow(true);
+    dispatch(setShowContextMenu(id));
   };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setShow(false);
+      dispatch(setShowContextMenu(null));
     }
   };
 
@@ -48,7 +53,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     <>
       <div onContextMenu={handleContextMenu}>{triggerElement}</div>
 
-      {show && (
+      {showContextMenu === id ? (
         <div
           ref={menuRef}
           style={{
@@ -65,7 +70,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   option.handle();
-                  setShow(false);
+                  dispatch(setShowContextMenu(null));
                 }}
                 className={`h-10 w-full select-none bg-white ${option.className} rounded-xl flex items-center justify-start text-white font-medium tracking-tight hover:saturate-150 cursor-pointer transition-all duration-500 px-4 gap-4`}
               >
@@ -74,7 +79,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               </div>
             ))}
         </div>
-      )}
+      ) : null}
     </>
   );
 };
