@@ -7,29 +7,33 @@ export default {
         striped:
           "repeating-linear-gradient(45deg, #3B3A3D, #3B3A3D 5px, transparent 5px, transparent 20px)",
       },
+      colors: {
+        c1: "#4c8aff",
+        c2: "#52F988",
+      },
       boxShadow: {
         md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
       },
       keyframes: {
         shine: {
-          "0%": { transform: "translateX(-150%)" },
-          "100%": { transform: "translateX(150%)" },
+          "0%": {transform: "translateX(-150%)"},
+          "100%": {transform: "translateX(150%)"},
         },
         slideInRight: {
-          "0%": { transform: "translateX(100%)", opacity: "0" },
-          "100%": { transform: "translateX(0)", opacity: "1" },
+          "0%": {transform: "translateX(100%)", opacity: "0"},
+          "100%": {transform: "translateX(0)", opacity: "1"},
         },
         slideOutRight: {
-          "0%": { transform: "translateX(0)", opacity: "1" },
-          "100%": { transform: "translateX(100%)", opacity: "0" },
+          "0%": {transform: "translateX(0)", opacity: "1"},
+          "100%": {transform: "translateX(100%)", opacity: "0"},
         },
         slideInLeft: {
-          "0%": { transform: "translateX(-100%)", opacity: "0" },
-          "100%": { transform: "translateX(0)", opacity: "1" },
+          "0%": {transform: "translateX(-100%)", opacity: "0"},
+          "100%": {transform: "translateX(0)", opacity: "1"},
         },
         slideOutLeft: {
-          "0%": { transform: "translateX(0)", opacity: "1" },
-          "100%": { transform: "translateX(-100%)", opacity: "0" },
+          "0%": {transform: "translateX(0)", opacity: "1"},
+          "100%": {transform: "translateX(-100%)", opacity: "0"},
         },
         "blink-red": {
           "0%, 100%": {
