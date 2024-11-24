@@ -6,6 +6,7 @@ type CardSkeletonProps = {
 };
 const CardSkeleton: FC<CardSkeletonProps> = ({size = 4, count = 1}) => {
   //
+
   return (
     <>
       {Array.from({length: count}).map((_, cdex) => (
