@@ -7,13 +7,13 @@ import {
 } from "@dnd-kit/core";
 import React from "react";
 import {useSelector, useDispatch} from "react-redux";
-import Droppable from "../../components/droppable";
-import PropertiesBar from "../../components/propertiesbar/propertiesbar";
-import Sidebar from "../../components/sidebar";
-import TrashBin from "../../components/trashBin";
-import ItemsRenderer from "../../features";
-import {RootState} from "../../store";
-import {Obj, setData, setSidebar} from "../../store/DndSlice";
+import Droppable from "../../../components/droppable";
+import PropertiesBar from "../../../components/propertiesbar/propertiesbar";
+import Sidebar from "../../../components/sidebar";
+import TrashBin from "../../../components/trashBin";
+import ItemsRenderer from "../../../features";
+import {RootState} from "../../../store";
+import {Obj, setData, setSidebar} from "../../../store/DndSlice";
 
 const Editor = () => {
   const {activeId, data, sidebar, deepLevel} = useSelector(
