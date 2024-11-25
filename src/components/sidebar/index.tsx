@@ -4,12 +4,13 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../store";
 import {v4} from "uuid";
 import {io} from "socket.io-client";
-import {setData, setSidebar} from "../../DndSlice";
-import {formatText} from "../../utilities/text";
+import {formatText, serializeFromJsonToString} from "../../utilities/text";
 import {Icon} from "@iconify/react/dist/iconify.js";
 import {getPastelColor} from "../../utilities/colors";
 import {DndContext, useDroppable} from "@dnd-kit/core";
 import {ToastError, ToastSuccess} from "../toast";
+import {cacheDataToIndexedDB} from "../../services/indexedDB/services";
+import {setData, setSidebar} from "../../store/DndSlice";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
@@ -17,25 +18,33 @@ const Sidebar = () => {
 
   const [modal, setModal] = useState(false);
 
-const handleFile = (file: File) => {
-  if (file && file.type === "application/json") {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const parsedData = JSON.parse(e.target?.result as string);
-        dispatch(setData(parsedData));
-        ToastSuccess({ msg: "File imported successfully!" });
-        setModal(false);
-      } catch (error) {
-        ToastError({ msg: "Invalid JSON file" });
-      }
-    };
-    reader.readAsText(file);
-  } else {
-    ToastError({ msg: "Please upload a valid JSON file" });
-  }
-};
+  // function store data to indexedDB
+  const handleStoreDataToStorageAndState = (propsData: any) => {
+    const serializedData = serializeFromJsonToString(propsData);
+    cacheDataToIndexedDB(serializedData, "doc_1");
+  };
 
+  const handleFile = (file: File) => {
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsedData = JSON.parse(e.target?.result as string);
+          dispatch(setData(parsedData));
+          if (parsedData?.childs.length > 0) {
+            handleStoreDataToStorageAndState(parsedData);
+          }
+          ToastSuccess({msg: "File imported successfully!"});
+          setModal(false);
+        } catch (error) {
+          ToastError({msg: "Invalid JSON file"});
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      ToastError({msg: "Please upload a valid JSON file"});
+    }
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();

@@ -8,6 +8,7 @@ export interface DndState {
   data: Obj;
   sidebar: any[];
   properties: Properties;
+  deepLevel: number;
 }
 
 interface Properties {
@@ -24,6 +25,7 @@ interface Properties {
     | "space-between"
     | "space-evenly";
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+  style?: React.CSSProperties;
 }
 
 export interface Obj {
@@ -34,14 +36,9 @@ export interface Obj {
   gap: string;
   colspan: string;
   rowspan: string;
-  justifyContent:
-    | "flex-start"
-    | "flex-end"
-    | "center"
-    | "space-around"
-    | "space-between"
-    | "space-evenly";
-  alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+  justifyContent: string;
+  alignItems: string;
+  style?: React.CSSProperties;
   childs: Obj[];
   image?: string;
 }
@@ -59,6 +56,7 @@ const initialState: DndState = {
     rowspan: "1",
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    style: {},
     childs: [],
   },
   sidebar: sample_data.childs,
@@ -70,7 +68,9 @@ const initialState: DndState = {
     rowspan: "1",
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    style: {},
   },
+  deepLevel: 1,
 };
 
 const updateItem = (
@@ -79,18 +79,22 @@ const updateItem = (
   updatedValues: Partial<Obj>
 ): Obj => {
   if (data.id === id) {
-    return { ...data, ...updatedValues };
+    return {...data, ...updatedValues};
   }
 
   if (!data.childs || data.childs.length === 0) {
     return data;
   }
 
-  const updatedChilds = data.childs.map(child =>
+  const updatedChilds = data.childs.map((child) =>
     updateItem(child, id, updatedValues)
   );
 
-  return { ...data, childs: updatedChilds };
+  if (updatedChilds !== data.childs) {
+    return {...data, childs: updatedChilds};
+  }
+
+  return data;
 };
 
 export const dndSlice = createSlice({
@@ -112,9 +116,8 @@ export const dndSlice = createSlice({
     setProperties: (state, action) => {
       state.properties = action.payload;
     },
-    setImage: (state, action) => {
-      const { id, image } = action.payload;
-      state.data = updateItem(state.data, id, { image });
+    setDeepLevel: (state, action) => {
+      state.deepLevel = action.payload;
     },
   },
 });
@@ -125,8 +128,7 @@ export const {
   setSidebar,
   setData,
   setProperties,
-  setImage,
+  setDeepLevel,
 } = dndSlice.actions;
-
 
 export default dndSlice.reducer;

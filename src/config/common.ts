@@ -1,3 +1,14 @@
+import {Editor, HomePage} from "../pages";
+
+export const colors = {
+  c1: "#4c8aff",
+  c2: "#52F988",
+};
+
+export const Enum = {
+  srkey: "fkzeVxJ3Y8baiqTWkGj3GrQOdk59dc",
+};
+
 export const sample_data = {
   id: "root",
   type: "grid",
@@ -8,6 +19,7 @@ export const sample_data = {
   gap: "1",
   alignItems: "flex-start",
   justifyContent: "flex-start",
+  style: {},
   childs: [
     {
       id: "item1",
@@ -19,6 +31,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -31,6 +44,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -43,6 +57,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -55,6 +70,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -67,6 +83,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -79,6 +96,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -91,6 +109,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -103,6 +122,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -115,6 +135,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -127,6 +148,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -139,6 +161,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -151,6 +174,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -163,6 +187,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -175,6 +200,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
     {
@@ -187,6 +213,7 @@ export const sample_data = {
       gap: "1",
       alignItems: "flex-start",
       justifyContent: "flex-start",
+      style: {},
       childs: [],
     },
   ],
