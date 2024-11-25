@@ -32,7 +32,7 @@ const DocumentCard = ({
           {/* Header tool bar */}
           <div className=" flex justify-between items-center gap-3">
             <Link
-              to={`/document/${document.documentId}`}
+              to={`/editor`}
               className="font-medium text-neutral-400 text-lg mb-2 border-[0.0781rem] border-neutral-400 rounded-full w-fit"
             >
               <span className="y-2 mx-3">
