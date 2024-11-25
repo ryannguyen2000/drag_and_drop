@@ -1,10 +1,10 @@
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { DeleteDocumentModal } from "../../pages/documents/components/deleteDocumentModal";
-import { setActiveDocument } from "../../store/documents/documentSlice";
-import { IDocument } from "../../store/documents/type";
-import { formatDateTimeAgo } from "../../utilities/dateTime";
+import {Icon} from "@iconify/react/dist/iconify.js";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
+import {DeleteDocumentModal} from "../../pages/documents/components/deleteDocumentModal";
+import {setActiveDocument} from "../../store/documents/documentSlice";
+import {IDocument} from "../../store/documents/type";
+import {formatDateTimeAgo} from "../../utilities/dateTime";
 import DocumentDropdown from "../dropdown/documentDropdown";
 
 const colors = ["#DA4D1D", "#2b26c3", "#01a439", "#394ca6", "#ffbe00"];
@@ -85,7 +85,7 @@ const DocumentCard = ({
 
       {/* Icon */}
       <div className="absolute bottom-2 right-2 flex justify-center items-center opacity-0 group-hover:animate-slide-in-left group-hover:opacity-100 transition-opacity duration-300 z-10">
-        <Link to={`/document/${document.documentId}`}>
+        <Link to={`/editor/${document.documentId}`}>
           <Icon icon="ph:arrow-right" className="text-4xl text-white" />
         </Link>
       </div>
