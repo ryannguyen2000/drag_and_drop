@@ -59,7 +59,7 @@ const DocumentCard = ({
           </div>
 
           {/* MAIN NAME */}
-          <Link to={`/document/${document.documentId}`}>
+          <Link to={`/editor`}>
             <div className="font-bold text-2xl">{document?.documentName}</div>
           </Link>
         </div>
@@ -72,7 +72,7 @@ const DocumentCard = ({
               {formatDateTimeAgo(document?.updatedAt)}
             </span>
           </p>
-          <Link to={`/document/${document.documentId}`}>
+          <Link to={`/editor`}>
             <div
               className={`opacity-70 w-4 h-4 rounded-full relative transition-transform group-hover:scale-[20] z-[1]`}
               style={{
@@ -85,7 +85,7 @@ const DocumentCard = ({
 
       {/* Icon */}
       <div className="absolute bottom-2 right-2 flex justify-center items-center opacity-0 group-hover:animate-slide-in-left group-hover:opacity-100 transition-opacity duration-300 z-10">
-        <Link to={`/editor/${document.documentId}`}>
+        <Link to={`/editor`}>
           <Icon icon="ph:arrow-right" className="text-4xl text-white" />
         </Link>
       </div>
