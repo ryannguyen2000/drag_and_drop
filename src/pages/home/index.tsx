@@ -246,7 +246,18 @@ const HomePage = () => {
           </div>
         </Modal>
 
-        <HueAnimate />
+        <HueAnimate
+          growthX="70%"
+          growthY="70%"
+          positionX="-10%"
+          positionY="110%"
+        />
+        <HueAnimate
+          growthX="70%"
+          growthY="70%"
+          positionX="100%"
+          positionY="0%"
+        />
 
         <div className="w-full min-w-[1200px] h-screen relative pl-12 pb-12 pt-6 grid grid-cols-12 gap-48 overflow-hidden z-10">
           <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-none">
