@@ -119,6 +119,10 @@ export const dndSlice = createSlice({
     setDeepLevel: (state, action) => {
       state.deepLevel = action.payload;
     },
+    setImage: (state, action) => {
+      const { id, image } = action.payload;
+      state.data = updateItem(state.data, id, { image });
+    },
   },
 });
 
@@ -127,6 +131,7 @@ export const {
   setActiveData,
   setSidebar,
   setData,
+  setImage,
   setProperties,
   setDeepLevel,
 } = dndSlice.actions;

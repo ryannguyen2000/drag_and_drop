@@ -23,4 +23,3 @@ export const projectsSlice = createSlice({
 export const {setListProjects, setShowContextMenu} = projectsSlice.actions;
 
 export default projectsSlice.reducer;
-asdasdasd; 
