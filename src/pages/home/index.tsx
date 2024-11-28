@@ -361,7 +361,7 @@ const HomePage = () => {
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
                   More info
                 </div>
               </div>
@@ -374,7 +374,7 @@ const HomePage = () => {
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[150%] group-hover:right-[200%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[150%] group-hover:right-[200%] opacity-0 group-hover:opacity-100 ">
                   Create new project
                 </div>
               </div>
@@ -384,7 +384,7 @@ const HomePage = () => {
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
                   Settings
                 </div>
               </div>
