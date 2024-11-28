@@ -6,7 +6,7 @@ import exportFromJSON from "export-from-json";
 import axios from "axios";
 import { ToastError, ToastSuccess } from "../toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { serializeFromJsonToString } from "../../utilities/text";
+import { extractImageUrl, serializeFromJsonToString } from "../../utilities/text";
 import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
 import DimensionInput from "../commom/input";
 import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
@@ -780,7 +780,7 @@ const PropertiesBar = () => {
                                                     <div className="aspect-[6/2]">
                                                         <div className="w-full h-full bg-slate-300 flex justify-center items-center cursor-pointer" onClick={() => setModalBackground(true)}>
                                                             <img
-                                                                src={backgroundImage}
+                                                                src={styles && styles?.backgroundImage && extractImageUrl(styles?.backgroundImage) || "https://via.placeholder.com/300x200"}
                                                                 alt=""
                                                                 className="w-full h-full object-cover"
                                                             />
