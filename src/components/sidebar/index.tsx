@@ -1,16 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Draggable from "../drangable";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../store";
-import {v4} from "uuid";
-import {io} from "socket.io-client";
-import {formatText, serializeFromJsonToString} from "../../utilities/text";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {getPastelColor} from "../../utilities/colors";
-import {DndContext, useDroppable} from "@dnd-kit/core";
-import {ToastError, ToastSuccess} from "../toast";
-import {cacheDataToIndexedDB} from "../../services/indexedDB/services";
-import {setData, setSidebar} from "../../store/DndSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { v4 } from "uuid";
+import { io } from "socket.io-client";
+import { formatText, serializeFromJsonToString } from "../../utilities/text";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { getPastelColor } from "../../utilities/colors";
+import { DndContext, useDroppable } from "@dnd-kit/core";
+import { ToastError, ToastSuccess } from "../toast";
+import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
+import { setData, setSidebar } from "../../store/DndSlice";
+import { GetData } from "../../apis";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
+import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
@@ -27,22 +32,22 @@ const Sidebar = () => {
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
           dispatch(setData(parsedData));
           if (parsedData?.childs.length > 0) {
             handleStoreDataToStorageAndState(parsedData);
           }
-          ToastSuccess({msg: "File imported successfully!"});
+          ToastSuccess({ msg: "File imported successfully!" });
           setModal(false);
         } catch (error) {
-          ToastError({msg: "Invalid JSON file"});
+          ToastError({ msg: "Invalid JSON file" });
         }
       };
       reader.readAsText(file);
     } else {
-      ToastError({msg: "Please upload a valid JSON file"});
+      ToastError({ msg: "Please upload a valid JSON file" });
     }
   };
 
@@ -57,6 +62,44 @@ const Sidebar = () => {
     if (file) handleFile(file);
   };
 
+  const getSlicesData = async () => {
+    try {
+      const response = (await GetData(
+        `${import.meta.env.VITE__API_HOST}/api/slices?pId=${DecryptBasic(
+          GetACookie("pid"),
+          Enum.srkey
+        )}&dId=${DecryptBasic(GetACookie("did"), Enum.srkey)}`
+      )) as any;
+      if (response) {
+        return response?.map((item: any) => ({
+          ...item,
+          id: item?.sliceId,
+          columns: "1",
+          rows: "1",
+          colspan: "1",
+          rowspan: "1",
+          gap: "1",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          type: "content",
+          childs: [],
+          style: {},
+          thumbnailUrl: item?.thumbnailUrl || "",
+        }));
+      }
+    } catch (error) {
+      //
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getSlicesData();
+      dispatch(setSidebar(result));
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const socket = io(
       "https://serverless-tn-layout-production.up.railway.app",
@@ -66,10 +109,10 @@ const Sidebar = () => {
       }
     );
 
-    socket.on("webhook-data", (data) => {
-      console.log(data);
-      dispatch(setSidebar(data));
-      // alert("Webhook " + data);
+    socket.on("webhook-data", async data => {
+      alert("Webhook " + data);
+      const result = await getSlicesData();
+      dispatch(setSidebar(result));
     });
 
     return () => {
@@ -184,6 +227,22 @@ const Sidebar = () => {
               className="p-2 rounded-xl text-center text-sm truncate line-clamp-2">
               {formatText("" + item.id)}
             </div>
+            {/* NextUI Tooltip */}
+            <Tooltip
+              content={
+                item.thumbnailUrl ? (
+                  <img
+                    src={item.thumbnailUrl}
+                    alt="Thumbnail"
+                    className="w-32 h-32"
+                  />
+                ) : (
+                  "No image available"
+                )
+              }
+              placement="top">
+              <div className="w-full h-full"></div>
+            </Tooltip>
           </Draggable>
         ))}
       </div>

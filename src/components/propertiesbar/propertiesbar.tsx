@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Obj, setActiveData, setData, setImage } from "../../store/DndSlice";
+import { Obj, setActiveData, setData, setThumnail } from "../../store/DndSlice";
 import { RootState } from "../../store";
 import exportFromJSON from "export-from-json";
 import axios from "axios";
-import { ToastError, ToastSuccess } from "../toast";
+import { ToastDismiss, ToastError, ToastSuccess } from "../toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { serializeFromJsonToString } from "../../utilities/text";
 import {
   cacheDataToIndexedDB,
   getCachedDataFromIndexedDB,
 } from "../../services/indexedDB/services";
-import DimensionInput from "../commom/input";
-import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
-import ColorPickerInput from "../commom/color";
-import BackgroundChoosen from "../commom/background-choosen";
 import { saveDocument } from "../../services/documents/api";
+import { transformData } from "../../utilities/formatData";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
 
 const justifyList = [
   {
@@ -57,7 +57,7 @@ const alignList = [
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const { activeData, activeId, data } = useSelector(
+  const { activeData, activeId, data, thumnail } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -92,7 +92,7 @@ const PropertiesBar = () => {
     "color"
   );
   const [modalBackground, setModalBackground] = useState<boolean>(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setThumnailPreview] = useState<string | null>(null);
 
   const [isLayout, setIsLayout] = useState<string>("grid");
 
@@ -154,6 +154,7 @@ const PropertiesBar = () => {
           alignItems: alignItems.toString(),
           style: styles,
           childs: childsList,
+          thumnail: thumnail,
         })
       );
       return;
@@ -172,6 +173,7 @@ const PropertiesBar = () => {
             justifyContent: justifyContent.toString(),
             alignItems: alignItems.toString(),
             style: styles,
+            thumnail: thumnail,
           };
         }
 
@@ -190,7 +192,7 @@ const PropertiesBar = () => {
 
     const newData = { ...copyData, childs: updatedChilds };
     dispatch(setData(newData));
-    if (newData?.childs.length > 0) {
+    if (newData?.childs?.length > 0) {
       handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
     }
   };
@@ -206,6 +208,7 @@ const PropertiesBar = () => {
     justifyContent,
     alignItems,
     styles,
+    thumnail,
   ]);
 
   const handleColumnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -422,14 +425,45 @@ const PropertiesBar = () => {
   };
 
   const handlePublishJsonData = async () => {
-    const response = await axios.post(
-      "https://serverless-tn-layout-production.up.railway.app/publish",
-      data
-    );
-    if (response.status === 200 || response.status === 201) {
-      ToastSuccess({ msg: "Published successfully" });
-    } else {
-      ToastError({ msg: "Oops! Something went wrong to available publish" });
+    const documentData = {
+      projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
+      documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
+      dataJson: data,
+    };
+    try {
+      const finalData = transformData(
+        data,
+        DecryptBasic(GetACookie("pid"), Enum.srkey),
+        DecryptBasic(GetACookie("did"), Enum.srkey)
+      );
+      if (finalData) {
+        const saveResponse = await axios.post(
+          "https://serverless-tn-layout-production.up.railway.app/api/slices",
+          finalData
+        );
+        const saveDocResponse = await axios.post(
+          "https://serverless-tn-layout-production.up.railway.app/api/documents",
+          documentData
+        );
+        if (saveDocResponse.status === 200 || saveDocResponse.status === 201) {
+          console.log(saveDocResponse);
+        }
+        if (saveResponse.status === 200 || saveResponse.status === 201) {
+          const response = await axios.post(
+            "https://serverless-tn-layout-production.up.railway.app/publish",
+            data
+          );
+          if (response.status === 200 || response.status === 201) {
+            ToastSuccess({ msg: "Published successfully" });
+          } else {
+            ToastError({
+              msg: "Oops! Something went wrong to available publish",
+            });
+          }
+        }
+      }
+    } catch (error) {
+      //
     }
 
     // Save document to DB
@@ -458,7 +492,7 @@ const PropertiesBar = () => {
       const currentActiveData = findActiveData(data);
       if (currentActiveData) {
         dispatch(setActiveData(currentActiveData));
-        setImagePreview(currentActiveData.image || null);
+        // setThumnailPreview(currentActiveData.thumnail || null);
       }
     }
   }, [activeId, data, dispatch]);
@@ -481,21 +515,13 @@ const PropertiesBar = () => {
         const uploadedImageUrl = await uploadImageToServer(base64Image);
 
         if (uploadedImageUrl) {
-          dispatch(setImage({ id: activeId, image: uploadedImageUrl }));
-          setImagePreview(uploadedImageUrl);
+          dispatch(setThumnail(uploadedImageUrl));
+          setThumnailPreview(uploadedImageUrl);
+          ToastDismiss();
           ToastSuccess({ msg: "Image uploaded successfully!" });
 
-          const sliceData = {
-            sliceId: activeId,
-            thumnail: uploadedImageUrl,
-            detail: activeData,
-          };
-          console.log("Uploading Slice Data:", sliceData);
-
-          await uploadSliceData(sliceData);
+          e.target.value = "";
         }
-
-        e.target.value = "";
       };
       reader.readAsDataURL(file);
     }
@@ -510,7 +536,7 @@ const PropertiesBar = () => {
   ): Promise<string | null> => {
     try {
       const response = await axios.post(
-        "https://serverless-tn-layout-production.up.railway.app/upload",
+        "https://serverless-tn-layout-production.up.railway.app/api/upload",
         { image: base64Image },
         {
           headers: {
@@ -519,50 +545,17 @@ const PropertiesBar = () => {
         }
       );
 
-      // Kiểm tra toàn bộ response trả về từ server
       console.log("Server Response:", response.data);
 
-      // Thay đổi key 'url' nếu server sử dụng key khác
       if (response.status === 200 || response.status === 201) {
-        ToastSuccess({ msg: "Upload successfully!" });
+        // ToastSuccess({ msg: "Upload successfully!" });
 
-        return response.data.url; // Trả về URL từ server
+        return response.data?.imageUrl;
       }
     } catch (error) {
       console.error("Error uploading image:", error);
       ToastError({ msg: "Error uploading image to server." });
       return null;
-    }
-  };
-
-  const uploadSliceData = async (sliceData: {
-    sliceId: string;
-    thumnail: string;
-    detail: Obj;
-  }) => {
-    try {
-      const response = await axios.post(
-        "https://serverless-tn-layout-production.up.railway.app/api/slice",
-        sliceData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Slice API Response:", response.data);
-
-      if (response.status === 200 || response.status === 201) {
-        ToastSuccess({ msg: "Slice data uploaded successfully!" });
-      } else {
-        ToastError({
-          msg: "Failed to upload slice data. Server returned an error.",
-        });
-      }
-    } catch (error) {
-      console.error("Error uploading slice data:", error);
-      ToastError({ msg: "Error uploading slice data to server." });
     }
   };
 

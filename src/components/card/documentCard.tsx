@@ -1,11 +1,14 @@
 import {Icon} from "@iconify/react/dist/iconify.js";
 import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {DeleteDocumentModal} from "../../pages/documents/components/deleteDocumentModal";
-import {setActiveDocument} from "../../store/documents/documentSlice";
-import {IDocument} from "../../store/documents/type";
-import {formatDateTimeAgo} from "../../utilities/dateTime";
+import { Link, useNavigate } from "react-router-dom";
+import { DeleteDocumentModal } from "../../pages/documents/components/deleteDocumentModal";
+import { setActiveDocument } from "../../store/documents/documentSlice";
+import { IDocument } from "../../store/documents/type";
+import { formatDateTimeAgo } from "../../utilities/dateTime";
 import DocumentDropdown from "../dropdown/documentDropdown";
+import { GetACookie, SaveACookie } from "../../utilities/cookies";
+import { EncryptBasic } from "../../utilities/hash_aes";
+import { Enum } from "../../config/common";
 
 const colors = ["#DA4D1D", "#2b26c3", "#01a439", "#394ca6", "#ffbe00"];
 
@@ -20,12 +23,20 @@ const DocumentCard = ({
 
   // redux
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  function navigationEditor(): void {
+    SaveACookie({
+      key: "did",
+      token: EncryptBasic(document.documentId, Enum.srkey).toString(),
+      expired: 1,
+    });
+    navigate("/editor");
+  }
 
   return (
     <div
       className="transition-all overflow-hidden group duration-500 ease-in-out rounded-md hover:rounded-xl hover:shadow-xl 
-        bg-white/90 backdrop-blur-[3.7px] w-full min-h-[15.625rem] h-full border border-white/15 p-5 cursor-pointer relative"
-    >
+        bg-white/90 backdrop-blur-[3.7px] w-full min-h-[15.625rem] h-full border border-white/15 p-5 cursor-pointer relative">
       <div className="min-w-full w-full h-full flex flex-col justify-between items-start gap-3">
         {/* Header */}
         <div className="w-full flex-grow z-10">
@@ -33,8 +44,7 @@ const DocumentCard = ({
           <div className=" flex justify-between items-center gap-3">
             <Link
               to={`/editor`}
-              className="font-medium text-neutral-400 text-lg mb-2 border-[0.0781rem] border-neutral-400 rounded-full w-fit"
-            >
+              className="font-medium text-neutral-400 text-lg mb-2 border-[0.0781rem] border-neutral-400 rounded-full w-fit">
               <span className="y-2 mx-3">
                 {Number(index) < 10 ? `0${index}` : index || "01"}
               </span>
@@ -43,8 +53,7 @@ const DocumentCard = ({
             {/* TOOL BAR */}
             <div
               className="flex items-center gap-3"
-              onClick={() => dispatch(setActiveDocument(document))}
-            >
+              onClick={() => dispatch(setActiveDocument(document))}>
               <DocumentDropdown
                 controlChildren={
                   <Icon
@@ -59,9 +68,9 @@ const DocumentCard = ({
           </div>
 
           {/* MAIN NAME */}
-          <Link to={`/editor`}>
+          <div onClick={() => navigationEditor()}>
             <div className="font-bold text-2xl">{document?.documentName}</div>
-          </Link>
+          </div>
         </div>
 
         {/* Footer */}
@@ -72,22 +81,22 @@ const DocumentCard = ({
               {formatDateTimeAgo(document?.updatedAt)}
             </span>
           </p>
-          <Link to={`/editor`}>
+          <div onClick={() => navigationEditor()}>
             <div
               className={`opacity-70 w-4 h-4 rounded-full relative transition-transform group-hover:scale-[20] z-[1]`}
               style={{
                 backgroundColor: randomColor,
               }}
             />
-          </Link>
+          </div>
         </div>
       </div>
 
       {/* Icon */}
       <div className="absolute bottom-2 right-2 flex justify-center items-center opacity-0 group-hover:animate-slide-in-left group-hover:opacity-100 transition-opacity duration-300 z-10">
-        <Link to={`/editor`}>
+        <div onClick={() => navigationEditor()}>
           <Icon icon="ph:arrow-right" className="text-4xl text-white" />
-        </Link>
+        </div>
       </div>
     </div>
   );
