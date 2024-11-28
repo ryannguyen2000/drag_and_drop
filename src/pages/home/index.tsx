@@ -57,10 +57,6 @@ const HomePage = () => {
   }, []);
 
   const handleClickProject = (id: string) => {
-    if (GetACookie("pid")) {
-      navigate("/documents");
-      return;
-    }
     SaveACookie({
       key: "pid",
       token: EncryptBasic(id, Enum.srkey).toString(),

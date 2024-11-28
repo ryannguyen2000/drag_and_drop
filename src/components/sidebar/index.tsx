@@ -84,7 +84,7 @@ const Sidebar = () => {
           type: "content",
           childs: [],
           style: {},
-          thumbnailUrl: item?.thumbnailUrl || "",
+          thumbnail: item?.thumbnailUrl || "",
         }));
       }
     } catch (error) {
@@ -110,7 +110,6 @@ const Sidebar = () => {
     );
 
     socket.on("webhook-data", async (data) => {
-      // alert("Webhook " + data);
       const result = await getSlicesData();
       dispatch(setSidebar(result));
     });
