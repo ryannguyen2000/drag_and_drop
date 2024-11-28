@@ -57,10 +57,6 @@ const HomePage = () => {
   }, []);
 
   const handleClickProject = (id: string) => {
-    if (GetACookie("pid")) {
-      navigate("/documents");
-      return;
-    }
     SaveACookie({
       key: "pid",
       token: EncryptBasic(id, Enum.srkey).toString(),
@@ -361,11 +357,11 @@ const HomePage = () => {
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
                   More info
                 </div>
               </div>
-              <div
+              {/* <div
                 onClick={() => setOpenProjectModal(true)}
                 className="absolute bg-white shadow-lg cursor-pointer border border-gray-100 w-16 h-16 rounded-full top-[50%] -translate-x-[52%] -translate-y-[50%] flex items-center justify-center hover:scale-125 transition-all duration-500 group"
               >
@@ -374,17 +370,17 @@ const HomePage = () => {
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[150%] group-hover:right-[200%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[150%] group-hover:right-[200%] opacity-0 group-hover:opacity-100 ">
                   Create new project
                 </div>
-              </div>
-              <div className="absolute bg-white shadow-lg cursor-pointer border border-gray-100 w-16 h-16 rounded-full top-[60%] -translate-x-[44%] -translate-y-[50%] flex items-center justify-center hover:scale-125 transition-all duration-500 group">
+              </div> */}
+              <div className="absolute bg-white shadow-lg cursor-pointer border border-gray-100 w-16 h-16 rounded-full top-[50%] -translate-x-[52%] -translate-y-[50%] flex items-center justify-center hover:scale-125 transition-all duration-500 group">
                 <Icon
                   icon="ph:gear"
                   fontSize={24}
                   className="group-hover:rotate-180 transition-all duration-300 ease-linear absolute"
                 />
-                <div className="relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
+                <div className="pointer-events-none relative bg-white text-nowrap px-4 py-3 rounded-xl group-hover:scale-75 transition-all duration-500 shadow-lg right-[100%] group-hover:right-[150%] opacity-0 group-hover:opacity-100 ">
                   Settings
                 </div>
               </div>

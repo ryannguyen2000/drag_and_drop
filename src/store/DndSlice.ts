@@ -60,7 +60,8 @@ const initialState: DndState = {
     style: {},
     childs: [],
   },
-  sidebar: sample_data.childs,
+  // sidebar: sample_data.childs,
+  sidebar: [],
   properties: {
     columns: "1",
     rows: "1",
@@ -80,19 +81,19 @@ const updateItem = (
   updatedValues: Partial<Obj>
 ): Obj => {
   if (data.id === id) {
-    return { ...data, ...updatedValues };
+    return {...data, ...updatedValues};
   }
 
   if (!data.childs || data.childs.length === 0) {
     return data;
   }
 
-  const updatedChilds = data.childs.map(child =>
+  const updatedChilds = data.childs.map((child) =>
     updateItem(child, id, updatedValues)
   );
 
   if (updatedChilds !== data.childs) {
-    return { ...data, childs: updatedChilds };
+    return {...data, childs: updatedChilds};
   }
 
   return data;
