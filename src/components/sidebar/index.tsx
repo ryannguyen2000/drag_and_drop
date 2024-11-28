@@ -1,16 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Draggable from "../drangable";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../store";
-import {v4} from "uuid";
-import {io} from "socket.io-client";
-import {formatText, serializeFromJsonToString} from "../../utilities/text";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {getPastelColor} from "../../utilities/colors";
-import {DndContext, useDroppable} from "@dnd-kit/core";
-import {ToastError, ToastSuccess} from "../toast";
-import {cacheDataToIndexedDB} from "../../services/indexedDB/services";
-import {setData, setSidebar} from "../../store/DndSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { v4 } from "uuid";
+import { io } from "socket.io-client";
+import { formatText, serializeFromJsonToString } from "../../utilities/text";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { getPastelColor } from "../../utilities/colors";
+import { DndContext, useDroppable } from "@dnd-kit/core";
+import { ToastError, ToastSuccess } from "../toast";
+import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
+import { setData, setSidebar } from "../../store/DndSlice";
+import { GetData } from "../../apis";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
+import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
@@ -27,22 +32,22 @@ const Sidebar = () => {
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
           dispatch(setData(parsedData));
           if (parsedData?.childs.length > 0) {
             handleStoreDataToStorageAndState(parsedData);
           }
-          ToastSuccess({msg: "File imported successfully!"});
+          ToastSuccess({ msg: "File imported successfully!" });
           setModal(false);
         } catch (error) {
-          ToastError({msg: "Invalid JSON file"});
+          ToastError({ msg: "Invalid JSON file" });
         }
       };
       reader.readAsText(file);
     } else {
-      ToastError({msg: "Please upload a valid JSON file"});
+      ToastError({ msg: "Please upload a valid JSON file" });
     }
   };
 
@@ -57,6 +62,44 @@ const Sidebar = () => {
     if (file) handleFile(file);
   };
 
+  const getSlicesData = async () => {
+    try {
+      const response = (await GetData(
+        `${import.meta.env.VITE__API_HOST}/api/slices?pId=${DecryptBasic(
+          GetACookie("pid"),
+          Enum.srkey
+        )}&dId=${DecryptBasic(GetACookie("did"), Enum.srkey)}`
+      )) as any;
+      if (response) {
+        return response?.map((item: any) => ({
+          ...item,
+          id: item?.sliceId,
+          columns: "1",
+          rows: "1",
+          colspan: "1",
+          rowspan: "1",
+          gap: "1",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          type: "content",
+          childs: [],
+          style: {},
+          thumbnailUrl: item?.thumbnailUrl || "",
+        }));
+      }
+    } catch (error) {
+      //
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getSlicesData();
+      dispatch(setSidebar(result));
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const socket = io(
       "https://serverless-tn-layout-production.up.railway.app",
@@ -66,10 +109,10 @@ const Sidebar = () => {
       }
     );
 
-    socket.on("webhook-data", (data) => {
-      console.log(data);
-      dispatch(setSidebar(data));
-      // alert("Webhook " + data);
+    socket.on("webhook-data", async data => {
+      alert("Webhook " + data);
+      const result = await getSlicesData();
+      dispatch(setSidebar(result));
     });
 
     return () => {
@@ -82,12 +125,10 @@ const Sidebar = () => {
       {modal && (
         <div
           className="flex items-center justify-center top-0 left-0 animate-fade fixed z-[900] w-screen h-screen bg-black/30"
-          onClick={() => setModal(false)}
-        >
+          onClick={() => setModal(false)}>
           <div
             className="p-6 bg-white rounded-2xl w-full max-w-96 aspect-video animate-delay-200 animate-fade-up"
-            onClick={(e) => e.stopPropagation()}
-          >
+            onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between font-semibold">
               Import
               <Icon
@@ -98,23 +139,20 @@ const Sidebar = () => {
               />
             </div>
             <DndContext
-              onDragEnd={(event) => {
+              onDragEnd={event => {
                 const file = event.active.data.current as File | undefined;
                 if (file) handleFile(file);
-              }}
-            >
+              }}>
               <div
-                onDragOver={(e) => e.preventDefault()}
+                onDragOver={e => e.preventDefault()}
                 onDrop={handleDrop}
-                className={`h-full flex flex-col items-center relative justify-center mt-6 border-dashed border  rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]`}
-              >
+                className={`h-full flex flex-col items-center relative justify-center mt-6 border-dashed border  rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]`}>
                 <div className="w-full relative h-full flex flex-col justify-center items-center z-[2]">
                   <span className="text-slate-500">Drop JSON here</span>
                   <span className="text-slate-500 text-sm">or</span>
                   <label
                     htmlFor="import-json-field"
-                    className="mt-2 bg-white cursor-pointer select-none px-4 py-2 border rounded-xl hover:bg-cyan-100 transition-all duration-500"
-                  >
+                    className="mt-2 bg-white cursor-pointer select-none px-4 py-2 border rounded-xl hover:bg-cyan-100 transition-all duration-500">
                     Browse
                     <input
                       onChange={handleInputChange}
@@ -134,8 +172,7 @@ const Sidebar = () => {
         <span>Elements</span>
         <div
           onClick={() => setModal(true)}
-          className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center"
-        >
+          className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center">
           Import
         </div>
       </div>
@@ -150,8 +187,7 @@ const Sidebar = () => {
           alignItems="flex-start"
           justifyContent="flex-start"
           gap="1"
-          id={v4()}
-        >
+          id={v4()}>
           <div className="flex gap-2 justify-center items-center">
             <Icon icon="ph:columns" fontSize={28} />
             <div className="rounded-xl text-center truncate text-sm">
@@ -169,8 +205,7 @@ const Sidebar = () => {
           alignItems="flex-start"
           justifyContent="flex-start"
           gap="1"
-          id={v4()}
-        >
+          id={v4()}>
           <div className="flex gap-2 justify-center items-center p-7">
             <Icon icon="ph:square" fontSize={28} />
             <div className="rounded-xl text-center text-sm truncate">
@@ -182,18 +217,32 @@ const Sidebar = () => {
       <div className="px-4 w-full gap-2 grid grid-cols-4 ">
         {sidebar.map((item, index) => (
           <Draggable
-            styling={{backgroundColor: getPastelColor(index, 4)}}
+            styling={{ backgroundColor: getPastelColor(index, 4) }}
             className="col-span-1 w-full h-16 text-white flex items-center justify-center rounded-xl"
             {...item}
             key={index}
-            id={item.id}
-          >
+            id={item.id}>
             <div
               title={formatText(item.id)}
-              className="p-2 rounded-xl text-center text-sm truncate line-clamp-2"
-            >
-              {formatText(item.id)}
+              className="p-2 rounded-xl text-center text-sm truncate line-clamp-2">
+              {formatText("" + item.id)}
             </div>
+            {/* NextUI Tooltip */}
+            <Tooltip
+              content={
+                item.thumbnailUrl ? (
+                  <img
+                    src={item.thumbnailUrl}
+                    alt="Thumbnail"
+                    className="w-32 h-32"
+                  />
+                ) : (
+                  "No image available"
+                )
+              }
+              placement="top">
+              <div className="w-full h-full"></div>
+            </Tooltip>
           </Draggable>
         ))}
       </div>

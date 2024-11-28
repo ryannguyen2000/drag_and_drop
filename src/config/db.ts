@@ -11,7 +11,7 @@ interface DatabaseType {
 const db = new Dexie(INDEXED_DB_NAME) as Dexie & {
   tool_db: EntityTable<
     DatabaseType,
-    "id" // primary key "id" (for the typings only)
+    "id"
   >;
 };
 
