@@ -428,7 +428,9 @@ const PropertiesBar = () => {
     const documentData = {
       projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
       documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
-      dataJson: data,
+      layoutJson: data,
+      documentName: "_",
+      thumnail: "_",
     };
     try {
       const finalData = transformData(
@@ -752,10 +754,19 @@ const PropertiesBar = () => {
                 onChange={handleImageChange}
                 className="h-10 w-full border rounded-lg px-3 mt-2"
               />
-              {imagePreview && (
+              {!imagePreview && (
                 <div className="mt-2">
                   <img
-                    src={imagePreview} // Hiển thị ảnh từ URL server trả về
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-auto rounded-lg"
+                  />
+                </div>
+              )}
+              {imagePreview && activeData.thumnail && (
+                <div className="mt-2">
+                  <img
+                    src={activeData.thumnail}
                     alt="Preview"
                     className="w-full h-auto rounded-lg"
                   />
