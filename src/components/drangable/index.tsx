@@ -1,10 +1,10 @@
-import {useDraggable, useDroppable} from "@dnd-kit/core";
-import {CSS} from "@dnd-kit/utilities";
-import {Icon} from "@iconify/react";
-import {useDispatch, useSelector} from "react-redux";
-import {CSSProperties} from "react";
-import {RootState} from "../../store";
-import {setActiveId} from "../../store/DndSlice";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { Icon } from "@iconify/react";
+import { useDispatch, useSelector } from "react-redux";
+import { CSSProperties } from "react";
+import { RootState } from "../../store";
+import { setActiveId } from "../../store/DndSlice";
 const Draggable = ({
   colspan,
   rowspan,
@@ -18,8 +18,10 @@ const Draggable = ({
   children,
   className = "",
   styling,
+  thumnail = "_",
 }: {
   id: string;
+  thumnail: string;
   colspan: string;
   rowspan: string;
   columns: string;
@@ -32,7 +34,7 @@ const Draggable = ({
   children: React.ReactNode;
   styling?: CSSProperties;
 }) => {
-  const {attributes, listeners, setNodeRef, over, transform} = useDraggable({
+  const { attributes, listeners, setNodeRef, over, transform } = useDraggable({
     id: id.toString(),
     data: {
       colspan,
@@ -43,13 +45,14 @@ const Draggable = ({
       gap,
       alignItems,
       justifyContent,
+      thumnail,
     },
   });
   const style = {
     transform: CSS.Translate.toString(transform),
     ...styling,
   };
-  const {deepLevel} = useSelector((state: RootState) => state.dndSlice);
+  const { deepLevel } = useSelector((state: RootState) => state.dndSlice);
 
   const dispatch = useDispatch();
 
@@ -60,12 +63,11 @@ const Draggable = ({
       className={`min-h-10 ${className} overflow-hidden cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
-      onClick={(event) => {
+      onClick={event => {
         event.stopPropagation();
         event.preventDefault();
         dispatch(setActiveId(id));
-      }}
-    >
+      }}>
       <Icon
         icon="ph:dots-six-vertical"
         style={{

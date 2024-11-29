@@ -437,6 +437,8 @@ const PropertiesBar = () => {
       documentName: "_",
       thumnail: "_",
     };
+    console.log("data nè", JSON.parse(JSON.stringify(data)));
+
     try {
       const finalData = transformData(
         data,
@@ -461,7 +463,7 @@ const PropertiesBar = () => {
             data
           );
           if (response.status === 200 || response.status === 201) {
-            ToastSuccess({msg: "Published successfully"});
+            ToastSuccess({ msg: "Published successfully" });
           } else {
             ToastError({
               msg: "Oops! Something went wrong to available publish",
@@ -499,7 +501,6 @@ const PropertiesBar = () => {
       const currentActiveData = findActiveData(data);
       if (currentActiveData) {
         dispatch(setActiveData(currentActiveData));
-        // setThumnailPreview(currentActiveData.thumnail || null);
       }
     }
   }, [activeId, data, dispatch]);
