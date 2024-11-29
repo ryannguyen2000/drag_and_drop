@@ -45,7 +45,7 @@ const Editor = () => {
       nodes.forEach((node) => {
         if (
           node.id === parent_id &&
-          !node.childs.some((child) => child.id === id)
+          !node.childs.some(child => child.id === id)
         ) {
           node.childs = [
             ...node.childs,
