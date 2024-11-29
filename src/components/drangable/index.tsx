@@ -21,7 +21,7 @@ const Draggable = ({
   thumnail = "_",
 }: {
   id: string;
-  thumnail: string;
+  thumnail?: string;
   colspan: string;
   rowspan: string;
   columns: string;

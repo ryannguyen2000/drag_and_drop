@@ -42,7 +42,7 @@ export interface Obj {
   alignItems: string;
   style?: React.CSSProperties;
   childs: Obj[];
-  thumnail: string;
+  thumnail?: string;
 }
 
 const initialState: DndState = {

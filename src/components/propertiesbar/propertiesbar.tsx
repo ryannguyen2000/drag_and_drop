@@ -757,35 +757,37 @@ const PropertiesBar = () => {
                 <span className="text-xl font-medium text-gray-700">
                   Styling
                 </span>
-                <div className="flex flex-col mt-3 mb-4">
-                  <label className="text-sm font-medium text-gray-400">
-                    Upload Image
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="h-10 w-full border rounded-lg px-3 mt-2"
-                  />
-                  {!imagePreview && (
-                    <div className="mt-2">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-auto rounded-lg"
-                      />
-                    </div>
-                  )}
-                  {imagePreview && activeData.thumnail && (
-                    <div className="mt-2">
-                      <img
-                        src={activeData.thumnail}
-                        alt="Preview"
-                        className="w-full h-auto rounded-lg"
-                      />
-                    </div>
-                  )}
-                </div>
+                {isLayout === "content" && (
+                  <div className="flex flex-col mt-3 mb-4  animate-fade-up ">
+                    <label className="text-sm font-medium text-gray-400">
+                      Upload Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="h-10 w-full border rounded-lg px-3 mt-2"
+                    />
+                    {!imagePreview && (
+                      <div className="mt-2">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-auto rounded-lg"
+                        />
+                      </div>
+                    )}
+                    {imagePreview && activeData.thumnail && (
+                      <div className="mt-2">
+                        <img
+                          src={activeData.thumnail}
+                          alt="Preview"
+                          className="w-full h-auto rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="space-y-4 w-full mt-6">
                   {/* DIMENSION */}
                   <details

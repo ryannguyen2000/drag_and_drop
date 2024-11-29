@@ -60,7 +60,7 @@ const Editor = () => {
               alignItems: detail.alignItems,
               type: detail.type,
               childs: layoutChilds,
-              thumnail: "_",
+              thumnail: detail.thumnail,
             },
           ];
         } else if (node.childs.length > 0) {
@@ -81,7 +81,7 @@ const Editor = () => {
         alignItems: detail.alignItems,
         type: detail.type,
         childs: layoutChilds,
-        thumnail: "_",
+        thumnail: detail.thumnail,
       });
     } else {
       addChildToParent(newData.childs);
@@ -194,6 +194,7 @@ const Editor = () => {
                 gap={data.gap}
                 currentDepth={1}
                 type={data.type}
+                thumnail={data.thumnail}
               />
             </Droppable>
           </div>

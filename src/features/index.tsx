@@ -24,8 +24,10 @@ const ItemsRenderer = ({
   style,
   childs,
   currentDepth,
+  thumnail,
 }: {
   id: string;
+  thumnail?: string;
   columns: string;
   rows: string;
   colspan: string;
@@ -80,7 +82,8 @@ const ItemsRenderer = ({
           gap={gap}
           type={type}
           key={id}
-          id={id}>
+          id={id}
+          thumnail={thumnail}>
           <div
             className={`flex h-full w-full ${convertJustify(
               justifyContent
@@ -119,7 +122,8 @@ const ItemsRenderer = ({
           type={type}
           style={style}
           key={id}
-          id={id}>
+          id={id}
+          thumnail={thumnail}>
           <div
             className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
               Number(columns)

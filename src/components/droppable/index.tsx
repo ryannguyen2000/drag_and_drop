@@ -46,6 +46,7 @@ const Droppable = ({
       style,
       alignItems,
       justifyContent,
+      thumnail,
     },
   });
 
