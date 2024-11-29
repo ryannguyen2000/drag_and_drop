@@ -26,12 +26,28 @@ const Editor = () => {
     let layoutChilds: Obj[] = [];
 
     const removeChildFromParent = (nodes: Obj[]) => {
-      nodes.forEach((node) => {
-        const targetChild = node.childs.find((child) => child.id === id);
+      nodes.forEach(node => {
+        const targetChild = node.childs.find(child => child.id === id);
         if (targetChild) {
           layoutChilds = targetChild.childs;
+          dispatch(
+            setSidebar([
+              ...sidebar,
+              {
+                columns: "1",
+                rows: "1",
+                type: "grid",
+                colspan: "1",
+                rowspan: "1",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                gap: "1",
+                id: targetChild.id,
+              },
+            ])
+          );
         }
-        node.childs = node.childs.filter((child) => child.id !== id);
+        node.childs = node.childs.filter(child => child.id !== id);
 
         if (node.childs.length > 0) {
           removeChildFromParent(node.childs);
@@ -42,7 +58,7 @@ const Editor = () => {
     removeChildFromParent([newData]);
 
     const addChildToParent = (nodes: Obj[]) => {
-      nodes.forEach((node) => {
+      nodes.forEach(node => {
         if (
           node.id === parent_id &&
           !node.childs.some(child => child.id === id)
@@ -104,14 +120,14 @@ const Editor = () => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const {over, active} = event;
+    const { over, active } = event;
     hideBin();
     if (over?.id === "trash-bin") {
       const newData = JSON.parse(JSON.stringify(data));
       const removeItem = (nodes: Obj[]): Obj[] =>
         nodes
-          .filter((node) => node.id !== active.id)
-          .map((node) => ({
+          .filter(node => node.id !== active.id)
+          .map(node => ({
             ...node,
             childs: removeItem(node.childs),
           }));
@@ -123,9 +139,8 @@ const Editor = () => {
 
     if (over && active.id !== over.id) {
       FindToAdd(active.id.toString(), active.data.current, over.id.toString());
-
-      if (deepLevel > 6) {
-        const updatedSidebar = sidebar.filter((sb) => sb.id !== active.id);
+      if (deepLevel <= 6) {
+        const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
         dispatch(setSidebar(updatedSidebar));
       }
     }
