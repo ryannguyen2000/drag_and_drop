@@ -20,136 +20,137 @@ const Editor = () => {
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
-  const FindToAdd = (id: string, detail: any, parent_id: string) => {
+const FindToAdd = (id: string, detail: any, parent_id: string) => {
+  const newData = JSON.parse(JSON.stringify(data));
+
+  let layoutChilds: Obj[] = [];
+
+  const removeChildFromParent = (nodes: Obj[]) => {
+    nodes.forEach(node => {
+      const targetChild = node.childs.find(child => child.id === id);
+      if (targetChild) {
+        layoutChilds = targetChild.childs;
+      }
+      node.childs = node.childs.filter(child => child.id !== id);
+
+      if (node.childs.length > 0) {
+        removeChildFromParent(node.childs);
+      }
+    });
+  };
+
+  removeChildFromParent([newData]);
+
+  const addChildToParent = (nodes: Obj[]) => {
+    nodes.forEach(node => {
+      if (
+        node.id === parent_id &&
+        !node.childs.some(child => child.id === id)
+      ) {
+        node.childs.push({
+          id,
+          columns: detail.columns,
+          rows: detail.rows,
+          colspan: detail.colspan,
+          rowspan: detail.rowspan,
+          gap: detail.gap,
+          justifyContent: detail.justifyContent,
+          alignItems: detail.alignItems,
+          type: detail.type,
+          childs: layoutChilds,
+          thumnail: detail.thumnail,
+        });
+      } else if (node.childs.length > 0) {
+        addChildToParent(node.childs);
+      }
+    });
+  };
+
+  if (newData.id === parent_id) {
+    newData.childs.push({
+      id,
+      columns: detail.columns,
+      rows: detail.rows,
+      colspan: detail.colspan,
+      rowspan: detail.rowspan,
+      gap: detail.gap,
+      justifyContent: detail.justifyContent,
+      alignItems: detail.alignItems,
+      type: detail.type,
+      childs: layoutChilds,
+      thumnail: detail.thumnail,
+    });
+  } else {
+    addChildToParent(newData.childs);
+  }
+
+  dispatch(setData(newData));
+};
+
+const hideBin = () => {
+  const bin = document.getElementById("bin_id");
+  if (!bin) return;
+  bin.style.display = "none";
+};
+const showBin = () => {
+  const bin = document.getElementById("bin_id");
+  if (!bin) return;
+  bin.style.display = "flex";
+};
+
+const handleDragStart = (event: DragStartEvent) => {
+  showBin();
+};
+
+const handleDragEnd = (event: DragEndEvent) => {
+  const { over, active } = event;
+  hideBin();
+
+  if (over?.id === "trash-bin") {
     const newData = JSON.parse(JSON.stringify(data));
 
-    let layoutChilds: Obj[] = [];
-
-    const removeChildFromParent = (nodes: Obj[]) => {
-      nodes.forEach(node => {
-        const targetChild = node.childs.find(child => child.id === id);
-        if (targetChild) {
-          layoutChilds = targetChild.childs;
-        }
-        node.childs = node.childs.filter(child => child.id !== id);
-
-        if (node.childs.length > 0) {
-          removeChildFromParent(node.childs);
-        }
-      });
+    const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
+      return nodes
+        .filter(node => node.id !== active.id)
+        .map(node => ({
+          ...node,
+          childs: removeItemFromLayout(node.childs),
+        }));
     };
 
-    removeChildFromParent([newData]);
+    newData.childs = removeItemFromLayout(newData.childs);
 
-    const addChildToParent = (nodes: Obj[]) => {
-      nodes.forEach(node => {
-        if (
-          node.id === parent_id &&
-          !node.childs.some(child => child.id === id)
-        ) {
-          node.childs = [
-            ...node.childs,
-            {
-              id,
-              columns: detail.columns,
-              rows: detail.rows,
-              colspan: detail.colspan,
-              rowspan: detail.rowspan,
-              gap: detail.gap,
-              justifyContent: detail.justifyContent,
-              alignItems: detail.alignItems,
-              type: detail.type,
-              childs: layoutChilds,
-              thumnail: detail.thumnail,
-            },
-          ];
-        } else if (node.childs.length > 0) {
-          addChildToParent(node.childs);
-        }
-      });
-    };
-
-    if (newData.id === parent_id) {
-      newData.childs.push({
-        id,
-        columns: detail.columns,
-        rows: detail.rows,
-        colspan: detail.colspan,
-        rowspan: detail.rowspan,
-        gap: detail.gap,
-        justifyContent: detail.justifyContent,
-        alignItems: detail.alignItems,
-        type: detail.type,
-        childs: layoutChilds,
-        thumnail: detail.thumnail,
-      });
-    } else {
-      addChildToParent(newData.childs);
-    }
-
+    const updatedSidebar = [
+      ...sidebar,
+      {
+        columns: "1",
+        rows: "1",
+        type: "content",
+        colspan: "1",
+        rowspan: "1",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        gap: "1",
+        id: active.id,
+        thumnail: "_",
+      },
+    ];
+    dispatch(setSidebar(updatedSidebar));
     dispatch(setData(newData));
-  };
 
-  const hideBin = () => {
-    const bin = document.getElementById("bin_id");
-    if (!bin) return;
-    bin.style.display = "none";
-  };
-  const showBin = () => {
-    const bin = document.getElementById("bin_id");
-    if (!bin) return;
-    bin.style.display = "flex";
-  };
+    return;
+  }
 
-  const handleDragStart = (event: DragStartEvent) => {
-    showBin();
-  };
+  if (over && active.id !== over.id) {
+    FindToAdd(active.id.toString(), active.data.current, over.id.toString());
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { over, active } = event;
-    hideBin();
-    if (over?.id === "trash-bin") {
-      const newData = JSON.parse(JSON.stringify(data));
-      const removeItem = (nodes: Obj[]): Obj[] =>
-        nodes
-          .filter(node => {
-            node.id !== active.id;
-            dispatch(
-              setSidebar([
-                ...sidebar,
-                {
-                  columns: "1",
-                  rows: "1",
-                  type: "content",
-                  colspan: "1",
-                  rowspan: "1",
-                  alignItems: "flex-start",
-                  justifyContent: "flex-start",
-                  gap: "1",
-                  id: active.id,
-                  thumnail: "_",
-                },
-              ])
-            );
-          })
-          .map(node => ({
-            ...node,
-            childs: removeItem(node.childs),
-          }));
-
-      newData.childs = removeItem(newData.childs);
-      dispatch(setData(newData));
-      return;
+    if (deepLevel <= 6) {
+      const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
+      dispatch(setSidebar(updatedSidebar));
     }
+  }
+};
 
-    if (over && active.id !== over.id) {
-      FindToAdd(active.id.toString(), active.data.current, over.id.toString());
-      if (deepLevel <= 6) {
-        const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
-        dispatch(setSidebar(updatedSidebar));
-      }
-    }
-  };
 
   return (
     <DndContext
