@@ -1,15 +1,15 @@
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
-import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
-import { setActiveId, setDeepLevel } from "../store/DndSlice";
-import { ToastBlank, ToastCustom, ToastDismiss } from "../components/toast";
-import { convertAlign, convertJustify } from "../utilities/flex";
-import { Gap } from "../utilities/grid";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../store";
+import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
+import {setActiveId, setDeepLevel} from "../store/DndSlice";
+import {ToastBlank, ToastCustom, ToastDismiss} from "../components/toast";
+import {convertAlign, convertJustify} from "../utilities/flex";
+import {Gap} from "../utilities/grid";
 import Droppable from "../components/droppable";
 import Draggable from "../components/drangable";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useEffect } from "react";
-import { formatText } from "../utilities/text";
+import {Icon} from "@iconify/react/dist/iconify.js";
+import {useEffect} from "react";
+import {formatText} from "../utilities/text";
 
 const ItemsRenderer = ({
   id,
@@ -40,7 +40,7 @@ const ItemsRenderer = ({
   childs: any[];
   currentDepth: number;
 }) => {
-  const { activeId } = useSelector((state: RootState) => state.dndSlice);
+  const {activeId} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   const totalCells = Number(columns) * Number(rows);
@@ -83,22 +83,25 @@ const ItemsRenderer = ({
           type={type}
           key={id}
           id={id}
-          thumnail={thumnail}>
+          thumnail={thumnail}
+        >
           <div
             className={`flex h-full w-full ${convertJustify(
               justifyContent
             )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
-            style={style}>
+            style={style}
+          >
             {childs.map((child: any) => (
               <Draggable
                 className={`h-fit w-fit`}
                 {...child}
                 key={child.id}
-                id={child.id}>
+                id={child.id}
+              >
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({ length: emptyCells }).map((_, index) => (
+            {Array.from({length: emptyCells}).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed w-full border-gray-500"
@@ -123,12 +126,14 @@ const ItemsRenderer = ({
           style={style}
           key={id}
           id={id}
-          thumnail={thumnail}>
+          thumnail={thumnail}
+        >
           <div
             className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
               Number(columns)
             )}`}
-            style={style}>
+            style={style}
+          >
             {childs.map((child: any) => (
               <Draggable
                 className={`
@@ -137,11 +142,12 @@ const ItemsRenderer = ({
                 )}`}
                 {...child}
                 key={child.id}
-                id={child.id}>
+                id={child.id}
+              >
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
-            {Array.from({ length: emptyCells }).map((_, index) => (
+            {Array.from({length: emptyCells}).map((_, index) => (
               <div
                 key={`empty-${index}`}
                 className="border border-dashed min-h-12 w-full border-gray-500"
@@ -153,7 +159,7 @@ const ItemsRenderer = ({
 
       {type === "content" && (
         <div
-          className={`p-2 border h-full border-dashed ${
+          className={`p-2 border text-center h-full border-dashed ${
             activeId === id && "border-2 border-green-500"
           } ${SpanRow(Number(rowspan))} ${SpanCol(
             Number(colspan)
@@ -161,7 +167,8 @@ const ItemsRenderer = ({
           style={style}
           onClick={() => {
             dispatch(setActiveId(id));
-          }}>
+          }}
+        >
           {formatText(id)}
           {childs.map((child: any) => (
             <Draggable {...child} key={child.id} id={child.id}>
