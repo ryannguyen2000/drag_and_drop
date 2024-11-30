@@ -1,16 +1,21 @@
-import { useEffect, useState } from "react";
-import { getAllDocument } from "../../../services/documents/api";
+import {useEffect, useState} from "react";
+import {getAllDocument} from "../../../services/documents/api";
 import DocumentCard, {
   DocumentCardSkeleton,
 } from "../../../components/card/documentCard";
-import { IDocument } from "../../../store/documents/type";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link } from "react-router-dom";
+import {IDocument} from "../../../store/documents/type";
+import {Icon} from "@iconify/react/dist/iconify.js";
+import {Link} from "react-router-dom";
 import ShiningButton from "../../../components/button/shiningButton";
-import { RootState } from "../../../store";
-import { useDispatch, useSelector } from "react-redux";
-import { setTriggerFetchListDocument } from "../../../store/global/globalSlice";
-import { SaveDocumentModal } from "./saveDocumentModal";
+import {RootState} from "../../../store";
+import {useDispatch, useSelector} from "react-redux";
+import {setTriggerFetchListDocument} from "../../../store/global/globalSlice";
+import {SaveDocumentModal} from "./saveDocumentModal";
+import axios from "axios";
+import {GetData} from "../../../apis";
+import {DecryptBasic} from "../../../utilities/hash_aes";
+import {GetACookie} from "../../../utilities/cookies";
+import {Enum} from "../../../config/common";
 
 export const ListDocument = () => {
   // redux
@@ -18,7 +23,7 @@ export const ListDocument = () => {
   const dispath = useDispatch();
 
   // state
-  const [listDocuments, setListDocuments] = useState<IDocument[]>([]);
+  const [listDocuments, setListDocuments] = useState<IDocument[] | any[]>([]);
   const [isLoading, setIsloading] = useState(false);
 
   useEffect(() => {
@@ -28,9 +33,14 @@ export const ListDocument = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsloading(true);
-      const data = await getAllDocument();
-      if (data.length > 0) {
-        setListDocuments(data);
+      const response = (await GetData(
+        `${import.meta.env.VITE__API_HOST}/api/documents?${DecryptBasic(
+          GetACookie("did"),
+          Enum.srkey
+        )}`
+      )) as any as any[];
+      if (response) {
+        setListDocuments(response);
       }
       setIsloading(false);
     };
@@ -66,7 +76,7 @@ export const ListDocument = () => {
 
       {isLoading ? (
         <div className="min-w-full w-full grid grid-cols-12 gap-4">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({length: 5}).map((_, i) => (
             <div key={i} className="col-span-12 sm:col-span-6 md:col-span-3">
               <DocumentCardSkeleton />
             </div>

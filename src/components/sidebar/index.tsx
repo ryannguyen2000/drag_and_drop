@@ -19,6 +19,7 @@ import {Enum} from "../../config/common";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
+  const {data} = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   const [modal, setModal] = useState(false);
@@ -91,11 +92,32 @@ const Sidebar = () => {
       //
     }
   };
+  const getDocumentsData = async () => {
+    try {
+      const response = (await GetData(
+        `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
+          GetACookie("did"),
+          Enum.srkey
+        )}`
+      )) as any;
+      if (response) {
+        return response[0]?.layoutJson[0]?.data;
+      }
+    } catch (error) {
+      //
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
+      const documentResult = await getDocumentsData();
+
+      if (documentResult) {
+        dispatch(setData(JSON.parse(documentResult)));
+        console.log(JSON.parse(documentResult));
+      }
     };
     fetchData();
   }, []);
@@ -112,12 +134,18 @@ const Sidebar = () => {
     socket.on("webhook-data", async (data) => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
+      const documentResult = await getDocumentsData();
+      dispatch(setData(JSON.parse(documentResult)));
     });
 
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   return (
     <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-12 flex  bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center ">
