@@ -18,6 +18,7 @@ const Droppable = ({
   style,
   children,
   className = "",
+  thumnail = "",
 }: {
   id: string;
   columns: string;
@@ -31,8 +32,9 @@ const Droppable = ({
   style?: React.CSSProperties;
   className?: string;
   children: ReactNode;
+  thumnail?: string;
 }) => {
-  const {isOver, setNodeRef} = useDroppable({
+  const { isOver, setNodeRef } = useDroppable({
     id,
     data: {
       columns,
@@ -44,10 +46,11 @@ const Droppable = ({
       style,
       alignItems,
       justifyContent,
+      thumnail,
     },
   });
 
-  const {activeData, activeId} = useSelector(
+  const { activeData, activeId } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
@@ -60,16 +63,15 @@ const Droppable = ({
   return (
     <div
       ref={setNodeRef}
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={e => e.preventDefault()}
       className={`${className} ${
         isOver ? "border-red-400" : "border-gray-400"
       } p-2`}
-      onClick={(event) => {
+      onClick={event => {
         event.stopPropagation();
         event.preventDefault();
         dispatch(setActiveId(id));
-      }}
-    >
+      }}>
       {children}
     </div>
   );

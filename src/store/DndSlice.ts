@@ -27,6 +27,7 @@ interface Properties {
     | "space-evenly";
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   style?: React.CSSProperties;
+  thumnail?: string;
 }
 
 export interface Obj {
@@ -41,14 +42,16 @@ export interface Obj {
   alignItems: string;
   style?: React.CSSProperties;
   childs: Obj[];
+  thumnail?: string;
 }
 
 const initialState: DndState = {
-  thumnail: "",
+  thumnail: "_",
   activeId: null,
   activeData: null,
   data: {
     id: "root",
+    thumnail: "_",
     type: "grid",
     columns: "1",
     gap: "1",
@@ -71,6 +74,7 @@ const initialState: DndState = {
     alignItems: "flex-start",
     justifyContent: "flex-start",
     style: {},
+    thumnail: "_",
   },
   deepLevel: 1,
 };
