@@ -159,7 +159,7 @@ const ItemsRenderer = ({
 
       {type === "content" && (
         <div
-          className={`p-2 border text-center h-full border-dashed relative group ${
+          className={`p-2 border text-center h-full border-dashed  ${
             activeId === id && "border-2 border-green-500"
           } ${SpanRow(Number(rowspan))} ${SpanCol(
             Number(colspan)
