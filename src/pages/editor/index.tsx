@@ -22,18 +22,18 @@ const Editor = () => {
   );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await GetData(
-        `${import.meta.env.VITE__API_HOST}/api/documents`
-      );
-      if (response) {
-        dispatch(setData(response[0]?.layoutJson));
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const response = await GetData(
+  //       `${import.meta.env.VITE__API_HOST}/api/documents`
+  //     );
+  //     if (response) {
+  //       dispatch(setData(response[0]?.layoutJson));
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const FindToAdd = (id: string, detail: any, parent_id: string) => {
     const newData = JSON.parse(JSON.stringify(data));
