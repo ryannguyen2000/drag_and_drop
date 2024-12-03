@@ -215,7 +215,7 @@ const Sidebar = () => {
           justifyContent="flex-start"
           gap="1"
           id={v4()}
-          thumnail="_">
+          thumbnail="_">
           <div className="flex gap-2 justify-center items-center">
             <Icon icon="ph:columns" fontSize={28} />
             <div className="rounded-xl text-center truncate text-sm">
@@ -234,7 +234,7 @@ const Sidebar = () => {
           justifyContent="flex-start"
           gap="1"
           id={v4()}
-          thumnail="_">
+          thumbnail="_">
           <div className="flex gap-2 justify-center items-center p-7">
             <Icon icon="ph:square" fontSize={28} />
             <div className="rounded-xl text-center text-sm truncate">

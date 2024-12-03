@@ -12,7 +12,7 @@ import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
 import ItemsRenderer from "../../features";
 import { RootState } from "../../store";
-import { Obj, setData, setSidebar, setThumnail } from "../../store/DndSlice";
+import { Obj, setData, setSidebar, setthumbnail } from "../../store/DndSlice";
 import PropertiesBar from "../../components/propertiesbar/propertiesbar";
 import { GetData } from "../../apis";
 
@@ -73,7 +73,7 @@ const Editor = () => {
             alignItems: detail.alignItems,
             type: detail.type,
             childs: layoutChilds,
-            thumnail: detail.thumnail,
+            thumbnail: detail.thumbnail,
           });
         } else if (node.childs.length > 0) {
           addChildToParent(node.childs);
@@ -93,7 +93,7 @@ const Editor = () => {
         alignItems: detail.alignItems,
         type: detail.type,
         childs: layoutChilds,
-        thumnail: detail.thumnail,
+        thumbnail: detail.thumbnail,
       });
     } else {
       addChildToParent(newData.childs);
@@ -126,30 +126,93 @@ const Editor = () => {
 
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
         return nodes
-          .filter(node => node.id !== active.id)
+          .filter(node => node.id !== active.id) // Loại bỏ node hiện tại
           .map(node => ({
             ...node,
-            childs: removeItemFromLayout(node.childs),
+            childs: removeItemFromLayout(node.childs), // Xóa đệ quy các child
           }));
       };
 
-      newData.childs = removeItemFromLayout(newData.childs);
+      const collectAllChildren = (nodes: Obj[]): Obj[] => {
+        return nodes.flatMap(node => [
+          node,
+          ...collectAllChildren(node.childs),
+        ]);
+      };
 
-      const updatedSidebar = [
-        ...sidebar,
-        {
-          columns: "1",
-          rows: "1",
-          type: "content",
-          colspan: "1",
-          rowspan: "1",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-          gap: "1",
-          id: active.id,
-          thumnail: "_",
-        },
-      ];
+      const findNodeAndCollectChildren = (
+        nodes: Obj[],
+        nodeId: string
+      ): Obj[] | null => {
+        for (const node of nodes) {
+          if (node.id === nodeId) {
+            return collectAllChildren(node.childs); // Lấy tất cả children
+          } else if (node.childs.length > 0) {
+            const result = findNodeAndCollectChildren(node.childs, nodeId);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+
+      const removedChildren = findNodeAndCollectChildren(
+        [newData],
+        String(active.id)
+      );
+
+      newData.childs = removeItemFromLayout(newData.childs); // Xóa item khỏi layout
+
+      let updatedSidebar = [...sidebar];
+
+      if (removedChildren) {
+        // Thêm chỉ các item (không phải layout) vào sidebar
+        updatedSidebar = [
+          ...updatedSidebar,
+          ...removedChildren
+            .map(child => {
+              if (child.type !== "grid" && child.type !== "flex") {
+                // Kiểm tra loại là item (không phải layout)
+                return {
+                  ...child,
+                  columns: "1",
+                  rows: "1",
+                  colspan: "1",
+                  rowspan: "1",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  gap: "1",
+                  thumbnail: child.thumbnail || "_", // Thêm thumbnail
+                };
+              }
+              return null;
+            })
+            .filter(Boolean), // Loại bỏ các phần tử null (layout)
+        ];
+      } else {
+        // Nếu không có children, thêm item vào sidebar
+        const removedItem = newData.childs.find(node => node.id === active.id);
+        if (
+          removedItem &&
+          removedItem.type !== "grid" &&
+          removedItem.type !== "flex"
+        ) {
+          updatedSidebar = [
+            ...updatedSidebar,
+            {
+              ...removedItem,
+              columns: "1",
+              rows: "1",
+              colspan: "1",
+              rowspan: "1",
+              alignItems: "flex-start",
+              justifyContent: "flex-start",
+              gap: "1",
+              thumbnail: removedItem.thumbnail || "_", // Thêm thumbnail
+            },
+          ];
+        }
+      }
+
       dispatch(setSidebar(updatedSidebar));
       dispatch(setData(newData));
 
@@ -196,7 +259,7 @@ const Editor = () => {
               gap={data.gap}
               type={data.type}
               id={data.id}
-              thumnail={data.thumnail}>
+              thumbnail={data.thumbnail}>
               <ItemsRenderer
                 childs={data.childs}
                 id={data.id}
@@ -209,7 +272,7 @@ const Editor = () => {
                 gap={data.gap}
                 currentDepth={1}
                 type={data.type}
-                thumnail={data.thumnail}
+                thumbnail={data.thumbnail}
               />
             </Droppable>
           </div>

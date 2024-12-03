@@ -4,7 +4,7 @@ export const transformData = (data, projectId, documentId) => {
       sliceId: data.id,
       projectId: projectId,
       documentId: documentId,
-      thumnail: data.thumnail,
+      thumbnail: data.thumbnail,
       detail: data,
     };
   }
