@@ -123,13 +123,14 @@ const Editor = () => {
 
     if (over?.id === "trash-bin") {
       const newData = JSON.parse(JSON.stringify(data));
+      console.log("124newdata", newData);
 
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
         return nodes
-          .filter(node => node.id !== active.id) // Loại bỏ node hiện tại
+          .filter(node => node.id !== active.id)
           .map(node => ({
             ...node,
-            childs: removeItemFromLayout(node.childs), // Xóa đệ quy các child
+            childs: removeItemFromLayout(node.childs),
           }));
       };
 
@@ -146,7 +147,7 @@ const Editor = () => {
       ): Obj[] | null => {
         for (const node of nodes) {
           if (node.id === nodeId) {
-            return collectAllChildren(node.childs); // Lấy tất cả children
+            return collectAllChildren(node.childs);
           } else if (node.childs.length > 0) {
             const result = findNodeAndCollectChildren(node.childs, nodeId);
             if (result) return result;
@@ -160,18 +161,15 @@ const Editor = () => {
         String(active.id)
       );
 
-      newData.childs = removeItemFromLayout(newData.childs); // Xóa item khỏi layout
-
+      newData.childs = removeItemFromLayout(newData.childs);
       let updatedSidebar = [...sidebar];
 
       if (removedChildren) {
-        // Thêm chỉ các item (không phải layout) vào sidebar
         updatedSidebar = [
           ...updatedSidebar,
           ...removedChildren
             .map(child => {
               if (child.type !== "grid" && child.type !== "flex") {
-                // Kiểm tra loại là item (không phải layout)
                 return {
                   ...child,
                   columns: "1",
@@ -181,38 +179,14 @@ const Editor = () => {
                   alignItems: "flex-start",
                   justifyContent: "flex-start",
                   gap: "1",
-                  thumbnail: child.thumbnail || "_", // Thêm thumbnail
+                  thumbnail: child.thumbnail || "_",
                 };
               }
               return null;
             })
-            .filter(Boolean), // Loại bỏ các phần tử null (layout)
+            .filter(Boolean),
         ];
-      } else {
-        // Nếu không có children, thêm item vào sidebar
-        const removedItem = newData.childs.find(node => node.id === active.id);
-        if (
-          removedItem &&
-          removedItem.type !== "grid" &&
-          removedItem.type !== "flex"
-        ) {
-          updatedSidebar = [
-            ...updatedSidebar,
-            {
-              ...removedItem,
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-              gap: "1",
-              thumbnail: removedItem.thumbnail || "_", // Thêm thumbnail
-            },
-          ];
-        }
-      }
-
+      } 
       dispatch(setSidebar(updatedSidebar));
       dispatch(setData(newData));
 
