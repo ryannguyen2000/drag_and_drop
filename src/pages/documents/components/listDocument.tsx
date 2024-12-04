@@ -34,7 +34,7 @@ export const ListDocument = () => {
     const fetchData = async () => {
       setIsloading(true);
       const response = (await GetData(
-        `${import.meta.env.VITE__API_HOST}/api/documents?${DecryptBasic(
+        `${import.meta.env.VITE__API_HOST}/api/documents?pId=${DecryptBasic(
           GetACookie("pid"),
           Enum.srkey
         )}`
