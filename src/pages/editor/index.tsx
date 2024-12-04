@@ -177,7 +177,7 @@ const Editor = () => {
        return collectAllChildren(node.childs);
      } else if (node.childs.length > 0) {
        const result = findNodeAndCollectChildren(node.childs, nodeId);
-       if (result) return result;
+       if (result) return result; 
      }
    }
    return null;
