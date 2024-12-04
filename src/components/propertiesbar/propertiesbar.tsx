@@ -5,28 +5,31 @@ import {
   setActiveData,
   setData,
   setSidebar,
-  setThumnail,
+  setthumbnail,
 } from "../../store/DndSlice";
-import {RootState} from "../../store";
+import { RootState } from "../../store";
 import exportFromJSON from "export-from-json";
 import axios from "axios";
-import {ToastDismiss, ToastError, ToastSuccess} from "../toast";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {extractImageUrl, serializeFromJsonToString} from "../../utilities/text";
+import { ToastDismiss, ToastError, ToastSuccess } from "../toast";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import {
+  extractImageUrl,
+  serializeFromJsonToString,
+} from "../../utilities/text";
 import DimensionInput from "../commom/input";
-import {splitDimensions, splitValueAndUnit} from "../../utilities/text";
+import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
 import ColorPickerInput from "../commom/color";
 import BackgroundChoosen from "../commom/background-choosen";
 import {
   cacheDataToIndexedDB,
   getCachedDataFromIndexedDB,
 } from "../../services/indexedDB/services";
-import {saveDocument} from "../../services/documents/api";
-import {transformData} from "../../utilities/formatData";
-import {DecryptBasic} from "../../utilities/hash_aes";
-import {GetACookie} from "../../utilities/cookies";
-import {Enum} from "../../config/common";
-import {GetData, PostData, PutData} from "../../apis";
+import { saveDocument } from "../../services/documents/api";
+import { transformData } from "../../utilities/formatData";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
+import { GetData, PostData, PutData } from "../../apis";
 
 const justifyList = [
   {
@@ -68,7 +71,7 @@ const alignList = [
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const {activeData, activeId, data, thumnail} = useSelector(
+  const { activeData, activeId, data, thumbnail } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -103,7 +106,7 @@ const PropertiesBar = () => {
     "color"
   );
   const [modalBackground, setModalBackground] = useState<boolean>(false);
-  const [imagePreview, setThumnailPreview] = useState<string | null>(null);
+  const [imagePreview, setthumbnailPreview] = useState<string | null>(null);
 
   const [isLayout, setIsLayout] = useState<"grid" | "flex" | "content" | any>(
     "grid"
@@ -121,7 +124,7 @@ const PropertiesBar = () => {
         }
       }
       const getDetail = (childs: any[]) => {
-        childs.map((child) => {
+        childs.map(child => {
           if (child.id === activeId) {
             if (child.type === "grid") {
               setIsLayout("grid");
@@ -170,14 +173,14 @@ const PropertiesBar = () => {
           alignItems: alignItems.toString(),
           style: styles,
           childs: childsList,
-          thumnail: thumnail,
+          thumbnail: thumbnail,
         })
       );
       return;
     }
 
     function RefactorData(child: Obj[]): Obj[] {
-      return child.map((item) => {
+      return child.map(item => {
         if (item.id === id) {
           return {
             ...item,
@@ -189,7 +192,7 @@ const PropertiesBar = () => {
             justifyContent: justifyContent.toString(),
             alignItems: alignItems.toString(),
             style: styles,
-            thumnail: thumnail,
+            thumbnail: thumbnail,
           };
         }
 
@@ -206,10 +209,10 @@ const PropertiesBar = () => {
 
     const updatedChilds = RefactorData(copyData.childs);
 
-    const newData = {...copyData, childs: updatedChilds};
+    const newData = { ...copyData, childs: updatedChilds };
     dispatch(setData(newData));
     if (newData?.childs?.length > 0) {
-      handleStoreDataToStorageAndState({...copyData, childs: updatedChilds});
+      handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
     }
   };
 
@@ -224,7 +227,7 @@ const PropertiesBar = () => {
     justifyContent,
     alignItems,
     styles,
-    thumnail,
+    thumbnail,
   ]);
 
   const handleColumnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,13 +262,13 @@ const PropertiesBar = () => {
   ) => {
     if (value === 0 || value === "0") {
       // Không trả về giá trị nếu là 0
-      setStyles((prevStyles) => {
-        const newStyles = {...prevStyles};
+      setStyles(prevStyles => {
+        const newStyles = { ...prevStyles };
         delete newStyles[property]; // Xóa thuộc tính nếu giá trị là 0
         return newStyles;
       });
     } else {
-      setStyles((prevStyles) => ({
+      setStyles(prevStyles => ({
         ...prevStyles,
         [property]: `${value}${unit}`, // Cập nhật giá trị nếu khác 0
       }));
@@ -277,12 +280,14 @@ const PropertiesBar = () => {
     direction: "top" | "right" | "bottom" | "left",
     unit: string
   ) => {
-    setStyles((prevStyles) => {
+    setStyles(prevStyles => {
       const paddingValues = (prevStyles?.padding || "0px 0px 0px 0px")
         .toString() // Đảm bảo là chuỗi
         .split(" "); // Chuyển thành mảng
 
-      const directionIndex = {top: 0, right: 1, bottom: 2, left: 3}[direction]; // Lấy vị trí
+      const directionIndex = { top: 0, right: 1, bottom: 2, left: 3 }[
+        direction
+      ]; // Lấy vị trí
       paddingValues[directionIndex] = `${value}${unit}`; // Cập nhật giá trị kèm unit
 
       const newPadding = paddingValues.join(" "); // Gộp lại thành chuỗi
@@ -290,15 +295,15 @@ const PropertiesBar = () => {
       // Kiểm tra nếu tất cả các giá trị là 0
       if (
         paddingValues.every(
-          (val) =>
+          val =>
             val === "0px" || val === "0rem" || val === "0em" || val === "0%"
         )
       ) {
-        const {padding, ...rest} = prevStyles; // Loại bỏ padding nếu tất cả giá trị là 0
+        const { padding, ...rest } = prevStyles; // Loại bỏ padding nếu tất cả giá trị là 0
         return rest;
       }
 
-      return {...prevStyles, padding: newPadding}; // Cập nhật padding nếu không phải 0
+      return { ...prevStyles, padding: newPadding }; // Cập nhật padding nếu không phải 0
     });
   };
 
@@ -307,12 +312,14 @@ const PropertiesBar = () => {
     direction: "top" | "right" | "bottom" | "left",
     unit: string
   ) => {
-    setStyles((prevStyles) => {
+    setStyles(prevStyles => {
       const marginValues = (prevStyles?.margin || "0px 0px 0px 0px")
         .toString() // Đảm bảo là chuỗi
         .split(" "); // Chuyển thành mảng
 
-      const directionIndex = {top: 0, right: 1, bottom: 2, left: 3}[direction]; // Lấy vị trí
+      const directionIndex = { top: 0, right: 1, bottom: 2, left: 3 }[
+        direction
+      ]; // Lấy vị trí
       marginValues[directionIndex] = `${value}${unit}`; // Cập nhật giá trị kèm unit
 
       const newMargin = marginValues.join(" "); // Gộp lại thành chuỗi
@@ -320,24 +327,24 @@ const PropertiesBar = () => {
       // Kiểm tra nếu tất cả các giá trị là 0
       if (
         marginValues.every(
-          (val) =>
+          val =>
             val === "0px" || val === "0rem" || val === "0em" || val === "0%"
         )
       ) {
-        const {margin, ...rest} = prevStyles; // Loại bỏ margin nếu tất cả giá trị là 0
+        const { margin, ...rest } = prevStyles; // Loại bỏ margin nếu tất cả giá trị là 0
         return rest;
       }
 
-      return {...prevStyles, margin: newMargin}; // Cập nhật margin nếu không phải 0
+      return { ...prevStyles, margin: newMargin }; // Cập nhật margin nếu không phải 0
     });
   };
 
-  const handleBackgroundColorChange = (newColor) => {
+  const handleBackgroundColorChange = newColor => {
     if (!newColor.startsWith("#")) {
       newColor = `#${newColor}`;
     }
-    setStyles((prevStyles) => {
-      const updatedStyles = {...prevStyles};
+    setStyles(prevStyles => {
+      const updatedStyles = { ...prevStyles };
       delete updatedStyles.backgroundImage; // Xóa hình ảnh
       updatedStyles.backgroundColor = newColor; // Thêm màu mới
       return updatedStyles;
@@ -347,10 +354,10 @@ const PropertiesBar = () => {
   const [backgroundImage, setBackgroundImage] = useState(
     "https://via.placeholder.com/300x200"
   );
-  const handleBackgroundImageChange = (newImage) => {
+  const handleBackgroundImageChange = newImage => {
     setBackgroundImage(newImage);
-    setStyles((prevStyles) => {
-      const updatedStyles = {...prevStyles};
+    setStyles(prevStyles => {
+      const updatedStyles = { ...prevStyles };
       delete updatedStyles.backgroundColor; // Xóa màu nền
       updatedStyles.backgroundImage = `url(${newImage})`; // Thêm hình ảnh mới
       return updatedStyles;
@@ -358,7 +365,7 @@ const PropertiesBar = () => {
   };
 
   const handleStyleChange = (property, value) => {
-    setStyles((prevStyles) => ({
+    setStyles(prevStyles => ({
       ...prevStyles,
       [property]: value,
     }));
@@ -369,8 +376,8 @@ const PropertiesBar = () => {
     property: "width" | "style" | "color",
     unit?: string
   ) => {
-    setStyles((prevStyles) => {
-      const newStyles = {...prevStyles};
+    setStyles(prevStyles => {
+      const newStyles = { ...prevStyles };
 
       // Khởi tạo border nếu chưa tồn tại
       if (!newStyles?.border) {
@@ -409,14 +416,14 @@ const PropertiesBar = () => {
   ) => {
     if (value === 0 || value === "0") {
       // Nếu giá trị là 0, xóa thuộc tính tương ứng
-      setStyles((prevStyles) => {
-        const newStyles = {...prevStyles};
+      setStyles(prevStyles => {
+        const newStyles = { ...prevStyles };
         delete newStyles[corner];
         return newStyles;
       });
     } else {
       // Cập nhật giá trị của góc nếu giá trị khác 0
-      setStyles((prevStyles) => ({
+      setStyles(prevStyles => ({
         ...prevStyles,
         [corner]: `${value}${unit}`,
       }));
@@ -433,7 +440,7 @@ const PropertiesBar = () => {
     const fileName = "JsonLayout";
     const exportType = exportFromJSON.types.json;
 
-    exportFromJSON({data, fileName, exportType});
+    exportFromJSON({ data, fileName, exportType });
   };
 
   const handlePublishJsonData = async () => {
@@ -455,7 +462,7 @@ const PropertiesBar = () => {
       documentName:
         (getDoc.status === 200 || getDoc.status === 201) &&
         getDoc.data?.documentName,
-      thumnail: "_",
+      thumbnail: "_",
     };
 
     try {
@@ -476,7 +483,7 @@ const PropertiesBar = () => {
           data
         );
         if (response.status === 200 || response.status === 201) {
-          ToastSuccess({msg: "Published successfully"});
+          ToastSuccess({ msg: "Published successfully" });
         } else {
           ToastError({
             msg: "Oops! Something went wrong to available publish",
@@ -512,7 +519,7 @@ const PropertiesBar = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      ToastError({msg: "Please upload a valid image file."});
+      ToastError({ msg: "Please upload a valid image file." });
       return;
     }
 
@@ -526,15 +533,15 @@ const PropertiesBar = () => {
         const uploadedImageUrl = await uploadImageToServer(base64Image);
 
         if (uploadedImageUrl) {
-          dispatch(setThumnail(uploadedImageUrl));
-          setThumnailPreview(uploadedImageUrl);
+          dispatch(setthumbnail(uploadedImageUrl));
+          setthumbnailPreview(uploadedImageUrl);
           ToastDismiss();
-          ToastSuccess({msg: "Image uploaded successfully!"});
+          ToastSuccess({ msg: "Image uploaded successfully!" });
           e.target.value = "";
 
           await PutData(`${import.meta.env.VITE__API_HOST}/api/slices`, {
             sliceId: idCopy,
-            thumnail: uploadedImageUrl,
+            thumbnail: uploadedImageUrl,
           });
 
           const reloadSidebar = await GetData(
@@ -562,7 +569,7 @@ const PropertiesBar = () => {
     try {
       const response = await axios.post(
         "https://serverless-tn-layout-production.up.railway.app/api/upload",
-        {image: base64Image},
+        { image: base64Image },
         {
           headers: {
             "Content-Type": "application/json",
@@ -579,7 +586,7 @@ const PropertiesBar = () => {
       }
     } catch (error) {
       console.error("Error uploading image:", error);
-      ToastError({msg: "Error uploading image to server."});
+      ToastError({ msg: "Error uploading image to server." });
       return null;
     }
   };
@@ -591,8 +598,7 @@ const PropertiesBar = () => {
           <div className="flex items-center justify-center gap-4 h-fit z-10">
             <button
               onClick={() => handleDownloadAsJson()}
-              className="h-10 aspect-square group hover:px-3 flex items-center hover:bg-slate-500 transition-all duration-500 justify-center w-10 hover:w-full  text-sm bg-[#444] text-white rounded-full"
-            >
+              className="h-10 aspect-square group hover:px-3 flex items-center hover:bg-slate-500 transition-all duration-500 justify-center w-10 hover:w-full  text-sm bg-[#444] text-white rounded-full">
               <Icon icon="ph:arrow-line-down" fontSize={20} />
               <span className="text-nowrap opacity-0 select-none ml-0 group-hover:ml-2 pointer-events-none group-hover:opacity-100 w-0 group-hover:w-full transition-all duration-500">
                 Download as JSON
@@ -600,8 +606,7 @@ const PropertiesBar = () => {
             </button>
             <button
               onClick={() => handlePublishJsonData()}
-              className="h-10 px-4  text-sm bg-[#444] text-white rounded-full"
-            >
+              className="h-10 px-4  text-sm bg-[#444] text-white rounded-full">
               Publish
             </button>
           </div>
@@ -611,22 +616,19 @@ const PropertiesBar = () => {
 
           {isLayout === "content" && (
             <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
+              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
               {isLayout}
             </span>
           )}
           {isLayout === "grid" && (
             <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
+              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
               {isLayout + " layout"}
             </span>
           )}
           {isLayout === "flex" && (
             <span
-              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}
-            >
+              className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
               {isLayout + " layout"}
             </span>
           )}
@@ -713,26 +715,25 @@ const PropertiesBar = () => {
                   <div
                     className={`h-10 relative w-full border border-gray-300  rounded-lg flex-col px-3 py-2 bg-white`}
                     onClick={() =>
-                      setJustifyShow((prev) => {
+                      setJustifyShow(prev => {
                         !prev === true && setAlignShow(false);
                         return !prev;
                       })
-                    }
-                  >
+                    }>
                     <span>{justifyContent}</span>
                     <div
                       className={`flex-col rounded-xl absolute w-full left-0 shadow-xl top-full bg-white  overflow-hidden ${
                         justifyShow ? "flex" : "hidden"
-                      }`}
-                    >
+                      }`}>
                       {justifyList.map((item, index) => (
                         <span
                           key={index}
                           className={`w-full hover:bg-slate-100 transition-all duration-500 cursor-pointer px-4 py-2 ${
                             justifyContent === item.title && "bg-slate-100"
                           }`}
-                          onClick={() => handleJustifyContentChange(item.title)}
-                        >
+                          onClick={() =>
+                            handleJustifyContentChange(item.title)
+                          }>
                           {item.title}
                         </span>
                       ))}
@@ -748,26 +749,23 @@ const PropertiesBar = () => {
                   <div
                     className={`h-10 relative w-full border border-gray-300 rounded-lg flex-col px-3 py-2 bg-white `}
                     onClick={() =>
-                      setAlignShow((prev) => {
+                      setAlignShow(prev => {
                         !prev === true && setJustifyShow(false);
                         return !prev;
                       })
-                    }
-                  >
+                    }>
                     <span>{alignItems}</span>
                     <div
                       className={`flex-col rounded-xl absolute top-full shadow-xl w-full left-0 bg-white overflow-hidden ${
                         alignShow ? "flex" : "hidden"
-                      }`}
-                    >
+                      }`}>
                       {alignList.map((item, index) => (
                         <span
                           key={index}
                           className={`w-full hover:bg-slate-100 transition-all duration-500 cursor-pointer px-4 py-2 ${
                             alignItems === item.title && "bg-slate-100"
                           }`}
-                          onClick={() => handleAlignItemsChange(item.title)}
-                        >
+                          onClick={() => handleAlignItemsChange(item.title)}>
                           {item.title}
                         </span>
                       ))}
@@ -803,10 +801,10 @@ const PropertiesBar = () => {
                         />
                       </div>
                     )}
-                    {imagePreview && activeData.thumnail && (
+                    {imagePreview && activeData.thumbnail && (
                       <div className="mt-2">
                         <img
-                          src={activeData.thumnail}
+                          src={activeData.thumbnail}
                           alt="Preview"
                           className="w-full h-auto rounded-lg"
                         />
@@ -818,8 +816,7 @@ const PropertiesBar = () => {
                   {/* DIMENSION */}
                   <details
                     className="group w-full [&_summary::-webkit-details-marker]:hidden"
-                    open
-                  >
+                    open>
                     <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
                       <span className="font-semibold text-gray-800 capitalize">
                         Dimension
@@ -829,8 +826,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -841,7 +837,7 @@ const PropertiesBar = () => {
                     </summary>
                     <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 border bg-white shadow-lg rounded-b-xl">
                       {["width", "height", "maxWidth", "maxHeight"].map(
-                        (property) => {
+                        property => {
                           // Kiểm tra xem property có tồn tại trong styles hay không
                           const styleValue = styles?.hasOwnProperty(property)
                             ? styles[property as keyof typeof styles]
@@ -860,7 +856,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(defaultValue)} // Set default value if available
                                 defaultUnit={defaultUnit} // Set default unit if available
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleDimensionChange(
                                     value.inputValue,
                                     property as any,
@@ -885,8 +881,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -914,7 +909,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(top)} // Chuyển đổi thành số
                                 defaultUnit={top.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
-                                onChange={(value) =>
+                                onChange={value =>
                                   handlePaddingChange(
                                     value.inputValue,
                                     "top",
@@ -930,7 +925,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(right)}
                                 defaultUnit={right.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handlePaddingChange(
                                     value.inputValue,
                                     "right",
@@ -946,7 +941,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(bottom)}
                                 defaultUnit={bottom.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handlePaddingChange(
                                     value.inputValue,
                                     "bottom",
@@ -962,7 +957,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(left)}
                                 defaultUnit={left.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handlePaddingChange(
                                     value.inputValue,
                                     "left",
@@ -987,8 +982,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -1016,7 +1010,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(top)} // Chuyển đổi thành số
                                 defaultUnit={top.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleMarginChange(
                                     value.inputValue,
                                     "top",
@@ -1032,7 +1026,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(right)}
                                 defaultUnit={right.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleMarginChange(
                                     value.inputValue,
                                     "right",
@@ -1048,7 +1042,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(bottom)}
                                 defaultUnit={bottom.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleMarginChange(
                                     value.inputValue,
                                     "bottom",
@@ -1064,7 +1058,7 @@ const PropertiesBar = () => {
                               <DimensionInput
                                 defaultValue={Number.parseInt(left)}
                                 defaultUnit={left.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleMarginChange(
                                     value.inputValue,
                                     "left",
@@ -1089,8 +1083,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -1105,8 +1098,7 @@ const PropertiesBar = () => {
                         className={`h-10 w-full ${
                           backGroundtype === "image" && "bg-slate-200"
                         } flex justify-center items-center`}
-                        onClick={() => setBackgroundType("image")}
-                      >
+                        onClick={() => setBackgroundType("image")}>
                         <Icon icon="tabler:photo-filled" />
                       </button>
                       <button
@@ -1114,8 +1106,7 @@ const PropertiesBar = () => {
                         className={`h-10 w-full ${
                           backGroundtype === "color" && "bg-slate-200"
                         } flex justify-center items-center`}
-                        onClick={() => setBackgroundType("color")}
-                      >
+                        onClick={() => setBackgroundType("color")}>
                         <Icon icon="tabler:color-filter" />
                       </button>
                     </div>
@@ -1137,8 +1128,7 @@ const PropertiesBar = () => {
                           <div className="aspect-[6/2]">
                             <div
                               className="w-full h-full bg-slate-300 flex justify-center items-center cursor-pointer"
-                              onClick={() => setModalBackground(true)}
-                            >
+                              onClick={() => setModalBackground(true)}>
                               <img
                                 src={
                                   (styles &&
@@ -1161,13 +1151,12 @@ const PropertiesBar = () => {
                               id="repeat"
                               className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
                               value={styles?.backgroundRepeat}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleStyleChange(
                                   "backgroundRepeat",
                                   e.target.value
                                 )
-                              }
-                            >
+                              }>
                               <option value="no-repeat">None repeat</option>
                               <option value="repeat">Repeat</option>
                               <option value="repeat-x">Repeat X</option>
@@ -1186,13 +1175,12 @@ const PropertiesBar = () => {
                               id="size"
                               className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
                               value={styles?.backgroundSize}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleStyleChange(
                                   "backgroundSize",
                                   e.target.value
                                 )
-                              }
-                            >
+                              }>
                               <option value="auto">Auto</option>
                               <option value="cover">Cover</option>
                               <option value="contain">Contain</option>
@@ -1208,13 +1196,12 @@ const PropertiesBar = () => {
                               id="position"
                               className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
                               value={styles?.backgroundPosition}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleStyleChange(
                                   "backgroundPosition",
                                   e.target.value
                                 )
-                              }
-                            >
+                              }>
                               <option value="center">Center</option>
                               <option value="top">Top</option>
                               <option value="left">Left</option>
@@ -1232,13 +1219,12 @@ const PropertiesBar = () => {
                               id="attachment"
                               className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
                               value={styles?.backgroundAttachment}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleStyleChange(
                                   "backgroundAttachment",
                                   e.target.value
                                 )
-                              }
-                            >
+                              }>
                               <option value="scroll">Scroll</option>
                               <option value="fixed">Fixed</option>
                               <option value="local">Local</option>
@@ -1259,8 +1245,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -1280,7 +1265,7 @@ const PropertiesBar = () => {
                               ? styles?.border.split(" ")[0]
                               : "0"
                           )}
-                          onChange={(value) =>
+                          onChange={value =>
                             handleBorderChange(
                               value?.inputValue,
                               "width",
@@ -1299,11 +1284,10 @@ const PropertiesBar = () => {
                               ? styles?.border.split(" ")[1]
                               : "solid"
                           }
-                          onChange={(e) =>
+                          onChange={e =>
                             handleBorderChange(e.target.value, "style")
                           }
-                          className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
-                        >
+                          className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer">
                           <option value="none">None</option>
                           <option value="solid">Solid</option>
                           <option value="dotted">Dotted</option>
@@ -1325,9 +1309,7 @@ const PropertiesBar = () => {
                               ? styles?.border.split(" ")[2]
                               : "#000000"
                           }
-                          onChange={(color) =>
-                            handleBorderChange(color, "color")
-                          }
+                          onChange={color => handleBorderChange(color, "color")}
                         />
                       </li>
                     </ul>
@@ -1343,8 +1325,7 @@ const PropertiesBar = () => {
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                        stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -1372,7 +1353,7 @@ const PropertiesBar = () => {
                                 defaultUnit={
                                   topLeft.replace(/[0-9]/g, "") || "px"
                                 }
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleBorderRadiusChange(
                                     value.inputValue,
                                     "borderTopLeftRadius",
@@ -1390,7 +1371,7 @@ const PropertiesBar = () => {
                                 defaultUnit={
                                   topRight.replace(/[0-9]/g, "") || "px"
                                 }
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleBorderRadiusChange(
                                     value.inputValue,
                                     "borderTopRightRadius",
@@ -1408,7 +1389,7 @@ const PropertiesBar = () => {
                                 defaultUnit={
                                   bottomRight.replace(/[0-9]/g, "") || "px"
                                 }
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleBorderRadiusChange(
                                     value.inputValue,
                                     "borderBottomRightRadius",
@@ -1426,7 +1407,7 @@ const PropertiesBar = () => {
                                 defaultUnit={
                                   bottomLeft.replace(/[0-9]/g, "") || "px"
                                 }
-                                onChange={(value) =>
+                                onChange={value =>
                                   handleBorderRadiusChange(
                                     value.inputValue,
                                     "borderBottomLeftRadius",
@@ -1462,10 +1443,10 @@ const PropertiesBar = () => {
                   />
                 </div>
               )}
-              {activeData.thumnail && (
+              {activeData.thumbnail && (
                 <div className="mt-2">
                   <img
-                    src={`${activeData.thumnail}`}
+                    src={`${activeData.thumbnail}`}
                     alt="Preview"
                     className="w-full h-auto rounded-lg"
                   />

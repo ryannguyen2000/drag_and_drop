@@ -97,13 +97,13 @@ const HomePage = () => {
 
   const handleSubmitCreateProject = async () => {
     if (!projectId || !projectName || !projectUrl || !websiteUrl) {
-      ToastError({msg: "Please fill all fields"});
+      ToastError({ msg: "Please fill all fields" });
       return;
     }
     const formData = {
       projectId: projectId.trim(),
       projectName: projectName,
-      thumnail: "___",
+      thumbnail: "___",
       websiteUrl: websiteUrl.trim(),
       projectUrl: projectUrl.trim(),
     };
@@ -115,7 +115,7 @@ const HomePage = () => {
       );
       if (response) {
         fetchDataProjects();
-        ToastSuccess({msg: "Projects created successfully"});
+        ToastSuccess({ msg: "Projects created successfully" });
       }
     } catch (error) {
       //
@@ -147,20 +147,18 @@ const HomePage = () => {
           onCancel={() => setOpenProjectModal(false)}
           onSubmit={() => handleSubmitCreateProject()}
           className="max-w-lg"
-          footerClassName="flex gap-4 justify-end"
-        >
+          footerClassName="flex gap-4 justify-end">
           <div className="mb-4">
             <label
               htmlFor="id-input"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Project Id <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               id="id-input"
               value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
+              onChange={e => setProjectId(e.target.value)}
               placeholder="PRISMIC_REPO_ID"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
             />
@@ -169,15 +167,14 @@ const HomePage = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="name-input"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Project Name<span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 id="name-input"
                 value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
+                onChange={e => setProjectName(e.target.value)}
                 placeholder="Your project name"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
               />
@@ -185,9 +182,8 @@ const HomePage = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="name-input"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >
-                Thumnail<span className="text-red-400">*</span>
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                thumbnail<span className="text-red-400">*</span>
               </label>
               <label htmlFor="input" className="w-full cursor-pointer">
                 <div className="border w-full overflow-hidden rounded-lg h-10 bg-white grid grid-cols-3 ">
@@ -203,7 +199,7 @@ const HomePage = () => {
                   hidden
                   id="input"
                   accept=".png,.jpg,.jpeg"
-                  onChange={(e) => handleImageImport(e)}
+                  onChange={e => handleImageImport(e)}
                 />
               </label>
             </div>
@@ -211,15 +207,14 @@ const HomePage = () => {
           <div className="mb-4">
             <label
               htmlFor="purl-input"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Project Url<span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               id="purl-input"
               value={projectUrl}
-              onChange={(e) => setProjectUrl(e.target.value)}
+              onChange={e => setProjectUrl(e.target.value)}
               placeholder="PRISMIC_HOST_URL"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10  "
             />
@@ -227,15 +222,14 @@ const HomePage = () => {
           <div className="mb-4">
             <label
               htmlFor="wurl-input"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Website Url <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               id="wurl-input"
               value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
+              onChange={e => setWebsiteUrl(e.target.value)}
               placeholder="YOUR_WEBSITE_URL_TO_APPLY_THIS_LAYOUT"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full px-2.5 h-10 "
             />
@@ -271,8 +265,7 @@ const HomePage = () => {
                             onClick={() =>
                               handleClickProject(project?.projectId)
                             }
-                            className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10"
-                          >
+                            className="flex relative flex-col gap-2 w-full h-full p-4 aspect-[1.2] overflow-hidden hover:shadow-xl rounded-[2rem] hover:scale-105 hover:border-blue-400 border cursor-pointer bg-white shadow-md transition-all duration-500 hover:z-10">
                             <img
                               src={``}
                               className="rounded-xl object-center object-cover bg-slate-50 w-full aspect-[2.5]"
@@ -288,11 +281,10 @@ const HomePage = () => {
                                 new Date(project?.createdAt).toLocaleString()}
                             </p>
                             <span
-                              onClick={(e) =>
+                              onClick={e =>
                                 handleNavigateProjectUrl(e, project?.projectUrl)
                               }
-                              className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit"
-                            >
+                              className="text-xs hover:underline text-gray-300 line-clamp-1 w-fit">
                               {project?.projectUrl}
                             </span>
                             <Icon

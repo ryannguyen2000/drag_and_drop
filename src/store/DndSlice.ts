@@ -9,7 +9,7 @@ export interface DndState {
   sidebar: any[];
   properties: Properties;
   deepLevel: number;
-  thumnail: string;
+  thumbnail: string;
 }
 
 interface Properties {
@@ -27,7 +27,7 @@ interface Properties {
     | "space-evenly";
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   style?: React.CSSProperties;
-  thumnail?: string;
+  thumbnail?: string;
 }
 
 export interface Obj {
@@ -42,16 +42,16 @@ export interface Obj {
   alignItems: string;
   style?: React.CSSProperties;
   childs: Obj[];
-  thumnail?: string;
+  thumbnail?: string;
 }
 
 const initialState: DndState = {
-  thumnail: "_",
+  thumbnail: "_",
   activeId: null,
   activeData: null,
   data: {
     id: "root",
-    thumnail: "_",
+    thumbnail: "_",
     type: "grid",
     columns: "1",
     gap: "1",
@@ -74,7 +74,7 @@ const initialState: DndState = {
     alignItems: "flex-start",
     justifyContent: "flex-start",
     style: {},
-    thumnail: "_",
+    thumbnail: "_",
   },
   deepLevel: 1,
 };
@@ -85,19 +85,19 @@ const updateItem = (
   updatedValues: Partial<Obj>
 ): Obj => {
   if (data.id === id) {
-    return {...data, ...updatedValues};
+    return { ...data, ...updatedValues };
   }
 
   if (!data.childs || data.childs.length === 0) {
     return data;
   }
 
-  const updatedChilds = data.childs.map((child) =>
+  const updatedChilds = data.childs.map(child =>
     updateItem(child, id, updatedValues)
   );
 
   if (updatedChilds !== data.childs) {
-    return {...data, childs: updatedChilds};
+    return { ...data, childs: updatedChilds };
   }
 
   return data;
@@ -125,8 +125,8 @@ export const dndSlice = createSlice({
     setDeepLevel: (state, action) => {
       state.deepLevel = action.payload;
     },
-    setThumnail: (state, action) => {
-      state.thumnail = action.payload;
+    setthumbnail: (state, action) => {
+      state.thumbnail = action.payload;
     },
   },
 });
@@ -136,7 +136,7 @@ export const {
   setActiveData,
   setSidebar,
   setData,
-  setThumnail,
+  setthumbnail,
   setProperties,
   setDeepLevel,
 } = dndSlice.actions;

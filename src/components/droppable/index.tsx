@@ -18,7 +18,7 @@ const Droppable = ({
   style,
   children,
   className = "",
-  thumnail = "",
+  thumbnail = "",
 }: {
   id: string;
   columns: string;
@@ -32,7 +32,7 @@ const Droppable = ({
   style?: React.CSSProperties;
   className?: string;
   children: ReactNode;
-  thumnail?: string;
+  thumbnail?: string;
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
@@ -46,7 +46,7 @@ const Droppable = ({
       style,
       alignItems,
       justifyContent,
-      thumnail,
+      thumbnail,
     },
   });
 

@@ -18,10 +18,10 @@ const Draggable = ({
   children,
   className = "",
   styling,
-  thumnail = "_",
+  thumbnail = "_",
 }: {
   id: string;
-  thumnail?: string;
+  thumbnail?: string;
   colspan: string;
   rowspan: string;
   columns: string;
@@ -45,7 +45,7 @@ const Draggable = ({
       gap,
       alignItems,
       justifyContent,
-      thumnail,
+      thumbnail,
     },
   });
   const style = {
