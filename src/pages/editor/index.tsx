@@ -146,7 +146,12 @@ const Editor = () => {
         nodeId: string
       ): Obj[] | null => {
         for (const node of nodes) {
+          console.log("node:", node);
+          console.log("nodeID:", nodeId);
           if (node.id === nodeId) {
+            if (node.childs.length === 0) {
+              return nodes;
+            }
             return collectAllChildren(node.childs);
           } else if (node.childs.length > 0) {
             const result = findNodeAndCollectChildren(node.childs, nodeId);
@@ -160,6 +165,7 @@ const Editor = () => {
         [newData],
         String(active.id)
       );
+      console.log("🚀 ~ handleDragEnd ~ removedChildren:", removedChildren);
 
       newData.childs = removeItemFromLayout(newData.childs);
       let updatedSidebar = [...sidebar];
