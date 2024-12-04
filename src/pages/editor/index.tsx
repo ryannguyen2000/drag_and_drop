@@ -19,6 +19,7 @@ import {DecryptBasic} from "../../utilities/hash_aes";
 import {GetACookie} from "../../utilities/cookies";
 import {Enum} from "../../config/common";
 
+//
 const Editor = () => {
   const {activeId, data, sidebar, deepLevel} = useSelector(
     (state: RootState) => state.dndSlice
@@ -27,14 +28,14 @@ const Editor = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await GetData(
+      const response = (await GetData(
         `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
           GetACookie("did"),
           Enum.srkey
         )}`
-      );
-      if (response && response[0]?.layoutJson) {
-        dispatch(setData(response[0]?.layoutJson));
+      )) as any;
+      if (response && response?.layoutJson) {
+        dispatch(setData(response?.layoutJson));
         return;
       }
       dispatch(
@@ -165,24 +166,23 @@ const Editor = () => {
         ]);
       };
 
- const findNodeAndCollectChildren = (
-   nodes: Obj[],
-   nodeId: string
- ): Obj[] | null => {
-   for (const node of nodes) {
-     if (node.id === nodeId) {
-       if (node.childs.length === 0) {
-         return [node];
-       }
-       return collectAllChildren(node.childs);
-     } else if (node.childs.length > 0) {
-       const result = findNodeAndCollectChildren(node.childs, nodeId);
-       if (result) return result;
-     }
-   }
-   return null;
- };
-
+      const findNodeAndCollectChildren = (
+        nodes: Obj[],
+        nodeId: string
+      ): Obj[] | null => {
+        for (const node of nodes) {
+          if (node.id === nodeId) {
+            if (node.childs.length === 0) {
+              return [node];
+            }
+            return collectAllChildren(node.childs);
+          } else if (node.childs.length > 0) {
+            const result = findNodeAndCollectChildren(node.childs, nodeId);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
 
       const removedChildren = findNodeAndCollectChildren(
         [newData],
