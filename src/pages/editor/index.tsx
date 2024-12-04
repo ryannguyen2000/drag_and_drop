@@ -165,25 +165,24 @@ const Editor = () => {
         ]);
       };
 
-      const findNodeAndCollectChildren = (
-        nodes: Obj[],
-        nodeId: string
-      ): Obj[] | null => {
-        for (const node of nodes) {
-          console.log("node:", node);
-          console.log("nodeID:", nodeId);
-          if (node.id === nodeId) {
-            if (node.childs.length === 0) {
-              return nodes;
-            }
-            return collectAllChildren(node.childs);
-          } else if (node.childs.length > 0) {
-            const result = findNodeAndCollectChildren(node.childs, nodeId);
-            if (result) return result;
-          }
-        }
-        return null;
-      };
+ const findNodeAndCollectChildren = (
+   nodes: Obj[],
+   nodeId: string
+ ): Obj[] | null => {
+   for (const node of nodes) {
+     if (node.id === nodeId) {
+       if (node.childs.length === 0) {
+         return [node];
+       }
+       return collectAllChildren(node.childs);
+     } else if (node.childs.length > 0) {
+       const result = findNodeAndCollectChildren(node.childs, nodeId);
+       if (result) return result;
+     }
+   }
+   return null;
+ };
+
 
       const removedChildren = findNodeAndCollectChildren(
         [newData],
