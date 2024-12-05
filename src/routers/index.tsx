@@ -1,5 +1,7 @@
-import { Editor, HomePage } from "../pages";
+import LoginPage from "../components/login";
 import DocumentsPage from "../pages/documents";
+import Editor from "../pages/editor";
+import HomePage from "../pages/home";
 
 export const Routers = [
   {
@@ -8,6 +10,7 @@ export const Routers = [
     value: "home",
     icon: "ph:house-simple",
     element: <HomePage />,
+    requiresAuth: true,
   },
   {
     path: "/editor",
@@ -15,12 +18,22 @@ export const Routers = [
     value: "editor",
     icon: "ph:house-simple",
     element: <Editor />,
+    requiresAuth: true,
   },
   {
     path: "/documents",
     title: "Documents",
-    value: "docunments",
+    value: "documents",
     icon: "ph:house-simple",
     element: <DocumentsPage />,
+    requiresAuth: true,
+  },
+  {
+    path: "/login",
+    title: "Login",
+    value: "login",
+    icon: "ph:sign-in",
+    element: <LoginPage />,
+    requiresAuth: false,
   },
 ];
