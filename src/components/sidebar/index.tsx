@@ -19,9 +19,9 @@ import {Enum} from "../../config/common";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
-  const {data} = useSelector((state: RootState) => state.dndSlice);
+  const { data } = useSelector((state: RootState) => state.dndSlice);
+  console.log("🚀 ~ Sidebar ~ data:", data);
   const dispatch = useDispatch();
-
   const [modal, setModal] = useState(false);
 
   // function store data to indexedDB
@@ -33,22 +33,22 @@ const Sidebar = () => {
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
           dispatch(setData(parsedData));
           if (parsedData?.childs.length > 0) {
             handleStoreDataToStorageAndState(parsedData);
           }
-          ToastSuccess({msg: "File imported successfully!"});
+          ToastSuccess({ msg: "File imported successfully!" });
           setModal(false);
         } catch (error) {
-          ToastError({msg: "Invalid JSON file"});
+          ToastError({ msg: "Invalid JSON file" });
         }
       };
       reader.readAsText(file);
     } else {
-      ToastError({msg: "Please upload a valid JSON file"});
+      ToastError({ msg: "Please upload a valid JSON file" });
     }
   };
 
@@ -108,6 +108,30 @@ const Sidebar = () => {
     }
   };
 
+  const getAllIdsFromData = (data: any) => {
+    const ids: string[] = [];
+    const traverse = (node: any) => {
+      if (node.id) {
+        ids.push(node.id);
+      }
+      if (node.childs && Array.isArray(node.childs)) {
+        node.childs.forEach(child => traverse(child));
+      }
+    };
+
+    traverse(data);
+    return ids;
+  };
+  const ids = getAllIdsFromData(data);
+  console.log("sidebar IDs:", sidebar);
+
+  useEffect(() => {
+    if (data) {
+      const ids = getAllIdsFromData(data);
+      console.log("Extracted IDs:", ids);
+    }
+  }, [data]);
+
   useEffect(() => {
     const fetchData = async () => {
       const result = await getSlicesData();
@@ -131,7 +155,7 @@ const Sidebar = () => {
       }
     );
 
-    socket.on("webhook-data", async (data) => {
+    socket.on("webhook-data", async data => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
@@ -243,37 +267,23 @@ const Sidebar = () => {
           </div>
         </Draggable>
       </div>
-      <div className="px-4 w-full gap-2 grid grid-cols-4 ">
-        {sidebar.map((item, index) => (
-          <Draggable
-            styling={{ backgroundColor: getPastelColor(index, 4) }}
-            className="col-span-1 w-full h-16 text-white flex items-center justify-center rounded-xl"
-            {...item}
-            key={index}
-            id={item.id}>
-            <div
-              title={formatText(item.id)}
-              className="p-2 rounded-xl text-center text-sm truncate line-clamp-2">
-              {formatText("" + item.id)}
-            </div>
-            {/* NextUI Tooltip */}
-            {/* <Tooltip
-              content={
-                item.thumbnailUrl ? (
-                  <img
-                    src={item.thumbnailUrl}
-                    alt="Thumbnail"
-                    className="w-32 h-32"
-                  />
-                ) : (
-                  "No image available"
-                )
-              }
-              placement="top">
-              <div className="w-full h-full"></div>
-            </Tooltip> */}
-          </Draggable>
-        ))}
+      <div className="px-4 w-full gap-2 grid grid-cols-4">
+        {sidebar
+          .filter(item => !ids.includes(item.id))
+          .map((item, index) => (
+            <Draggable
+              styling={{ backgroundColor: getPastelColor(index, 4) }}
+              className="col-span-1 w-full h-16 text-white flex items-center justify-center rounded-xl"
+              {...item}
+              key={index}
+              id={item.id}>
+              <div
+                title={formatText(item.id)}
+                className="p-2 rounded-xl text-center text-sm truncate line-clamp-2">
+                {formatText("" + item.id)}
+              </div>
+            </Draggable>
+          ))}
       </div>
     </div>
   );
