@@ -1,20 +1,20 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Draggable from "../drangable";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../store";
-import {v4} from "uuid";
-import {io} from "socket.io-client";
-import {formatText, serializeFromJsonToString} from "../../utilities/text";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {getPastelColor} from "../../utilities/colors";
-import {DndContext, useDroppable} from "@dnd-kit/core";
-import {ToastError, ToastSuccess} from "../toast";
-import {cacheDataToIndexedDB} from "../../services/indexedDB/services";
-import {setData, setSidebar} from "../../store/DndSlice";
-import {GetData} from "../../apis";
-import {DecryptBasic} from "../../utilities/hash_aes";
-import {GetACookie} from "../../utilities/cookies";
-import {Enum} from "../../config/common";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { v4 } from "uuid";
+import { io } from "socket.io-client";
+import { formatText, serializeFromJsonToString } from "../../utilities/text";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { getPastelColor } from "../../utilities/colors";
+import { DndContext, useDroppable } from "@dnd-kit/core";
+import { ToastError, ToastSuccess } from "../toast";
+import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
+import { setData, setSidebar } from "../../store/DndSlice";
+import { GetData } from "../../apis";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
 // import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
