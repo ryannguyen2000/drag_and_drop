@@ -146,7 +146,7 @@ const Editor = () => {
     const { over, active } = event;
     hideBin();
 
-    if (over?.id === "trash-bin") {
+    if (over?.id === "trash-bin ") {
       const newData = JSON.parse(JSON.stringify(data));
       console.log("124newdata", newData);
 

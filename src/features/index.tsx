@@ -69,8 +69,8 @@ const ItemsRenderer = ({
     <div className="w-full h-full">
       {type === "flex" && (
         <Droppable
-          className={`p-2 w-full h-full border border-dashed bg-white ${
-            activeId === id && "border-green-500 border-2"
+          className={`p-2 w-full h-full border border-dashed bg-white animate-jump-in${
+            activeId === id && "border-green-500 border-2 "
           }`}
           columns={columns}
           rows={rows}
@@ -85,13 +85,13 @@ const ItemsRenderer = ({
           id={id}
           thumbnail={thumbnail}>
           <div
-            className={`flex h-full w-full ${convertJustify(
+            className={`flex h-full w-full  animate-jump-in${convertJustify(
               justifyContent
             )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
             style={style}>
             {childs.map((child: any) => (
               <Draggable
-                className={`h-fit w-fit`}
+                className={`h-fit w-fit  animate-jump-in`}
                 {...child}
                 key={child.id}
                 id={child.id}>
@@ -109,8 +109,8 @@ const ItemsRenderer = ({
       )}
       {type === "grid" && (
         <Droppable
-          className={`p-2 min-h-12 w-full h-full border border-dashed bg-white ${
-            activeId === id && "border-green-500 border-2"
+          className={`p-2 min-h-12 w-full h-full border border-dashed bg-white animate-fade-down ${
+            activeId === id && "border-green-500 border-2  animate-jump-in"
           }`}
           columns={columns}
           rows={rows}
@@ -125,9 +125,9 @@ const ItemsRenderer = ({
           id={id}
           thumbnail={thumbnail}>
           <div
-            className={`grid gap-1 ${GridRow(Number(rows))} ${GridCol(
-              Number(columns)
-            )}`}
+            className={`grid gap-1   animate-jump-in  ${GridRow(
+              Number(rows)
+            )} ${GridCol(Number(columns))}`}
             style={style}>
             {childs.map((child: any) => (
               <Draggable
@@ -144,7 +144,7 @@ const ItemsRenderer = ({
             {Array.from({ length: emptyCells }).map((_, index) => (
               <div
                 key={`empty-${index}`}
-                className="border border-dashed min-h-12 w-full border-gray-500"
+                className="border border-dashed min-h-12 w-full border-gray-500 "
               />
             ))}
           </div>
@@ -157,7 +157,7 @@ const ItemsRenderer = ({
             activeId === id && "border-2 border-green-500"
           } ${SpanRow(Number(rowspan))} ${SpanCol(
             Number(colspan)
-          )} bg-gray-100`}
+          )} bg-gray-100 animate-jump-in`}
           style={style}
           onClick={() => {
             dispatch(setActiveId(id));
