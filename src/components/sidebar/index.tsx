@@ -10,17 +10,21 @@ import { getPastelColor } from "../../utilities/colors";
 import { DndContext, useDroppable } from "@dnd-kit/core";
 import { ToastError, ToastSuccess } from "../toast";
 import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
-import { setData, setSidebar } from "../../store/DndSlice";
+import { setData, setScrollLock, setSidebar } from "../../store/DndSlice";
 import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
+import style from "./index.module.css";
 // import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
-  const { data } = useSelector((state: RootState) => state.dndSlice);
+  const { data, lockScroll } = useSelector(
+    (state: RootState) => state.dndSlice
+  );
   console.log("🚀 ~ Sidebar ~ data:", data);
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
@@ -174,8 +178,8 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-4 flex  bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center ">
-        <div className="flex gap-12 flex-col">
+      <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-4 flex bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center">
+        <div className="flex gap-12 flex-col w-full h-full">
           {modal && (
             <div
               className="flex items-center justify-center top-0 left-0 animate-fade fixed z-[900] w-screen h-screen bg-black/30"
@@ -200,7 +204,7 @@ const Sidebar = () => {
                   <div
                     onDragOver={e => e.preventDefault()}
                     onDrop={handleDrop}
-                    className={`h-full flex flex-col items-center relative justify-center mt-6 border-dashed border  rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]`}>
+                    className="h-full flex flex-col items-center relative justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]">
                     <div className="w-full relative h-full flex flex-col justify-center items-center z-[2]">
                       <span className="text-slate-500">Drop JSON here</span>
                       <span className="text-slate-500 text-sm">or</span>
@@ -222,86 +226,105 @@ const Sidebar = () => {
               </div>
             </div>
           )}
-          <div className="mx-auto w-full font-bold text-3xl flex items-center justify-between">
-            <span>Elements</span>
-            <div
-              onClick={() => setModal(true)}
-              className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center">
-              Import
+
+          <div className="gap-12 flex flex-col">
+            <div className="mx-auto w-full  font-bold text-3xl flex items-center justify-between">
+              <span>Elements</span>
+              <div
+                onClick={() => setModal(true)}
+                className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center">
+                Import
+              </div>
+            </div>
+
+            <div className={`flex-grow  px-4 w-full flex flex-col gap-3`}>
+              <div className="grid grid-cols-2 gap-4 px-4 w-full">
+                <Draggable
+                  className="w-full h-16 col-span-1 bg-[#444] text-white flex items-center justify-center rounded-xl"
+                  columns="1"
+                  rows="1"
+                  type="grid"
+                  colspan="1"
+                  rowspan="1"
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  gap="1"
+                  id={v4()}
+                  thumbnail="_">
+                  <div className="flex gap-2 justify-center items-center">
+                    <Icon icon="ph:columns" fontSize={28} />
+                    <div className="rounded-xl text-center truncate text-sm">
+                      Grid Layout
+                    </div>
+                  </div>
+                </Draggable>
+                <Draggable
+                  className="w-full h-16 bg-[#444] text-white flex items-center justify-center rounded-xl"
+                  columns="1"
+                  rows="1"
+                  type="flex"
+                  colspan="1"
+                  rowspan="1"
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  gap="1"
+                  id={v4()}
+                  thumbnail="_">
+                  <div className="flex gap-2 justify-center items-center p-7">
+                    <Icon icon="ph:square" fontSize={28} />
+                    <div className="rounded-xl text-center text-sm truncate">
+                      Box Layout
+                    </div>
+                  </div>
+                </Draggable>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 px-4 w-full">
-            <Draggable
-              className="w-full h-16 col-span-1 bg-[#444] text-white flex items-center justify-center rounded-xl"
-              columns="1"
-              rows="1"
-              type="grid"
-              colspan="1"
-              rowspan="1"
-              alignItems="flex-start"
-              justifyContent="flex-start"
-              gap="1"
-              id={v4()}
-              thumbnail="_">
-              <div className="flex gap-2 justify-center items-center">
-                <Icon icon="ph:columns" fontSize={28} />
-                <div className="rounded-xl text-center truncate text-sm">
-                  Grid Layout
-                </div>
-              </div>
-            </Draggable>
-            <Draggable
-              className="w-full h-16 bg-[#444] text-white flex items-center justify-center rounded-xl"
-              columns="1"
-              rows="1"
-              type="flex"
-              colspan="1"
-              rowspan="1"
-              alignItems="flex-start"
-              justifyContent="flex-start"
-              gap="1"
-              id={v4()}
-              thumbnail="_">
-              <div className="flex gap-2 justify-center items-center p-7">
-                <Icon icon="ph:square" fontSize={28} />
-                <div className="rounded-xl text-center text-sm truncate">
-                  Box Layout
-                </div>
-              </div>
-            </Draggable>
-          </div>
-          <div className="px-4 w-full flex flex-col h-[300px] gap-3">
+
+          <div
+            className={clsx(
+              style.hide_scrollbar,
+              "flex flex-col gap-3 flex-1 !max-w-full",
+              lockScroll
+                ? "overflow-hidden"
+                : "overflow-y-scroll overflow-x-hidden "
+            )}>
             {sidebar
               .filter(item => !ids.includes(item.id))
               .map((item, index) => (
                 <Draggable
                   styling={{ backgroundColor: getPastelColor(index, 4) }}
-                  className="col-span-1 w-full flex-col h-16 text-white flex items-center justify-center rounded-xl"
+                  className={`col-span-1 w-full flex-col  text-white flex items-center justify-center rounded-xl ${
+                    lockScroll && "fixed"
+                  }`}
                   {...item}
                   key={index}
                   id={item.id}>
                   <div
                     title={formatText(item.id)}
-                    className="p-2 rounded-xl text-center text-sm truncate line-clamp-2">
+                    className="p-2 rounded-xl text-center  text-sm truncate line-clamp-2">
                     {formatText("" + item.id)}
                   </div>
                 </Draggable>
               ))}
           </div>
-        </div>
-        <div className="flex justify-start translate-x-[-80px]">
-          {" "}
-          <Link to={"/documents"}>
-            <button className="relative inline-flex items-center justify-start py-3 pl-4 pr-12 overflow-hidden font-semibold text-primary transition-all duration-300 ease-in-out rounded hover:pl-10 hover:pr-6 hover:bg-black group ">
-              <span className="absolute bottom-0 left-0 w-full h-1 transition-all duration-300 ease-in-out bg-primary group-hover:h-full" />
-              <span className="absolute left-0 pl-2.5 -translate-x-12 group-hover:translate-x-0 ease-out duration-300">
-                <Icon icon="mynaui:arrow-left" className="text-white w-6 h-6" />
-              </span>
-              <span className="relative w-full text-left transition-colors duration-300 ease-in-out text-dark group-hover:text-white underline group-hover:no-underline">
-                Back To Pages
-              </span>
-            </button>
-          </Link>
+
+          <div className="flex justify-start ">
+            <Link to={"/documents"}>
+              <button className="relative inline-flex items-center justify-start py-3 pl-4 pr-12 overflow-hidden font-semibold text-primary transition-all duration-300 ease-in-out rounded hover:pl-10 hover:pr-6 hover:bg-black group">
+                <span className="absolute bottom-0 left-0 w-full h-1 transition-all duration-300 ease-in-out bg-primary group-hover:h-full" />
+                <span className="absolute left-0 pl-2.5 -translate-x-12 group-hover:translate-x-0 ease-out duration-300">
+                  <Icon
+                    icon="mynaui:arrow-left"
+                    className="text-white w-6 h-6"
+                  />
+                </span>
+                <span className="relative w-full text-left transition-colors duration-300 ease-in-out text-dark group-hover:text-white underline group-hover:no-underline">
+                  Back To Pages
+                </span>
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </>

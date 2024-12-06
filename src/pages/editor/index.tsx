@@ -12,7 +12,13 @@ import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
 import ItemsRenderer from "../../features";
 import { RootState } from "../../store";
-import { Obj, setData, setSidebar, setthumbnail } from "../../store/DndSlice";
+import {
+  Obj,
+  setData,
+  setScrollLock,
+  setSidebar,
+  setthumbnail,
+} from "../../store/DndSlice";
 import PropertiesBar from "../../components/propertiesbar/propertiesbar";
 import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
@@ -21,7 +27,7 @@ import { Enum } from "../../config/common";
 
 //
 const Editor = () => {
-  const { activeId, data, sidebar, deepLevel } = useSelector(
+  const { activeId, data, sidebar, deepLevel, lockScroll } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
@@ -139,10 +145,17 @@ const Editor = () => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    dispatch(setScrollLock(true));
     showBin();
   };
 
+  useEffect(() => {
+    console.log("lock6546456156145656456456456", lockScroll);
+  }, [lockScroll]);
+
   const handleDragEnd = (event: DragEndEvent) => {
+    dispatch(setScrollLock(false));
+
     const { over, active } = event;
     hideBin();
 
