@@ -15,7 +15,7 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-// import { Tooltip } from "@nextui-org/tooltip";
+import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
   const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);

@@ -27,10 +27,7 @@ const RootProvider: FC<RootProviderProps> = ({ routers }) => {
     const storedEmail = localStorage.getItem("email");
     const storedPassword = localStorage.getItem("password");
 
-    if (
-      storedEmail === "adminJSTool@gmail.com" &&
-      storedPassword === "123456"
-    ) {
+    if (storedEmail === "ad@123" && storedPassword === "1") {
       setIsAuthenticated(true);
     }
   }, []);

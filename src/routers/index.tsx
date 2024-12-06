@@ -10,7 +10,7 @@ export const Routers = [
     value: "home",
     icon: "ph:house-simple",
     element: <HomePage />,
-    requiresAuth: false,
+    requiresAuth: true,
   },
   {
     path: "/editor",
