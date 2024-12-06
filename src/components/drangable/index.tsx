@@ -74,7 +74,7 @@ const Draggable = ({
           right: `${deepLevel > 1 ? deepLevel * 0.5 : "0"}rem`,
           ...style,
         }}
-        className="group-hover:block hidden transition-all rounded-bl-lg absolute top-0 text-gray-700 !bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
+        className="z-[9999] group-hover:block hidden transition-all rounded-bl-lg absolute top-0 text-gray-700 !bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
         fontSize={24}
         {...listeners}
         {...attributes}

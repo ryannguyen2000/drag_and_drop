@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Obj,
   setActiveData,
@@ -14,6 +14,7 @@ import { ToastDismiss, ToastError, ToastSuccess } from "../toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import {
   extractImageUrl,
+  formatText,
   serializeFromJsonToString,
 } from "../../utilities/text";
 import DimensionInput from "../commom/input";
@@ -617,7 +618,7 @@ const PropertiesBar = () => {
           {isLayout === "content" && (
             <span
               className={`animate-fade-up w-full text-center font-semibold text-3xl capitalize px-4 py-2 z-10`}>
-              {isLayout}
+              {formatText(activeId)}
             </span>
           )}
           {isLayout === "grid" && (
@@ -1423,35 +1424,6 @@ const PropertiesBar = () => {
                   </details>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col mb-4">
-              <label className="text-sm font-medium text-gray-400">
-                Upload Image
-              </label>
-              <input
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                onChange={handleImageChange}
-                className="h-10 w-full border rounded-lg px-3 mt-2"
-              />
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={`${imagePreview}`}
-                    alt="Preview"
-                    className="w-full h-auto rounded-lg"
-                  />
-                </div>
-              )}
-              {activeData.thumbnail && (
-                <div className="mt-2">
-                  <img
-                    src={`${activeData.thumbnail}`}
-                    alt="Preview"
-                    className="w-full h-auto rounded-lg"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>

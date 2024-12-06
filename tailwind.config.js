@@ -16,24 +16,24 @@ export default {
       },
       keyframes: {
         shine: {
-          "0%": {transform: "translateX(-150%)"},
-          "100%": {transform: "translateX(150%)"},
+          "0%": { transform: "translateX(-150%)" },
+          "100%": { transform: "translateX(150%)" },
         },
         slideInRight: {
-          "0%": {transform: "translateX(100%)", opacity: "0"},
-          "100%": {transform: "translateX(0)", opacity: "1"},
+          "0%": { transform: "translateX(100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
         },
         slideOutRight: {
-          "0%": {transform: "translateX(0)", opacity: "1"},
-          "100%": {transform: "translateX(100%)", opacity: "0"},
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(100%)", opacity: "0" },
         },
         slideInLeft: {
-          "0%": {transform: "translateX(-100%)", opacity: "0"},
-          "100%": {transform: "translateX(0)", opacity: "1"},
+          "0%": { transform: "translateX(-100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
         },
         slideOutLeft: {
-          "0%": {transform: "translateX(0)", opacity: "1"},
-          "100%": {transform: "translateX(-100%)", opacity: "0"},
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(-100%)", opacity: "0" },
         },
         "blink-red": {
           "0%, 100%": {
@@ -45,6 +45,10 @@ export default {
             boxShadow: "0 0 30px 10px rgba(239, 68, 68, 1)",
           },
         },
+        "jump-in": {
+          "0%": { transform: "scale(0.5)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         shine: "shine 1.5s infinite linear",
@@ -53,6 +57,7 @@ export default {
         "slide-in-left": "slideInLeft 0.5s ease-out forwards",
         "slide-out-left": "slideOutLeft 0.5s ease-in forwards",
         "blink-red": "blink-red 2s infinite linear",
+        "jump-in": "jump-in 0.8s ease-out forwards",
       },
     },
   },

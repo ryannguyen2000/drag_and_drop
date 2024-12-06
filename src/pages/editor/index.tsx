@@ -5,23 +5,23 @@ import {
   pointerWithin,
   DragOverlay,
 } from "@dnd-kit/core";
-import React, {useEffect} from "react";
-import {useSelector, useDispatch} from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Droppable from "../../components/droppable";
 import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
 import ItemsRenderer from "../../features";
-import {RootState} from "../../store";
-import {Obj, setData, setSidebar, setthumbnail} from "../../store/DndSlice";
+import { RootState } from "../../store";
+import { Obj, setData, setSidebar, setthumbnail } from "../../store/DndSlice";
 import PropertiesBar from "../../components/propertiesbar/propertiesbar";
-import {GetData} from "../../apis";
-import {DecryptBasic} from "../../utilities/hash_aes";
-import {GetACookie} from "../../utilities/cookies";
-import {Enum} from "../../config/common";
+import { GetData } from "../../apis";
+import { DecryptBasic } from "../../utilities/hash_aes";
+import { GetACookie } from "../../utilities/cookies";
+import { Enum } from "../../config/common";
 
 //
 const Editor = () => {
-  const {activeId, data, sidebar, deepLevel} = useSelector(
+  const { activeId, data, sidebar, deepLevel } = useSelector(
     (state: RootState) => state.dndSlice
   );
   const dispatch = useDispatch();
@@ -66,12 +66,12 @@ const Editor = () => {
     let layoutChilds: Obj[] = [];
 
     const removeChildFromParent = (nodes: Obj[]) => {
-      nodes.forEach((node) => {
-        const targetChild = node.childs.find((child) => child.id === id);
+      nodes.forEach(node => {
+        const targetChild = node.childs.find(child => child.id === id);
         if (targetChild) {
           layoutChilds = targetChild.childs;
         }
-        node.childs = node.childs.filter((child) => child.id !== id);
+        node.childs = node.childs.filter(child => child.id !== id);
 
         if (node.childs.length > 0) {
           removeChildFromParent(node.childs);
@@ -82,10 +82,10 @@ const Editor = () => {
     removeChildFromParent([newData]);
 
     const addChildToParent = (nodes: Obj[]) => {
-      nodes.forEach((node) => {
+      nodes.forEach(node => {
         if (
           node.id === parent_id &&
-          !node.childs.some((child) => child.id === id)
+          !node.childs.some(child => child.id === id)
         ) {
           node.childs.push({
             id,
@@ -143,7 +143,7 @@ const Editor = () => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const {over, active} = event;
+    const { over, active } = event;
     hideBin();
 
     if (over?.id === "trash-bin") {
@@ -152,15 +152,15 @@ const Editor = () => {
 
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
         return nodes
-          .filter((node) => node.id !== active.id)
-          .map((node) => ({
+          .filter(node => node.id !== active.id)
+          .map(node => ({
             ...node,
             childs: removeItemFromLayout(node.childs),
           }));
       };
 
       const collectAllChildren = (nodes: Obj[]): Obj[] => {
-        return nodes.flatMap((node) => [
+        return nodes.flatMap(node => [
           node,
           ...collectAllChildren(node.childs),
         ]);
@@ -194,28 +194,36 @@ const Editor = () => {
       let updatedSidebar = [...sidebar];
 
       if (removedChildren) {
-        updatedSidebar = [
-          ...updatedSidebar,
-          ...removedChildren
-            .map((child) => {
-              if (child.type !== "grid" && child.type !== "flex") {
-                return {
-                  ...child,
-                  columns: "1",
-                  rows: "1",
-                  colspan: "1",
-                  rowspan: "1",
-                  alignItems: "flex-start",
-                  justifyContent: "flex-start",
-                  gap: "1",
-                  thumbnail: child.thumbnail || "_",
-                };
-              }
-              return null;
-            })
-            .filter(Boolean),
-        ];
+        const newChildren = removedChildren
+          .map(child => {
+            if (child.type !== "grid" && child.type !== "flex") {
+              return {
+                ...child,
+                columns: "1",
+                rows: "1",
+                colspan: "1",
+                rowspan: "1",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                gap: "1",
+                thumbnail: child.thumbnail || "_",
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        newChildren.forEach(newChild => {
+          if (
+            !updatedSidebar.some(
+              existingItem => existingItem.id === newChild.id
+            )
+          ) {
+            updatedSidebar.push(newChild);
+          }
+        });
       }
+
       dispatch(setSidebar(updatedSidebar));
       dispatch(setData(newData));
 
@@ -226,7 +234,7 @@ const Editor = () => {
       FindToAdd(active.id.toString(), active.data.current, over.id.toString());
 
       if (deepLevel <= 6) {
-        const updatedSidebar = sidebar.filter((sb) => sb.id !== active.id);
+        const updatedSidebar = sidebar.filter(sb => sb.id !== active.id);
         dispatch(setSidebar(updatedSidebar));
       }
     }
@@ -236,8 +244,7 @@ const Editor = () => {
     <DndContext
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
+      onDragEnd={handleDragEnd}>
       <div className="flex items-start w-full relative">
         {
           <div
@@ -245,8 +252,7 @@ const Editor = () => {
             className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[6.25rem] hidden justify-center items-center"
             style={{
               zIndex: 9999,
-            }}
-          >
+            }}>
             <TrashBin />
           </div>
         }
@@ -264,8 +270,7 @@ const Editor = () => {
               gap={data.gap}
               type={data.type}
               id={data.id}
-              thumbnail={data.thumbnail}
-            >
+              thumbnail={data.thumbnail}>
               <ItemsRenderer
                 childs={data.childs}
                 id={data.id}
@@ -291,12 +296,11 @@ const Editor = () => {
           pointerEvents: "none",
           position: "fixed",
           opacity: 0.4,
-        }}
-      >
+        }}>
         {activeId ? (
           <div
             className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
-            style={{zIndex: 999}}
+            style={{ zIndex: 999 }}
           />
         ) : null}
       </DragOverlay>
