@@ -40,7 +40,7 @@ const LoginPage = () => {
             <div className="w-full h-fit grid grid-cols-4 gap-4 p-6"></div>
           </div>
           <div className="col-start-9 col-span-4 relative">
-            <div className="w-[600px] h-[800px] bg-white border-l border-gray-100 shadow-xl right-0 absolute rounded-lg -translate-y-[-50px] -translate-x-1/2">
+            <div className="w-[600px] h-[800px] bg-white border-l border-gray-100 shadow-xl right-0 absolute rounded-lg -translate-y-[-20%] -translate-x-[20%]">
               <div className="absolute top-[7%] w-full flex flex-col items-center">
                 <div className="w-fit flex ">
                   <span className={`text-c1 font-bold text-[3rem] contrast-75`}>
