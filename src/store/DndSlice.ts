@@ -10,6 +10,7 @@ export interface DndState {
   properties: Properties;
   deepLevel: number;
   thumbnail: string;
+  lockScroll: boolean;
 }
 
 interface Properties {
@@ -47,6 +48,7 @@ export interface Obj {
 
 const initialState: DndState = {
   thumbnail: "_",
+  lockScroll: false,
   activeId: null,
   activeData: null,
   data: {
@@ -128,6 +130,9 @@ export const dndSlice = createSlice({
     setthumbnail: (state, action) => {
       state.thumbnail = action.payload;
     },
+    setScrollLock: (state, action) => {
+      state.lockScroll = action.payload;
+    },
   },
 });
 
@@ -139,6 +144,7 @@ export const {
   setthumbnail,
   setProperties,
   setDeepLevel,
+  setScrollLock,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;
