@@ -1,15 +1,16 @@
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store";
-import {GridCol, GridRow, SpanCol, SpanRow} from "../utilities";
-import {setActiveId, setDeepLevel} from "../store/DndSlice";
-import {ToastBlank, ToastCustom, ToastDismiss} from "../components/toast";
-import {convertAlign, convertJustify} from "../utilities/flex";
-import {Gap} from "../utilities/grid";
+import { useDispatch, useSelector } from "react-redux";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useEffect } from "react";
+
+import { RootState } from "../store";
+import { GridCol, GridRow, SpanCol, SpanRow } from "../utilities";
+import { setActiveId, setDeepLevel } from "../store/DndSlice";
+import { ToastCustom, ToastDismiss } from "../components/toast";
+import { convertAlign, convertJustify } from "../utilities/flex";
+import { Gap } from "../utilities/grid";
 import Droppable from "../components/droppable";
-import Draggable from "../components/drangable";
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {useEffect} from "react";
-import {formatText} from "../utilities/text";
+import Draggable from "../components/draggable";
+import { formatText } from "../utilities/text";
 
 const ItemsRenderer = ({
   id,
@@ -83,18 +84,21 @@ const ItemsRenderer = ({
           type={type}
           key={id}
           id={id}
-          thumbnail={thumbnail}>
+          thumbnail={thumbnail}
+        >
           <div
             className={`flex h-full w-full  animate-jump-in${convertJustify(
               justifyContent
             )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
-            style={style}>
+            style={style}
+          >
             {childs.map((child: any) => (
               <Draggable
                 className={`h-fit w-fit  animate-jump-in`}
                 {...child}
                 key={child.id}
-                id={child.id}>
+                id={child.id}
+              >
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
@@ -123,12 +127,14 @@ const ItemsRenderer = ({
           style={style}
           key={id}
           id={id}
-          thumbnail={thumbnail}>
+          thumbnail={thumbnail}
+        >
           <div
             className={`grid gap-1   animate-jump-in  ${GridRow(
               Number(rows)
             )} ${GridCol(Number(columns))}`}
-            style={style}>
+            style={style}
+          >
             {childs.map((child: any) => (
               <Draggable
                 className={`
@@ -137,7 +143,8 @@ const ItemsRenderer = ({
                 )}`}
                 {...child}
                 key={child.id}
-                id={child.id}>
+                id={child.id}
+              >
                 <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
               </Draggable>
             ))}
@@ -161,7 +168,8 @@ const ItemsRenderer = ({
           style={style}
           onClick={() => {
             dispatch(setActiveId(id));
-          }}>
+          }}
+        >
           {formatText(id)}
           {childs.map((child: any) => (
             <Draggable {...child} key={child.id} id={child.id}>

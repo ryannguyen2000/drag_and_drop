@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
-import Draggable from "../drangable";
+import clsx from "clsx";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
 import { v4 } from "uuid";
 import { io } from "socket.io-client";
-import { formatText, serializeFromJsonToString } from "../../utilities/text";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { DndContext } from "@dnd-kit/core";
+import { Link } from "react-router-dom";
+
+import style from "./index.module.css";
+import Draggable from "../draggable";
 import { getPastelColor } from "../../utilities/colors";
-import { DndContext, useDroppable } from "@dnd-kit/core";
+import { RootState } from "../../store";
+import { formatText, serializeFromJsonToString } from "../../utilities/text";
 import { ToastError, ToastSuccess } from "../toast";
 import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
-import { setData, setScrollLock, setSidebar } from "../../store/DndSlice";
+import { setData, setSidebar } from "../../store/DndSlice";
 import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-import { Link } from "react-router-dom";
-import clsx from "clsx";
-import style from "./index.module.css";
 // import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
@@ -38,7 +39,7 @@ const Sidebar = () => {
   const handleFile = (file: File) => {
     if (file && file.type === "application/json") {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = (e) => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
           dispatch(setData(parsedData));
@@ -93,9 +94,7 @@ const Sidebar = () => {
           thumbnail: item?.thumbnailUrl || "",
         }));
       }
-    } catch (error) {
-      //
-    }
+    } catch (error) {}
   };
   const getDocumentsData = async () => {
     try {
@@ -120,7 +119,7 @@ const Sidebar = () => {
         ids.push(node.id);
       }
       if (node.childs && Array.isArray(node.childs)) {
-        node.childs.forEach(child => traverse(child));
+        node.childs.forEach((child) => traverse(child));
       }
     };
 
@@ -128,12 +127,10 @@ const Sidebar = () => {
     return ids;
   };
   const ids = getAllIdsFromData(data);
-  console.log("sidebar IDs:", sidebar);
 
   useEffect(() => {
     if (data) {
       const ids = getAllIdsFromData(data);
-      console.log("Extracted IDs:", ids);
     }
   }, [data]);
 
@@ -145,7 +142,6 @@ const Sidebar = () => {
 
       if (documentResult) {
         dispatch(setData(JSON.parse(documentResult)));
-        console.log(JSON.parse(documentResult));
       }
     };
     fetchData();
@@ -160,7 +156,7 @@ const Sidebar = () => {
       }
     );
 
-    socket.on("webhook-data", async data => {
+    socket.on("webhook-data", async (data) => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
@@ -172,10 +168,6 @@ const Sidebar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   return (
     <>
       <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-4 flex bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center">
@@ -183,10 +175,12 @@ const Sidebar = () => {
           {modal && (
             <div
               className="flex items-center justify-center top-0 left-0 animate-fade fixed z-[900] w-screen h-screen bg-black/30"
-              onClick={() => setModal(false)}>
+              onClick={() => setModal(false)}
+            >
               <div
                 className="p-6 bg-white rounded-2xl w-full max-w-96 aspect-video animate-delay-200 animate-fade-up"
-                onClick={e => e.stopPropagation()}>
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-center justify-between font-semibold">
                   Import
                   <Icon
@@ -197,20 +191,23 @@ const Sidebar = () => {
                   />
                 </div>
                 <DndContext
-                  onDragEnd={event => {
+                  onDragEnd={(event) => {
                     const file = event.active.data.current as File | undefined;
                     if (file) handleFile(file);
-                  }}>
+                  }}
+                >
                   <div
-                    onDragOver={e => e.preventDefault()}
+                    onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
-                    className="h-full flex flex-col items-center relative justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]">
+                    className="h-full flex flex-col items-center relative justify-center mt-6 border-dashed border rounded-lg min-h-40 w-full bg-slate-100 before:absolute overflow-hidden before:h-full before:content[] before:aspect-square before:rounded-full before:bg-white/40 before:z-[1]"
+                  >
                     <div className="w-full relative h-full flex flex-col justify-center items-center z-[2]">
                       <span className="text-slate-500">Drop JSON here</span>
                       <span className="text-slate-500 text-sm">or</span>
                       <label
                         htmlFor="import-json-field"
-                        className="mt-2 bg-white cursor-pointer select-none px-4 py-2 border rounded-xl hover:bg-cyan-100 transition-all duration-500">
+                        className="mt-2 bg-white cursor-pointer select-none px-4 py-2 border rounded-xl hover:bg-cyan-100 transition-all duration-500"
+                      >
                         Browse
                         <input
                           onChange={handleInputChange}
@@ -232,7 +229,8 @@ const Sidebar = () => {
               <span>Elements</span>
               <div
                 onClick={() => setModal(true)}
-                className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center">
+                className="px-5 hover:bg-gray-500 transition-all duration-500 cursor-pointer h-10 rounded-full text-base font-normal bg-gray-700 text-white flex items-center justify-center"
+              >
                 Import
               </div>
             </div>
@@ -249,8 +247,11 @@ const Sidebar = () => {
                   alignItems="flex-start"
                   justifyContent="flex-start"
                   gap="1"
-                  id={v4()}
-                  thumbnail="_">
+                  id={`Grid-${v4()}`}
+                  thumbnail="_"
+                  identify="grid"
+                  styling={{}}
+                >
                   <div className="flex gap-2 justify-center items-center">
                     <Icon icon="ph:columns" fontSize={28} />
                     <div className="rounded-xl text-center truncate text-sm">
@@ -259,7 +260,7 @@ const Sidebar = () => {
                   </div>
                 </Draggable>
                 <Draggable
-                  className="w-full h-16 bg-[#444] text-white flex items-center justify-center rounded-xl"
+                  className={`w-full h-16 bg-[#444] text-white flex items-center justify-center rounded-xl`}
                   columns="1"
                   rows="1"
                   type="flex"
@@ -268,8 +269,11 @@ const Sidebar = () => {
                   alignItems="flex-start"
                   justifyContent="flex-start"
                   gap="1"
-                  id={v4()}
-                  thumbnail="_">
+                  id={`Box-${v4()}`}
+                  thumbnail="_"
+                  identify="box"
+                  styling={{}}
+                >
                   <div className="flex gap-2 justify-center items-center p-7">
                     <Icon icon="ph:square" fontSize={28} />
                     <div className="rounded-xl text-center text-sm truncate">
@@ -288,9 +292,10 @@ const Sidebar = () => {
               lockScroll
                 ? "overflow-hidden"
                 : "overflow-y-scroll overflow-x-hidden "
-            )}>
+            )}
+          >
             {sidebar
-              .filter(item => !ids.includes(item.id))
+              .filter((item) => !ids.includes(item.id))
               .map((item, index) => (
                 <Draggable
                   styling={{ backgroundColor: getPastelColor(index, 4) }}
@@ -299,10 +304,12 @@ const Sidebar = () => {
                   }`}
                   {...item}
                   key={index}
-                  id={item.id}>
+                  id={item.id}
+                >
                   <div
                     title={formatText(item.id)}
-                    className="p-2 rounded-xl text-center  text-sm truncate line-clamp-2">
+                    className="p-2 rounded-xl text-center  text-sm truncate line-clamp-2"
+                  >
                     {formatText("" + item.id)}
                   </div>
                 </Draggable>

@@ -1,10 +1,30 @@
-import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { useDispatch, useSelector } from "react-redux";
+import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
-import { useDispatch, useSelector } from "react-redux";
 import { CSSProperties } from "react";
+
 import { RootState } from "../../store";
 import { setActiveId } from "../../store/DndSlice";
+
+interface DraggableProps {
+  id: string;
+  thumbnail?: string;
+  colspan: string;
+  rowspan: string;
+  columns: string;
+  gap: string;
+  alignItems: string;
+  justifyContent: string;
+  type: string;
+  rows: string;
+  className?: string;
+  children: React.ReactNode;
+  styling?: CSSProperties;
+
+  identify?: string;
+}
+
 const Draggable = ({
   colspan,
   rowspan,
@@ -19,21 +39,8 @@ const Draggable = ({
   className = "",
   styling,
   thumbnail = "_",
-}: {
-  id: string;
-  thumbnail?: string;
-  colspan: string;
-  rowspan: string;
-  columns: string;
-  gap: string;
-  alignItems: string;
-  justifyContent: string;
-  type: string;
-  rows: string;
-  className?: string;
-  children: React.ReactNode;
-  styling?: CSSProperties;
-}) => {
+  identify,
+}: DraggableProps) => {
   const { attributes, listeners, setNodeRef, over, transform } = useDraggable({
     id: id.toString(),
     data: {
@@ -48,13 +55,14 @@ const Draggable = ({
       thumbnail,
     },
   });
+  const { deepLevel } = useSelector((state: RootState) => state.dndSlice);
+
+  const dispatch = useDispatch();
+
   const style = {
     transform: CSS.Translate.toString(transform),
     ...styling,
   };
-  const { deepLevel } = useSelector((state: RootState) => state.dndSlice);
-
-  const dispatch = useDispatch();
 
   return (
     <div
@@ -63,11 +71,12 @@ const Draggable = ({
       className={`min-h-20  ${className} overflow-hidden cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
-      onClick={event => {
+      onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();
         dispatch(setActiveId(id));
-      }}>
+      }}
+    >
       <Icon
         icon="ph:dots-six-vertical"
         style={{
