@@ -27,6 +27,8 @@ import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
 import { GetData, PutData } from "../../apis";
 import { alignList, justifyList } from "./const";
+import BtnHandleCreateFc from "./BtnHandleCreateFc";
+import BtnPublish from "./BtnPublish";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
@@ -396,57 +398,57 @@ const PropertiesBar = () => {
     exportFromJSON({ data, fileName, exportType });
   };
 
-  const handlePublishJsonData = async () => {
-    // const layoutJSON = await getCachedDataFromIndexedDB(
-    //   DecryptBasic(GetACookie("did"), Enum.srkey)
-    // );
-    // console.log(JSON.stringify(data));
+  // const handlePublishJsonData = async () => {
+  //   // const layoutJSON = await getCachedDataFromIndexedDB(
+  //   //   DecryptBasic(GetACookie("did"), Enum.srkey)
+  //   // );
+  //   // console.log(JSON.stringify(data));
 
-    const getDoc = await axios.get(
-      `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
-        GetACookie("did"),
-        Enum.srkey
-      )}`
-    );
-    const documentData = {
-      projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
-      documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
-      layoutJson: data,
-      documentName:
-        (getDoc.status === 200 || getDoc.status === 201) &&
-        getDoc.data?.documentName,
-      thumbnail: "_",
-    };
+  //   const getDoc = await axios.get(
+  //     `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
+  //       GetACookie("did"),
+  //       Enum.srkey
+  //     )}`
+  //   );
+  //   const documentData = {
+  //     projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
+  //     documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
+  //     layoutJson: data,
+  //     documentName:
+  //       (getDoc.status === 200 || getDoc.status === 201) &&
+  //       getDoc.data?.documentName,
+  //     thumbnail: "_",
+  //   };
 
-    try {
-      const finalData = transformData(
-        data,
-        DecryptBasic(GetACookie("pid"), Enum.srkey),
-        DecryptBasic(GetACookie("did"), Enum.srkey)
-      );
+  //   try {
+  //     const finalData = transformData(
+  //       data,
+  //       DecryptBasic(GetACookie("pid"), Enum.srkey),
+  //       DecryptBasic(GetACookie("did"), Enum.srkey)
+  //     );
 
-      if (finalData) {
-        const saveDocResponse = await axios.post(
-          `${import.meta.env.VITE__API_HOST}/api/documents`,
-          documentData
-        );
+  //     if (finalData) {
+  //       const saveDocResponse = await axios.post(
+  //         `${import.meta.env.VITE__API_HOST}/api/documents`,
+  //         documentData
+  //       );
 
-        const response = await axios.post(
-          `${import.meta.env.VITE__API_HOST}/publish`,
-          data
-        );
-        if (response.status === 200 || response.status === 201) {
-          ToastSuccess({ msg: "Published successfully" });
-        } else {
-          ToastError({
-            msg: "Oops! Something went wrong to available publish",
-          });
-        }
-      }
-    } catch (error) {
-      //
-    }
-  };
+  //       const response = await axios.post(
+  //         `${import.meta.env.VITE__API_HOST}/publish`,
+  //         data
+  //       );
+  //       if (response.status === 200 || response.status === 201) {
+  //         ToastSuccess({ msg: "Published successfully" });
+  //       } else {
+  //         ToastError({
+  //           msg: "Oops! Something went wrong to available publish",
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     //
+  //   }
+  // };
 
   useEffect(() => {
     if (activeId) {
@@ -521,8 +523,8 @@ const PropertiesBar = () => {
   ): Promise<string | null> => {
     try {
       const response = await axios.post(
-        "https://serverless-tn-layout-production.up.railway.app/api/upload",
-        { image: base64Image },
+        `${import.meta.env.VITE__API_HOST}/api/upload`,
+        { image: base64Image, sliceId: activeId },
         {
           headers: {
             "Content-Type": "application/json",
@@ -555,12 +557,8 @@ const PropertiesBar = () => {
                 Download as JSON
               </span>
             </button>
-            <button
-              onClick={() => handlePublishJsonData()}
-              className="h-10 px-4  text-sm bg-[#444] text-white rounded-full"
-            >
-              Publish
-            </button>
+            <BtnPublish />
+            <BtnHandleCreateFc />
           </div>
           <span className="mx-auto w-full text-center font-semibold text-gray-500 capitalize text-normal  z-10 mt-12">
             Properties of
@@ -662,7 +660,7 @@ const PropertiesBar = () => {
               </div>
             )}
             <div className="grid grid-cols-2 gap-6">
-              {isLayout === "flex" && (
+              {(isLayout === "flex" || isLayout === "grid") && (
                 <div className="flex flex-col items-start mt-3 animate-fade-up z-[50]">
                   <span className="text-sm font-medium text-gray-400">
                     Justify Content
@@ -697,7 +695,7 @@ const PropertiesBar = () => {
                   </div>
                 </div>
               )}
-              {isLayout === "flex" && (
+              {(isLayout === "flex" || isLayout === "grid") && (
                 <div className="flex flex-col items-start mt-3 animate-fade-up z-[50]">
                   <span className="text-sm font-medium text-gray-400">
                     Align Items
@@ -822,6 +820,7 @@ const PropertiesBar = () => {
                                     value.inputValue,
                                     property as any,
                                     value.unit
+                                    // "px"
                                   )
                                 }
                               />

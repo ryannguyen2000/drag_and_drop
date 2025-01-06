@@ -19,6 +19,7 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
+import _ from "lodash";
 // import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
@@ -26,7 +27,7 @@ const Sidebar = () => {
   const { data, lockScroll } = useSelector(
     (state: RootState) => state.dndSlice
   );
-  console.log("🚀 ~ Sidebar ~ data:", data);
+  // console.log("🚀 ~ Sidebar ~ data:", data);
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
 
@@ -91,7 +92,7 @@ const Sidebar = () => {
           type: "content",
           childs: [],
           style: {},
-          thumbnail: item?.thumbnailUrl || "",
+          thumbnail: item?.thumbnail || "",
         }));
       }
     } catch (error) {}
@@ -137,6 +138,8 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const result = await getSlicesData();
+      console.log("result test", result);
+
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
 
@@ -296,24 +299,37 @@ const Sidebar = () => {
           >
             {sidebar
               .filter((item) => !ids.includes(item.id))
-              .map((item, index) => (
-                <Draggable
-                  styling={{ backgroundColor: getPastelColor(index, 4) }}
-                  className={`col-span-1 w-full flex-col  text-white flex items-center justify-center rounded-xl ${
-                    lockScroll && "fixed"
-                  }`}
-                  {...item}
-                  key={index}
-                  id={item.id}
-                >
-                  <div
-                    title={formatText(item.id)}
-                    className="p-2 rounded-xl text-center  text-sm truncate line-clamp-2"
+              .map((item, index) => {
+                const imageUrl =
+                  _.get(item, "thumbnail", "") || "/public/no-image.png";
+                console.log("imageUrl", imageUrl);
+
+                return (
+                  <Draggable
+                    styling={{ backgroundColor: getPastelColor(index, 4) }}
+                    className={`col-span-1 w-full flex-col text-white flex items-center justify-center rounded-xl ${
+                      lockScroll && "fixed"
+                    }`}
+                    {...item}
+                    key={index}
+                    id={item.id}
                   >
-                    {formatText("" + item.id)}
-                  </div>
-                </Draggable>
-              ))}
+                    <div
+                      title={formatText(item.id)}
+                      className="p-4 w-full rounded-xl flex gap-3 justify-start items-center"
+                    >
+                      <img
+                        src={imageUrl}
+                        alt=""
+                        className="w-[50px] h-[50px]"
+                      />
+                      <div className="text-center text-sm truncate line-clamp-2">
+                        {formatText("" + item.id)}
+                      </div>
+                    </div>
+                  </Draggable>
+                );
+              })}
           </div>
 
           <div className="flex justify-start ">

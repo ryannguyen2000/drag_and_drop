@@ -55,11 +55,6 @@ const Droppable = ({
   );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log(" active data: " + activeId);
-    console.log(" active data: " + JSON.stringify(activeData));
-  }, [activeData, activeId]);
-
   return (
     <div
       ref={setNodeRef}

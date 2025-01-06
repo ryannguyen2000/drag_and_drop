@@ -1,8 +1,11 @@
-import {Icon} from "@iconify/react/dist/iconify.js";
-import {useDispatch} from "react-redux";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { DeleteDocumentModal } from "../../pages/documents/components/deleteDocumentModal";
-import { setActiveDocument } from "../../store/documents/documentSlice";
+import {
+  setActiveDocument,
+  setDocumentName,
+} from "../../store/documents/documentSlice";
 import { IDocument } from "../../store/documents/type";
 import { formatDateTimeAgo } from "../../utilities/dateTime";
 import DocumentDropdown from "../dropdown/documentDropdown";
@@ -36,7 +39,8 @@ const DocumentCard = ({
   return (
     <div
       className="transition-all overflow-hidden group duration-500 ease-in-out rounded-md hover:rounded-xl hover:shadow-xl 
-        bg-white/90 backdrop-blur-[3.7px] w-full min-h-[15.625rem] h-full border border-white/15 p-5 cursor-pointer relative">
+        bg-white/90 backdrop-blur-[3.7px] w-full min-h-[15.625rem] h-full border border-white/15 p-5 cursor-pointer relative"
+    >
       <div className="min-w-full w-full h-full flex flex-col justify-between items-start gap-3">
         {/* Header */}
         <div className="w-full flex-grow z-10">
@@ -44,7 +48,8 @@ const DocumentCard = ({
           <div className=" flex justify-between items-center gap-3">
             <Link
               to={`/editor`}
-              className="font-medium text-neutral-400 text-lg mb-2 border-[0.0781rem] border-neutral-400 rounded-full w-fit">
+              className="font-medium text-neutral-400 text-lg mb-2 border-[0.0781rem] border-neutral-400 rounded-full w-fit"
+            >
               <span className="y-2 mx-3">
                 {Number(index) < 10 ? `0${index}` : index || "01"}
               </span>
@@ -53,7 +58,10 @@ const DocumentCard = ({
             {/* TOOL BAR */}
             <div
               className="flex items-center gap-3"
-              onClick={() => dispatch(setActiveDocument(document))}>
+              onClick={() => {
+                dispatch(setActiveDocument(document));
+              }}
+            >
               <DocumentDropdown
                 controlChildren={
                   <Icon
@@ -94,7 +102,12 @@ const DocumentCard = ({
 
       {/* Icon */}
       <div className="absolute bottom-2 right-2 flex justify-center items-center opacity-0 group-hover:animate-slide-in-left group-hover:opacity-100 transition-opacity duration-300 z-10">
-        <div onClick={() => navigationEditor()}>
+        <div
+          onClick={() => {
+            dispatch(setDocumentName(document.documentName));
+            navigationEditor();
+          }}
+        >
           <Icon icon="ph:arrow-right" className="text-4xl text-white" />
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
 import { CSSProperties } from "react";
+import _ from "lodash";
 
 import { RootState } from "../../store";
 import { setActiveId } from "../../store/DndSlice";
@@ -20,9 +21,9 @@ interface DraggableProps {
   rows: string;
   className?: string;
   children: React.ReactNode;
-  styling?: CSSProperties;
-
+  style?: CSSProperties;
   identify?: string;
+  styling?: CSSProperties;
 }
 
 const Draggable = ({
@@ -37,12 +38,13 @@ const Draggable = ({
   id,
   children,
   className = "",
+  style,
   styling,
   thumbnail = "_",
   identify,
 }: DraggableProps) => {
   const { attributes, listeners, setNodeRef, over, transform } = useDraggable({
-    id: id.toString(),
+    id: _.toString(id),
     data: {
       colspan,
       rowspan,
@@ -59,29 +61,38 @@ const Draggable = ({
 
   const dispatch = useDispatch();
 
-  const style = {
+  const newStyleDiv = {
     transform: CSS.Translate.toString(transform),
     ...styling,
+    ...style,
+  };
+
+  const newStyleIcon = {
+    transform: CSS.Translate.toString(transform),
+    ...styling,
+  };
+
+
+  const onActiveDraggle = async (event: any) => {
+    event.stopPropagation();
+    event.preventDefault();
+    dispatch(setActiveId(id));
   };
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`min-h-20  ${className} overflow-hidden cursor-pointer ${
+      style={newStyleDiv}
+      className={`min-h-20 ${className} overflow-hidden cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
-      onClick={(event) => {
-        event.stopPropagation();
-        event.preventDefault();
-        dispatch(setActiveId(id));
-      }}
+      onClick={onActiveDraggle}
     >
       <Icon
         icon="ph:dots-six-vertical"
         style={{
           right: `${deepLevel > 1 ? deepLevel * 0.5 : "0"}rem`,
-          ...style,
+          ...newStyleIcon,
         }}
         className="z-[999] group-hover:block hidden transition-all rounded-bl-lg absolute top-0 text-gray-700 !bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
         fontSize={24}

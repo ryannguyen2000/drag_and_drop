@@ -18,12 +18,21 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
+import BtnHandleCreateFc from "../../components/propertiesbar/BtnHandleCreateFc";
+import MonacoEditor from "../../components/monacoEditor";
+import BtnPublish from "../../components/propertiesbar/BtnPublish";
+import { setDocumentName } from "../../store/documents/documentSlice";
 
 const Editor = () => {
   ``;
-  const { activeId, data, sidebar, deepLevel, lockScroll } = useSelector(
-    (state: RootState) => state.dndSlice
-  );
+  const {
+    activeId,
+    data,
+    sidebar,
+    deepLevel,
+    lockScroll,
+    activeCreateFunction,
+  } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -35,6 +44,7 @@ const Editor = () => {
         )}`
       )) as any;
       if (response && response?.layoutJson) {
+        dispatch(setDocumentName(response?.documentName));
         dispatch(setData(response?.layoutJson));
         return;
       }
@@ -217,7 +227,7 @@ const Editor = () => {
                 alignItems: "flex-start",
                 justifyContent: "flex-start",
                 gap: "1",
-                thumbnail: child.thumbnail || "_",
+                thumbnail: child.thumbnail || "",
               };
             }
             return null;
@@ -255,27 +265,36 @@ const Editor = () => {
     }
   };
 
+  const renderBin = (
+    <div
+      id="bin_id"
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[6.25rem] hidden justify-center items-center"
+      style={{
+        zIndex: 9999,
+      }}
+    >
+      <TrashBin />
+    </div>
+  );
+
+  const renderSidebar = !activeCreateFunction && <Sidebar />;
+  const renderPropertiesBar = !activeCreateFunction && <PropertiesBar />;
+
   return (
     <DndContext
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      <RenderToolbarMonaco hidden={!activeCreateFunction} />
       <div className="flex items-start w-full relative">
-        {
-          <div
-            id="bin_id"
-            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[6.25rem] hidden justify-center items-center"
-            style={{
-              zIndex: 9999,
-            }}
-          >
-            <TrashBin />
-          </div>
-        }
-
-        <Sidebar />
-        <div className="bg-white w-full p-6 z-10">
+        {renderBin}
+        {renderSidebar}
+        <div
+          className={`${
+            activeCreateFunction ? "w-1/3" : "w-full"
+          } bg-white p-6 z-10`}
+        >
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-[calc(100vh-7rem)]">
             <Droppable
               columns={data.columns}
@@ -306,7 +325,8 @@ const Editor = () => {
             </Droppable>
           </div>
         </div>
-        <PropertiesBar />
+        <RenderMonacoEditor hidden={!activeCreateFunction} />
+        {renderPropertiesBar}
       </div>
       <DragOverlay
         style={{
@@ -324,6 +344,27 @@ const Editor = () => {
         ) : null}
       </DragOverlay>
     </DndContext>
+  );
+};
+
+const RenderMonacoEditor = ({ hidden }) => {
+  return (
+    !hidden && (
+      <div className="w-2/3">
+        <MonacoEditor />
+      </div>
+    )
+  );
+};
+
+const RenderToolbarMonaco = ({ hidden }) => {
+  return (
+    !hidden && (
+      <div className="w-full flex justify-end items-center gap-2 p-2">
+        <BtnHandleCreateFc />
+        <BtnPublish />
+      </div>
+    )
   );
 };
 

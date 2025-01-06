@@ -1,6 +1,6 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {getUniqueContentItems} from "../utilities";
-import {sample_data} from "../config/common";
+import { createSlice } from "@reduxjs/toolkit";
+import { getUniqueContentItems } from "../utilities";
+import { sample_data } from "../config/common";
 
 export interface DndState {
   activeId: string | null;
@@ -11,6 +11,9 @@ export interface DndState {
   deepLevel: number;
   thumbnail: string;
   lockScroll: boolean;
+  activeCreateFunction: boolean;
+  dataFunctions: string;
+  loadingMonacoEditor: boolean;
 }
 
 interface Properties {
@@ -47,13 +50,13 @@ export interface Obj {
 }
 
 const initialState: DndState = {
-  thumbnail: "_",
+  thumbnail: "",
   lockScroll: false,
   activeId: null,
   activeData: null,
   data: {
     id: "root",
-    thumbnail: "_",
+    thumbnail: "",
     type: "grid",
     columns: "1",
     gap: "1",
@@ -76,9 +79,12 @@ const initialState: DndState = {
     alignItems: "flex-start",
     justifyContent: "flex-start",
     style: {},
-    thumbnail: "_",
+    thumbnail: "",
   },
   deepLevel: 1,
+  activeCreateFunction: false,
+  dataFunctions: "",
+  loadingMonacoEditor: false,
 };
 
 const updateItem = (
@@ -94,7 +100,7 @@ const updateItem = (
     return data;
   }
 
-  const updatedChilds = data.childs.map(child =>
+  const updatedChilds = data.childs.map((child) =>
     updateItem(child, id, updatedValues)
   );
 
@@ -133,6 +139,15 @@ export const dndSlice = createSlice({
     setScrollLock: (state, action) => {
       state.lockScroll = action.payload;
     },
+    setLoadingMonacoEditor: (state, action) => {
+      state.loadingMonacoEditor = action.payload;
+    },
+    setdataFunctions: (state, action) => {
+      state.dataFunctions = action.payload;
+    },
+    setActiveCreateFunction: (state, action) => {
+      state.activeCreateFunction = action.payload;
+    },
   },
 });
 
@@ -145,6 +160,9 @@ export const {
   setProperties,
   setDeepLevel,
   setScrollLock,
+  setdataFunctions,
+  setActiveCreateFunction,
+  setLoadingMonacoEditor,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;
