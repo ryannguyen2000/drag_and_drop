@@ -17,7 +17,7 @@ import {
   formatText,
   serializeFromJsonToString,
 } from "../../utilities/text";
-import DimensionInput from "../commom/input";
+import DimensionInput, { Input } from "../commom/input";
 import { splitDimensions, splitValueAndUnit } from "../../utilities/text";
 import ColorPickerInput from "../commom/color";
 import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
@@ -29,10 +29,13 @@ import { GetData, PutData } from "../../apis";
 import { alignList, justifyList } from "./const";
 import BtnHandleCreateFc from "./BtnHandleCreateFc";
 import BtnPublish from "./BtnPublish";
+import _ from "lodash";
+import DataSlice from "./dataSlice";
+import Position from "./position";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const { activeData, activeId, data, thumbnail } = useSelector(
+  const { activeData, activeId, data } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -61,17 +64,23 @@ const PropertiesBar = () => {
   const [alignItems, setAlignItems] = useState<number | string>(
     Number(activeData?.rowspan) || ""
   );
+
   const [styles, setStyles] = useState<React.CSSProperties>(activeData?.style);
 
   const [backGroundtype, setBackgroundType] = useState<"image" | "color">(
     "color"
   );
   const [modalBackground, setModalBackground] = useState<boolean>(false);
-  const [imagePreview, setthumbnailPreview] = useState<string | null>(null);
+  // const [imagePreview, setthumbnailPreview] = useState<string | null>(null);
 
   const [isLayout, setIsLayout] = useState<"grid" | "flex" | "content" | any>(
     "grid"
   );
+
+  const [dataSlice, setDataSlice] = useState<any>({
+    title: "",
+    url: "",
+  });
 
   useEffect(() => {
     if (activeId) {
@@ -83,8 +92,18 @@ const PropertiesBar = () => {
         } else {
           setIsLayout("content");
         }
+        setColumnsState(Number(data.columns));
+        setRowsState(Number(data.rows));
+        setColspanState(Number(data.colspan));
+        setRowspanState(Number(data.rowspan));
+        setGap(Number(data.gap));
+        setJustifyContent(data.justifyContent);
+        setAlignItems(data.alignItems);
+        setStyles(data.style);
+        setDataSlice(_.get(data, "dataSlice"));
+        return; // Kết thúc sớm, không cần kiểm tra các `childs`
       }
-      const getDetail = (childs: any[]) => {
+      const getDetail = (childs: any) => {
         childs.map((child) => {
           if (child.id === activeId) {
             if (child.type === "grid") {
@@ -102,6 +121,7 @@ const PropertiesBar = () => {
             setJustifyContent(child.justifyContent);
             setAlignItems(child.alignItems);
             setStyles(child.style);
+            setDataSlice(_.get(child, "dataSlice"));
           }
           if (child.childs) {
             getDetail(child.childs);
@@ -120,6 +140,7 @@ const PropertiesBar = () => {
 
   const SetPropertyJson = (id: any) => {
     const copyData: Obj = JSON.parse(JSON.stringify(data));
+
     if (id === copyData.id) {
       const childsList = copyData.childs;
       dispatch(
@@ -134,7 +155,8 @@ const PropertiesBar = () => {
           alignItems: alignItems?.toString(),
           style: styles,
           childs: childsList,
-          thumbnail: thumbnail,
+          dataSlice,
+          // thumbnail: thumbnail,
         })
       );
       return;
@@ -153,7 +175,8 @@ const PropertiesBar = () => {
             justifyContent: justifyContent?.toString(),
             alignItems: alignItems?.toString(),
             style: styles,
-            thumbnail: thumbnail,
+            dataSlice,
+            // thumbnail: thumbnail,
           };
         }
 
@@ -188,7 +211,7 @@ const PropertiesBar = () => {
     justifyContent,
     alignItems,
     styles,
-    thumbnail,
+    dataSlice,
   ]);
 
   const handleColumnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -398,77 +421,6 @@ const PropertiesBar = () => {
     exportFromJSON({ data, fileName, exportType });
   };
 
-  // const handlePublishJsonData = async () => {
-  //   // const layoutJSON = await getCachedDataFromIndexedDB(
-  //   //   DecryptBasic(GetACookie("did"), Enum.srkey)
-  //   // );
-  //   // console.log(JSON.stringify(data));
-
-  //   const getDoc = await axios.get(
-  //     `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
-  //       GetACookie("did"),
-  //       Enum.srkey
-  //     )}`
-  //   );
-  //   const documentData = {
-  //     projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
-  //     documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
-  //     layoutJson: data,
-  //     documentName:
-  //       (getDoc.status === 200 || getDoc.status === 201) &&
-  //       getDoc.data?.documentName,
-  //     thumbnail: "_",
-  //   };
-
-  //   try {
-  //     const finalData = transformData(
-  //       data,
-  //       DecryptBasic(GetACookie("pid"), Enum.srkey),
-  //       DecryptBasic(GetACookie("did"), Enum.srkey)
-  //     );
-
-  //     if (finalData) {
-  //       const saveDocResponse = await axios.post(
-  //         `${import.meta.env.VITE__API_HOST}/api/documents`,
-  //         documentData
-  //       );
-
-  //       const response = await axios.post(
-  //         `${import.meta.env.VITE__API_HOST}/publish`,
-  //         data
-  //       );
-  //       if (response.status === 200 || response.status === 201) {
-  //         ToastSuccess({ msg: "Published successfully" });
-  //       } else {
-  //         ToastError({
-  //           msg: "Oops! Something went wrong to available publish",
-  //         });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     //
-  //   }
-  // };
-
-  useEffect(() => {
-    if (activeId) {
-      const findActiveData = (data: Obj): Obj | null => {
-        if (data.id === activeId) return data;
-        if (data.childs) {
-          for (const child of data.childs) {
-            const found = findActiveData(child);
-            if (found) return found;
-          }
-        }
-        return null;
-      };
-      const currentActiveData = findActiveData(data);
-      if (currentActiveData) {
-        dispatch(setActiveData(currentActiveData));
-      }
-    }
-  }, [activeId, data, dispatch]);
-
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -489,7 +441,7 @@ const PropertiesBar = () => {
 
         if (uploadedImageUrl) {
           dispatch(setthumbnail(uploadedImageUrl));
-          setthumbnailPreview(uploadedImageUrl);
+          // setthumbnailPreview(uploadedImageUrl);
           ToastDismiss();
           ToastSuccess({ msg: "Image uploaded successfully!" });
           e.target.value = "";
@@ -513,6 +465,25 @@ const PropertiesBar = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  useEffect(() => {
+    if (activeId) {
+      const findActiveData = (data: Obj): Obj | null => {
+        if (data.id === activeId) return data;
+        if (data.childs) {
+          for (const child of data.childs) {
+            const found = findActiveData(child);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      const currentActiveData = findActiveData(data);
+      if (currentActiveData) {
+        dispatch(setActiveData(currentActiveData));
+      }
+    }
+  }, [activeId, data, dispatch]);
 
   if (!activeId || !activeData) {
     return null;
@@ -749,16 +720,16 @@ const PropertiesBar = () => {
                       onChange={handleImageChange}
                       className="h-10 w-full border rounded-lg px-3 mt-2"
                     />
-                    {!imagePreview && (
+                    {!activeData.thumbnail && (
                       <div className="mt-2">
                         <img
-                          src={imagePreview}
+                          src={activeData.thumbnail}
                           alt="Preview"
                           className="w-full h-auto rounded-lg"
                         />
                       </div>
                     )}
-                    {imagePreview && activeData.thumbnail && (
+                    {activeData.thumbnail && (
                       <div className="mt-2">
                         <img
                           src={activeData.thumbnail}
@@ -1396,6 +1367,17 @@ const PropertiesBar = () => {
                       })}
                     </ul>
                   </details>
+
+                  {/* DATA */}
+                  <DataSlice
+                    dataSlice={dataSlice}
+                    setDataSlice={setDataSlice}
+                    activeData={activeData}
+                    activeId={activeId}
+                  />
+
+                  {/* POSITION */}
+                  <Position styles={styles} setStyles={setStyles} />
                 </div>
               </div>
             </div>

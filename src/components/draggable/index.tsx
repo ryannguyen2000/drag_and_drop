@@ -40,7 +40,7 @@ const Draggable = ({
   className = "",
   style,
   styling,
-  thumbnail = "_",
+  thumbnail = "",
   identify,
 }: DraggableProps) => {
   const { attributes, listeners, setNodeRef, over, transform } = useDraggable({
@@ -72,18 +72,16 @@ const Draggable = ({
     ...styling,
   };
 
-
   const onActiveDraggle = async (event: any) => {
     event.stopPropagation();
     event.preventDefault();
     dispatch(setActiveId(id));
   };
-
   return (
     <div
       ref={setNodeRef}
       style={newStyleDiv}
-      className={`min-h-20 ${className} overflow-hidden cursor-pointer ${
+      className={`${className} overflow-hidden cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
       onClick={onActiveDraggle}

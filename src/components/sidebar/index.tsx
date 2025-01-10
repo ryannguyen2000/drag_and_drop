@@ -6,6 +6,7 @@ import { io } from "socket.io-client";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { DndContext } from "@dnd-kit/core";
 import { Link } from "react-router-dom";
+import _ from "lodash";
 
 import style from "./index.module.css";
 import Draggable from "../draggable";
@@ -19,7 +20,6 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-import _ from "lodash";
 // import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
@@ -43,6 +43,8 @@ const Sidebar = () => {
       reader.onload = (e) => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
+          console.log("handleFile", parsedData);
+
           dispatch(setData(parsedData));
           if (parsedData?.childs.length > 0) {
             handleStoreDataToStorageAndState(parsedData);
@@ -138,11 +140,9 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const result = await getSlicesData();
-      console.log("result test", result);
-
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
-
+      console.log("fetchData", documentResult);
       if (documentResult) {
         dispatch(setData(JSON.parse(documentResult)));
       }
@@ -163,6 +163,7 @@ const Sidebar = () => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
+      console.log("documentResult", documentResult);
       dispatch(setData(JSON.parse(documentResult)));
     });
 
@@ -170,6 +171,24 @@ const Sidebar = () => {
       socket.disconnect();
     };
   }, []);
+
+  // Tạo số lượng slice trùng tên
+  const groupedSidebar = sidebar.reduce((acc, item) => {
+    const name = item.id.split("$")[0]; // Phần trước dấu `$`
+    if (!acc[name]) {
+      acc[name] = { ...item, count: 0 }; // Khởi tạo item với count = 0
+    }
+    if (!_.includes(ids, item.id)) {
+      acc[name].count += 1; // Tăng số lượng
+    }
+    acc[name].count += 1; // Tăng số lượng
+
+    return acc;
+  }, {});
+
+  const groupedSidebarArray = Object.values(groupedSidebar); // Chuyển object thành array
+
+  console.log("groupedSidebarArray", groupedSidebarArray);
 
   return (
     <>
@@ -297,13 +316,17 @@ const Sidebar = () => {
                 : "overflow-y-scroll overflow-x-hidden "
             )}
           >
-            {sidebar
-              .filter((item) => !ids.includes(item.id))
-              .map((item, index) => {
-                const imageUrl =
-                  _.get(item, "thumbnail", "") || "/public/no-image.png";
-                console.log("imageUrl", imageUrl);
-
+            {groupedSidebarArray
+              .filter((item: any) => {
+                const count = _.get(item, "count", 0);
+                return count > 0;
+              })
+              .map((item: any, index) => {
+                const thumbnail = _.get(item, "thumbnail", "");
+                const bgSlice =
+                  !_.isEmpty(thumbnail) && thumbnail !== "_"
+                    ? thumbnail
+                    : "/public/no-image.png";
                 return (
                   <Draggable
                     styling={{ backgroundColor: getPastelColor(index, 4) }}
@@ -318,13 +341,17 @@ const Sidebar = () => {
                       title={formatText(item.id)}
                       className="p-4 w-full rounded-xl flex gap-3 justify-start items-center"
                     >
-                      <img
-                        src={imageUrl}
-                        alt=""
-                        className="w-[50px] h-[50px]"
-                      />
-                      <div className="text-center text-sm truncate line-clamp-2">
+                      {/* Số lượng */}
+                      <span className="absolute top-0 left-0 text-xs bg-gray-800 text-white rounded-full px-2 py-1">
+                        {item.count}
+                      </span>
+                      <img src={bgSlice} alt="" className="w-[50px] h-[50px]" />
+                      {/* <div className="text-center text-sm truncate line-clamp-2">
                         {formatText("" + item.id)}
+                      </div> */}
+                      <div className="text-center text-sm truncate line-clamp-2">
+                        {formatText("" + item.id.split("$")[0])}{" "}
+                        {/* Hiển thị tên chuẩn */}
                       </div>
                     </div>
                   </Draggable>

@@ -14,7 +14,7 @@ const BtnPublish = () => {
     shallowEqual
   );
 
-  const { data, activeId, dataFunctions } = dndSlice as any;
+  const { data, activeId, dataComponent } = dndSlice as any;
   const { documentName } = documentSlice as any;
 
   const handlePublishJsonData = async () => {
@@ -57,15 +57,15 @@ const BtnPublish = () => {
           {
             name: documentName || "",
             layout: data,
-            functions: dataFunctions,
+            component: dataComponent,
           }
         );
 
-        const saveFunctions = await axios.post(
-          `${import.meta.env.VITE__API_HOST}/api/functions`,
+        const saveComponent = await axios.post(
+          `${import.meta.env.VITE__API_HOST}/api/components-config`,
           {
             sliceId: activeId,
-            functions: dataFunctions,
+            component: dataComponent,
           }
         );
 

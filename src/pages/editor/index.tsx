@@ -5,8 +5,10 @@ import {
   pointerWithin,
   DragOverlay,
 } from "@dnd-kit/core";
+import _ from "lodash";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+
 import Droppable from "../../components/droppable";
 import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
@@ -62,6 +64,7 @@ const Editor = () => {
           justifyContent: "flex-start",
           style: {},
           childs: [],
+          dataSlice: {},
         })
       );
       return;
@@ -80,6 +83,8 @@ const Editor = () => {
     parent_id: string;
   }) => {
     const newData = JSON.parse(JSON.stringify(data));
+
+    console.log("dataFindToAdd", data);
 
     let layoutChilds: Obj[] = [];
 
@@ -142,6 +147,8 @@ const Editor = () => {
       addChildToParent(newData.childs);
     }
 
+    console.log("FindToAdd", newData);
+
     dispatch(setData(newData));
   };
 
@@ -157,7 +164,6 @@ const Editor = () => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    // dispatch(setScrollLock(true));
     showBin();
   };
 
@@ -169,8 +175,6 @@ const Editor = () => {
 
     if (over?.id === "trash-bin") {
       const newData = JSON.parse(JSON.stringify(data));
-      console.log("124newdata", newData);
-
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
         return nodes
           .filter((node) => node.id !== active.id)
@@ -307,6 +311,7 @@ const Editor = () => {
               type={data.type}
               id={data.id}
               thumbnail={data.thumbnail}
+              dataSlice={data.dataSlice}
             >
               <ItemsRenderer
                 childs={data.childs}
@@ -320,6 +325,7 @@ const Editor = () => {
                 gap={data.gap}
                 currentDepth={1}
                 type={data.type}
+                dataSlice={_.get(data, "dataSlice")}
                 thumbnail={data.thumbnail}
               />
             </Droppable>

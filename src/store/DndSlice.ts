@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getUniqueContentItems } from "../utilities";
 import { sample_data } from "../config/common";
+import { defaultCode } from "../components/monacoEditor/const";
 
 export interface DndState {
   activeId: string | null;
@@ -12,7 +13,7 @@ export interface DndState {
   thumbnail: string;
   lockScroll: boolean;
   activeCreateFunction: boolean;
-  dataFunctions: string;
+  dataComponent: string;
   loadingMonacoEditor: boolean;
 }
 
@@ -32,6 +33,10 @@ interface Properties {
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   style?: React.CSSProperties;
   thumbnail?: string;
+  dataSlice: {
+    title?: string;
+    url?: string;
+  };
 }
 
 export interface Obj {
@@ -47,6 +52,10 @@ export interface Obj {
   style?: React.CSSProperties;
   childs: Obj[];
   thumbnail?: string;
+  dataSlice: {
+    title?: string;
+    url?: string;
+  };
 }
 
 const initialState: DndState = {
@@ -80,10 +89,11 @@ const initialState: DndState = {
     justifyContent: "flex-start",
     style: {},
     thumbnail: "",
+    dataSlice: {},
   },
   deepLevel: 1,
   activeCreateFunction: false,
-  dataFunctions: "",
+  dataComponent: defaultCode,
   loadingMonacoEditor: false,
 };
 
@@ -142,8 +152,8 @@ export const dndSlice = createSlice({
     setLoadingMonacoEditor: (state, action) => {
       state.loadingMonacoEditor = action.payload;
     },
-    setdataFunctions: (state, action) => {
-      state.dataFunctions = action.payload;
+    setDataComponent: (state, action) => {
+      state.dataComponent = action.payload;
     },
     setActiveCreateFunction: (state, action) => {
       state.activeCreateFunction = action.payload;
@@ -160,7 +170,7 @@ export const {
   setProperties,
   setDeepLevel,
   setScrollLock,
-  setdataFunctions,
+  setDataComponent,
   setActiveCreateFunction,
   setLoadingMonacoEditor,
 } = dndSlice.actions;

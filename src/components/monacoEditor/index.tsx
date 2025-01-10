@@ -2,9 +2,7 @@ import Editor from "@monaco-editor/react";
 import { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setdataFunctions } from "../../store/DndSlice";
-import { excuteCode } from "../../apis/runCodeMonaco";
-import { ToastError, ToastSuccess } from "../toast";
+import { setDataComponent } from "../../store/DndSlice";
 import { RootState } from "../../store";
 
 import {
@@ -12,7 +10,6 @@ import {
   getWorker,
 } from "monaco-jsx-syntax-highlight";
 import { defaultCode, language } from "./const";
-import RunCode from "./runCode";
 import LoadingEditor from "./loadingEditor";
 
 const MonacoEditor = () => {
@@ -21,7 +18,7 @@ const MonacoEditor = () => {
   const [jsonObject, setJsonObject] = useState({});
   const [error, setError] = useState(null);
 
-  const { dataFunctions, activeId, loadingMonacoEditor } = useSelector(
+  const { dataComponent, activeId, loadingMonacoEditor } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
@@ -80,7 +77,7 @@ const MonacoEditor = () => {
   }, []);
 
   const handleEditorChange = (value: any) => {
-    dispatch(setdataFunctions(value));
+    dispatch(setDataComponent(value));
   };
 
   return (

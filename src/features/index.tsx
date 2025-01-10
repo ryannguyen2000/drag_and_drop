@@ -8,6 +8,7 @@ import { ToastCustom, ToastDismiss } from "../components/toast";
 import GridLayout from "./GridLayout";
 import SliceItem from "./SliceItem";
 import BoxLayout from "./BoxLayout";
+import _ from "lodash";
 
 export interface ItemsRenderProps {
   id: string;
@@ -23,6 +24,11 @@ export interface ItemsRenderProps {
   style?: React.CSSProperties;
   childs: any[];
   currentDepth: number;
+  dataSlice?: {
+    title?: string;
+    url?: string;
+  };
+  isParentBg?: React.CSSProperties;
 }
 
 const ItemsRenderer = ({
@@ -39,7 +45,10 @@ const ItemsRenderer = ({
   childs,
   currentDepth,
   thumbnail,
-}: ItemsRenderProps) => {
+  dataSlice,
+  isParentBg
+}:
+ItemsRenderProps) => {
   const { activeId } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
@@ -47,10 +56,10 @@ const ItemsRenderer = ({
   const totalChildren = childs.length + Number(colspan) + Number(rowspan);
   const emptyCells = Math.max(0, totalCells - totalChildren);
 
-  if (currentDepth > 6) {
+  if (currentDepth > 10) {
     ToastDismiss();
     ToastCustom({
-      msg: "Maximum deep level is 6",
+      msg: "Maximum deep level is 10",
       icon: (
         <Icon
           icon="ph:warning-fill"
@@ -78,16 +87,21 @@ const ItemsRenderer = ({
     childs,
     type,
     thumbnail,
+    dataSlice,
     currentDepth,
     activeId,
     emptyCells,
   };
-
   return (
     <div className="w-full h-full">
       {type === "flex" && <BoxLayout {...propsChildCommon} />}
       {type === "grid" && <GridLayout {...propsChildCommon} />}
-      {type === "content" && <SliceItem {...propsChildCommon} />}
+      {type === "content" && (
+        <SliceItem
+          {...propsChildCommon}
+          isParentBg={isParentBg}
+        />
+      )}
     </div>
   );
 };
