@@ -7,34 +7,36 @@ import {
 } from "@dnd-kit/core";
 import _ from "lodash";
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 
 import Droppable from "../../components/droppable";
 import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
 import ItemsRenderer from "../../features";
 import { RootState } from "../../store";
-import { Obj, setData, setScrollLock, setSidebar } from "../../store/DndSlice";
-import PropertiesBar from "../../components/propertiesbar/propertiesbar";
+import { Obj, setData, setDataFetchData, setScrollLock, setSidebar } from "../../store/DndSlice";
+import PropertiesBar from "../../components/propertiesbar";
 import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-import BtnHandleCreateFc from "../../components/propertiesbar/BtnHandleCreateFc";
+import BtnHandleCreateFc from "../../components/propertiesbar/components/btnHandleCreateFc";
 import MonacoEditor from "../../components/monacoEditor";
-import BtnPublish from "../../components/propertiesbar/BtnPublish";
+import BtnPublish from "../../components/propertiesbar/components/btnPublish";
 import { setDocumentName } from "../../store/documents/documentSlice";
 
 const Editor = () => {
-  ``;
   const {
     activeId,
     data,
     sidebar,
     deepLevel,
-    lockScroll,
     activeCreateFunction,
+    layoutTypeScreen,
   } = useSelector((state: RootState) => state.dndSlice);
+
+  const dataLayout = data[layoutTypeScreen];
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -46,8 +48,11 @@ const Editor = () => {
         )}`
       )) as any;
       if (response && response?.layoutJson) {
+        console.log("Editorresponse", response);
+
         dispatch(setDocumentName(response?.documentName));
-        dispatch(setData(response?.layoutJson));
+        const newLayout = response?.layoutJson;
+        dispatch(setDataFetchData(newLayout));
         return;
       }
       dispatch(
@@ -82,9 +87,7 @@ const Editor = () => {
     detail: any;
     parent_id: string;
   }) => {
-    const newData = JSON.parse(JSON.stringify(data));
-
-    console.log("dataFindToAdd", data);
+    const newData = JSON.parse(JSON.stringify(dataLayout));
 
     let layoutChilds: Obj[] = [];
 
@@ -122,6 +125,7 @@ const Editor = () => {
             type: detail.type,
             childs: layoutChilds,
             thumbnail: detail.thumbnail,
+            dataSlice: detail.dataSlice,
           });
         } else if (node.childs.length > 0) {
           addChildToParent(node.childs);
@@ -146,9 +150,6 @@ const Editor = () => {
     } else {
       addChildToParent(newData.childs);
     }
-
-    console.log("FindToAdd", newData);
-
     dispatch(setData(newData));
   };
 
@@ -174,7 +175,7 @@ const Editor = () => {
     hideBin();
 
     if (over?.id === "trash-bin") {
-      const newData = JSON.parse(JSON.stringify(data));
+      const newData = JSON.parse(JSON.stringify(dataLayout));
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
         return nodes
           .filter((node) => node.id !== active.id)
@@ -301,33 +302,35 @@ const Editor = () => {
         >
           <div className="bg-white mx-auto max-w-[75rem] w-full min-h-[calc(100vh-7rem)]">
             <Droppable
-              columns={data.columns}
-              rows={data.rows}
-              colspan={data.colspan}
-              rowspan={data.rowspan}
-              alignItems={data.alignItems}
-              justifyContent={data.justifyContent}
-              gap={data.gap}
-              type={data.type}
-              id={data.id}
-              thumbnail={data.thumbnail}
-              dataSlice={data.dataSlice}
+              columns={_.get(dataLayout, "columns")}
+              rows={_.get(dataLayout, "rows")}
+              colspan={_.get(dataLayout, "colspan")}
+              rowspan={_.get(dataLayout, "rowspan")}
+              alignItems={_.get(dataLayout, "alignItems")}
+              justifyContent={_.get(dataLayout, "justifyContent")}
+              gap={_.get(dataLayout, "gap")}
+              type={_.get(dataLayout, "type")}
+              id={_.get(dataLayout, "id")}
+              thumbnail={_.get(dataLayout, "thumbnail")}
+              dataSlice={_.get(dataLayout, "dataSlice")}
             >
-              <ItemsRenderer
-                childs={data.childs}
-                id={data.id}
-                columns={data.columns}
-                rows={data.rows}
-                colspan={data.colspan}
-                rowspan={data.rowspan}
-                alignItems={data.alignItems}
-                justifyContent={data.justifyContent}
-                gap={data.gap}
-                currentDepth={1}
-                type={data.type}
-                dataSlice={_.get(data, "dataSlice")}
-                thumbnail={data.thumbnail}
-              />
+              {dataLayout && (
+                <ItemsRenderer
+                  childs={_.get(dataLayout, "childs")}
+                  id={_.get(dataLayout, "id")}
+                  columns={_.get(dataLayout, "columns")}
+                  rows={_.get(dataLayout, "rows")}
+                  colspan={_.get(dataLayout, "colspan")}
+                  rowspan={_.get(dataLayout, "rowspan")}
+                  alignItems={_.get(dataLayout, "alignItems")}
+                  justifyContent={_.get(dataLayout, "justifyContent")}
+                  gap={_.get(dataLayout, "gap")}
+                  currentDepth={1}
+                  type={_.get(dataLayout, "type")}
+                  dataSlice={_.get(data, "dataSlice")}
+                  thumbnail={_.get(dataLayout, "thumbnail")}
+                />
+              )}
             </Droppable>
           </div>
         </div>

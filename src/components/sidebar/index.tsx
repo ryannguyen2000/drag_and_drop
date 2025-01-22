@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { v4 } from "uuid";
 import { io } from "socket.io-client";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -20,16 +20,16 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-// import { Tooltip } from "@nextui-org/tooltip";
 
 const Sidebar = () => {
-  const sidebar = useSelector((state: RootState) => state.dndSlice.sidebar);
-  const { data, lockScroll } = useSelector(
+  const { data, lockScroll, sidebar, layoutTypeScreen } = useSelector(
     (state: RootState) => state.dndSlice
   );
   // console.log("🚀 ~ Sidebar ~ data:", data);
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
+
+  const [groupedSide, setGroupedSide] = useState<any>([]);
 
   // function store data to indexedDB
   const handleStoreDataToStorageAndState = (propsData: any) => {
@@ -43,8 +43,6 @@ const Sidebar = () => {
       reader.onload = (e) => {
         try {
           const parsedData = JSON.parse(e.target?.result as string);
-          console.log("handleFile", parsedData);
-
           dispatch(setData(parsedData));
           if (parsedData?.childs.length > 0) {
             handleStoreDataToStorageAndState(parsedData);
@@ -129,20 +127,19 @@ const Sidebar = () => {
     traverse(data);
     return ids;
   };
-  const ids = getAllIdsFromData(data);
+  const ids = getAllIdsFromData(data[layoutTypeScreen]);
 
   useEffect(() => {
-    if (data) {
-      const ids = getAllIdsFromData(data);
+    if (data[layoutTypeScreen]) {
+      const ids = getAllIdsFromData(data[layoutTypeScreen]);
     }
-  }, [data]);
+  }, [data, layoutTypeScreen]);
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
-      console.log("fetchData", documentResult);
       if (documentResult) {
         dispatch(setData(JSON.parse(documentResult)));
       }
@@ -163,7 +160,6 @@ const Sidebar = () => {
       const result = await getSlicesData();
       dispatch(setSidebar(result));
       const documentResult = await getDocumentsData();
-      console.log("documentResult", documentResult);
       dispatch(setData(JSON.parse(documentResult)));
     });
 
@@ -172,23 +168,28 @@ const Sidebar = () => {
     };
   }, []);
 
-  // Tạo số lượng slice trùng tên
-  const groupedSidebar = sidebar.reduce((acc, item) => {
-    const name = item.id.split("$")[0]; // Phần trước dấu `$`
-    if (!acc[name]) {
-      acc[name] = { ...item, count: 0 }; // Khởi tạo item với count = 0
-    }
-    if (!_.includes(ids, item.id)) {
-      acc[name].count += 1; // Tăng số lượng
-    }
-    acc[name].count += 1; // Tăng số lượng
+  // Hàm xử lý và nhóm sidebar
+  const processSidebar = useCallback(() => {
+    const ids = getAllIdsFromData(data[layoutTypeScreen]); // Lấy danh sách ids đã render
+    const filteredSidebar = sidebar.filter((item) => !ids.includes(item.id)); // Loại bỏ object có id đã render
 
-    return acc;
-  }, {});
+    const groupedSidebar = filteredSidebar.reduce((acc, item) => {
+      const name = item.id.split("$")[0]; // Lấy phần trước dấu `$`
+      if (!acc[name]) {
+        acc[name] = { ...item, count: 0 }; // Tạo nhóm mới
+      }
+      acc[name].count += 1; // Tăng số lượng object trong nhóm
+      return acc;
+    }, {});
 
-  const groupedSidebarArray = Object.values(groupedSidebar); // Chuyển object thành array
+    const groupedArray = Object.values(groupedSidebar); // Chuyển từ object sang array
+    setGroupedSide(groupedArray); // Lưu vào state
+  }, [sidebar, data, layoutTypeScreen]);
 
-  console.log("groupedSidebarArray", groupedSidebarArray);
+  // Xử lý khi data hoặc sidebar thay đổi
+  useEffect(() => {
+    processSidebar();
+  }, [processSidebar]);
 
   return (
     <>
@@ -316,7 +317,7 @@ const Sidebar = () => {
                 : "overflow-y-scroll overflow-x-hidden "
             )}
           >
-            {groupedSidebarArray
+            {groupedSide
               .filter((item: any) => {
                 const count = _.get(item, "count", 0);
                 return count > 0;

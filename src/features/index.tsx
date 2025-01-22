@@ -46,9 +46,9 @@ const ItemsRenderer = ({
   currentDepth,
   thumbnail,
   dataSlice,
-  isParentBg
-}:
-ItemsRenderProps) => {
+  isParentBg,
+}: ItemsRenderProps) => {
+  
   const { activeId } = useSelector((state: RootState) => state.dndSlice);
   const dispatch = useDispatch();
 
@@ -97,10 +97,7 @@ ItemsRenderProps) => {
       {type === "flex" && <BoxLayout {...propsChildCommon} />}
       {type === "grid" && <GridLayout {...propsChildCommon} />}
       {type === "content" && (
-        <SliceItem
-          {...propsChildCommon}
-          isParentBg={isParentBg}
-        />
+        <SliceItem {...propsChildCommon} isParentBg={isParentBg} />
       )}
     </div>
   );

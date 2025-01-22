@@ -1,50 +1,44 @@
 import React from "react";
-import { splitDimensions } from "../../utilities/text";
-import DimensionInput from "../commom/input";
+import DimensionInput from "../../commom/input";
+import { splitDimensions } from "../../../utilities/text";
 
-const Position = ({
-  styles,
-  setStyles,
-}: {
-  styles: React.CSSProperties;
-  setStyles: any;
-}) => {
-  const changePosition = (value: any) => {
-    setStyles((prevStyles) => ({
-      ...prevStyles,
-      position: value,
-    }));
-  };
-
-  const handlePositionXY = (
+const Padding = ({ styles, setStyles }) => {
+  const handlePaddingChange = (
     value: string | number,
-    property: "top" | "right" | "bottom" | "left",
+    direction: "top" | "right" | "bottom" | "left",
     unit: string
   ) => {
-    console.log('handlePositionXY', {
-      value,
-      property,
-      unit
+    setStyles((prevStyles) => {
+      const paddingValues = (prevStyles?.padding || "0px 0px 0px 0px")
+        .toString() // Đảm bảo là chuỗi
+        .split(" "); // Chuyển thành mảng
+
+      const directionIndex = { top: 0, right: 1, bottom: 2, left: 3 }[
+        direction
+      ]; // Lấy vị trí
+      paddingValues[directionIndex] = `${value}${unit}`; // Cập nhật giá trị kèm unit
+
+      const newPadding = paddingValues.join(" "); // Gộp lại thành chuỗi
+
+      // Kiểm tra nếu tất cả các giá trị là 0
+      if (
+        paddingValues.every(
+          (val) =>
+            val === "0px" || val === "0rem" || val === "0em" || val === "0%"
+        )
+      ) {
+        // const { padding, ...rest } = prevStyles; // Loại bỏ padding nếu tất cả giá trị là 0
+        // return rest;
+      }
+
+      return { ...prevStyles, padding: newPadding }; // Cập nhật padding nếu không phải 0
     });
-    
-    if (value === 0 || value === "0") {
-      setStyles((prevStyles) => {
-        const newStyles = { ...prevStyles };
-        delete newStyles[property];
-        return newStyles;
-      });
-    } else {
-      setStyles((prevStyles) => ({
-        ...prevStyles,
-        [property]: `${value}${unit}`,
-      }));
-    }
   };
 
   return (
-    <details>
-      <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
-        <span className="font-semibold text-gray-800 capitalize">Position</span>
+    <details className="group w-full [&_summary::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer items-center w-full justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
+        <span className="font-semibold text-gray-800 capitalize">Padding</span>
         <svg
           className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
           xmlns="http://www.w3.org/2000/svg"
@@ -61,26 +55,8 @@ const Position = ({
         </svg>
       </summary>
 
-      <ul className="flexgap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-        <li>
-          <span className="text-sm font-medium text-gray-400">Position</span>
-          <div className="flex items-center justify-center gap-2">
-            <select
-              id="position"
-              className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
-              // value={styles?.backgroundPosition}
-              onChange={(e) => changePosition(e.target.value)}
-            >
-              <option value="static">static</option>
-              <option value="fixed">fixed</option>
-              <option value="absolute">absolute</option>
-              <option value="relative">relative</option>
-              <option value="sticky">sticky</option>
-            </select>
-          </div>
-        </li>
-
-        {["positionXY"].map((property, index) => {
+      <ul className="grid grid-cols-2 gap-3 w-full mt-2 border p-4 bg-white shadow-lg rounded-b-xl">
+        {["padding"].map((property, index) => {
           const paddingValue = styles?.hasOwnProperty(property)
             ? styles[property as keyof typeof styles]
             : "0px 0px 0px 0px";
@@ -89,14 +65,14 @@ const Position = ({
           );
 
           return (
-            <div key={index + "positionXY"}>
+            <div key={index + "padding"}>
               <li key="top">
                 <span className="text-sm font-medium text-gray-400">Top</span>
                 <DimensionInput
                   defaultValue={Number.parseInt(top)} // Chuyển đổi thành số
                   defaultUnit={top.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
                   onChange={(value) =>
-                    handlePositionXY(value.inputValue, "top", value.unit)
+                    handlePaddingChange(value.inputValue, "top", value.unit)
                   }
                 />
               </li>
@@ -106,7 +82,7 @@ const Position = ({
                   defaultValue={Number.parseInt(right)}
                   defaultUnit={right.replace(/[0-9]/g, "")}
                   onChange={(value) =>
-                    handlePositionXY(value.inputValue, "right", value.unit)
+                    handlePaddingChange(value.inputValue, "right", value.unit)
                   }
                 />
               </li>
@@ -118,7 +94,7 @@ const Position = ({
                   defaultValue={Number.parseInt(bottom)}
                   defaultUnit={bottom.replace(/[0-9]/g, "")}
                   onChange={(value) =>
-                    handlePositionXY(value.inputValue, "bottom", value.unit)
+                    handlePaddingChange(value.inputValue, "bottom", value.unit)
                   }
                 />
               </li>
@@ -128,7 +104,7 @@ const Position = ({
                   defaultValue={Number.parseInt(left)}
                   defaultUnit={left.replace(/[0-9]/g, "")}
                   onChange={(value) =>
-                    handlePositionXY(value.inputValue, "left", value.unit)
+                    handlePaddingChange(value.inputValue, "left", value.unit)
                   }
                 />
               </li>
@@ -140,4 +116,4 @@ const Position = ({
   );
 };
 
-export default Position;
+export default Padding;

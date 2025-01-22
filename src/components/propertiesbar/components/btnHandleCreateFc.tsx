@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setActiveCreateFunction } from "../../store/DndSlice";
-import { RootState } from "../../store";
+import { setActiveCreateFunction } from "../../../store/DndSlice";
+import { RootState } from "../../../store";
 
 const BtnHandleCreateFc = () => {
   const { activeCreateFunction } = useSelector(

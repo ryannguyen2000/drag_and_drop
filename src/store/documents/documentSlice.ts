@@ -4,11 +4,13 @@ import { IDocument } from "./type";
 interface IDocumentSlice {
   activeDocument: IDocument | null;
   documentName: string;
+  uid: string;
 }
 
 const initialState: IDocumentSlice = {
   activeDocument: null,
   documentName: "",
+  uid: "",
 };
 
 export const DocumentSlice = createSlice({
@@ -26,9 +28,12 @@ export const DocumentSlice = createSlice({
     setDocumentName: (state, action) => {
       state.documentName = action.payload;
     },
+    setUID: (state, action) => {
+      state.uid = action.payload;
+    },
   },
 });
 
-export const { setActiveDocument, setDocumentName } = DocumentSlice.actions;
+export const { setActiveDocument, setDocumentName, setUID } = DocumentSlice.actions;
 
 export default DocumentSlice.reducer;

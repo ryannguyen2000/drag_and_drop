@@ -6,6 +6,7 @@ interface DimensionInputProps {
   defaultValue?: number;
   defaultUnit?: string;
   hasPercents?: boolean;
+  isMin?: boolean;
 }
 
 const DimensionInput: React.FC<DimensionInputProps> = ({
@@ -13,6 +14,7 @@ const DimensionInput: React.FC<DimensionInputProps> = ({
   defaultValue = 0,
   defaultUnit = "px",
   hasPercents = true,
+  isMin = true,
 }) => {
   const [inputValue, setInputValue] = useState<number | string>(defaultValue);
   const [unit, setUnit] = useState<string>(defaultUnit);
@@ -38,8 +40,10 @@ const DimensionInput: React.FC<DimensionInputProps> = ({
   };
 
   const setInputValueDefault = () => {
-    if (!inputValue || Number.parseFloat(inputValue.toString()) <= 0) {
-      setInputValue(0);
+    if (isMin) {
+      if (!inputValue || Number.parseFloat(inputValue.toString()) <= 0) {
+        setInputValue(0);
+      }
     }
   };
 
@@ -48,7 +52,7 @@ const DimensionInput: React.FC<DimensionInputProps> = ({
       <input
         type="number"
         step={0.1}
-        min={0}
+        min={isMin ? 0 : -1000}
         max={1000}
         className="h-10 w-full rounded-tl-lg rounded-bl-lg focus:ring-blue-500 focus:border-blue-500 pl-3"
         value={inputValue}
@@ -75,9 +79,16 @@ const DimensionInput: React.FC<DimensionInputProps> = ({
 interface InputProps {
   onChange: (e: any) => void;
   defaultValue?: any;
+  type?: string;
+  placeholder?: string;
 }
 
-export const Input = ({ onChange, defaultValue }: InputProps) => {
+export const Input = ({
+  onChange,
+  type,
+  defaultValue,
+  placeholder,
+}: InputProps) => {
   const [inputValue, setInputValue] = useState<number | string>(defaultValue);
 
   // Trong component DimensionInput
@@ -97,15 +108,16 @@ export const Input = ({ onChange, defaultValue }: InputProps) => {
   }, [defaultValue]);
 
   return (
-    <div className="flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden">
+    <div className="w-full flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden">
       <input
-        type="text"
+        type={type || "text"}
         step={0.1}
         min={0}
         max={1000}
         className="h-10 w-full rounded-tl-lg rounded-bl-lg focus:ring-blue-500 focus:border-blue-500 pl-3"
         value={inputValue}
         onChange={handleInputChange}
+        placeholder={placeholder}
       />
     </div>
   );

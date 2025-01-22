@@ -6,7 +6,10 @@ import { defaultCode } from "../components/monacoEditor/const";
 export interface DndState {
   activeId: string | null;
   activeData: any | null;
-  data: Obj;
+  data: {
+    mobile: Obj;
+    desktop: Obj;
+  };
   sidebar: any[];
   properties: Properties;
   deepLevel: number;
@@ -15,6 +18,7 @@ export interface DndState {
   activeCreateFunction: boolean;
   dataComponent: string;
   loadingMonacoEditor: boolean;
+  layoutTypeScreen: string;
 }
 
 interface Properties {
@@ -58,24 +62,34 @@ export interface Obj {
   };
 }
 
+const initialData = {
+  id: "root",
+  thumbnail: "",
+  type: "grid",
+  columns: "1",
+  gap: "1",
+  rows: "1",
+  colspan: "1",
+  rowspan: "1",
+  alignItems: "flex-start",
+  justifyContent: "flex-start",
+  style: {},
+  childs: [],
+  dataSlice: {
+    title: "",
+    url: "",
+  },
+  layoutTypeScreen: "desktop",
+};
+
 const initialState: DndState = {
   thumbnail: "",
   lockScroll: false,
   activeId: null,
   activeData: null,
   data: {
-    id: "root",
-    thumbnail: "",
-    type: "grid",
-    columns: "1",
-    gap: "1",
-    rows: "1",
-    colspan: "1",
-    rowspan: "1",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    style: {},
-    childs: [],
+    mobile: initialData,
+    desktop: initialData,
   },
   // sidebar: sample_data.childs,
   sidebar: [],
@@ -95,6 +109,7 @@ const initialState: DndState = {
   activeCreateFunction: false,
   dataComponent: defaultCode,
   loadingMonacoEditor: false,
+  layoutTypeScreen: "desktop",
 };
 
 const updateItem = (
@@ -131,8 +146,12 @@ export const dndSlice = createSlice({
     setActiveData: (state, action) => {
       state.activeData = action.payload;
     },
-    setData: (state, action) => {
+    setDataFetchData: (state, action) => {
       state.data = action.payload;
+    },
+    setData: (state, action) => {
+      const layoutType = state.layoutTypeScreen || "desktop";
+      state.data[layoutType] = action.payload;
     },
     setSidebar: (state, action) => {
       state.sidebar = action.payload;
@@ -158,6 +177,9 @@ export const dndSlice = createSlice({
     setActiveCreateFunction: (state, action) => {
       state.activeCreateFunction = action.payload;
     },
+    setLayoutTypeScreen: (state, action) => {
+      state.layoutTypeScreen = action.payload;
+    },
   },
 });
 
@@ -173,6 +195,8 @@ export const {
   setDataComponent,
   setActiveCreateFunction,
   setLoadingMonacoEditor,
+  setLayoutTypeScreen,
+  setDataFetchData,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;

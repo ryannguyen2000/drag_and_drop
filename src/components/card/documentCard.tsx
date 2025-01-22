@@ -5,6 +5,7 @@ import { DeleteDocumentModal } from "../../pages/documents/components/deleteDocu
 import {
   setActiveDocument,
   setDocumentName,
+  setUID,
 } from "../../store/documents/documentSlice";
 import { IDocument } from "../../store/documents/type";
 import { formatDateTimeAgo } from "../../utilities/dateTime";
@@ -12,6 +13,7 @@ import DocumentDropdown from "../dropdown/documentDropdown";
 import { GetACookie, SaveACookie } from "../../utilities/cookies";
 import { EncryptBasic } from "../../utilities/hash_aes";
 import { Enum } from "../../config/common";
+import _ from "lodash";
 
 const colors = ["#DA4D1D", "#2b26c3", "#01a439", "#394ca6", "#ffbe00"];
 
@@ -105,6 +107,7 @@ const DocumentCard = ({
         <div
           onClick={() => {
             dispatch(setDocumentName(document.documentName));
+            dispatch(setUID(_.get(document, "uid")));
             navigationEditor();
           }}
         >

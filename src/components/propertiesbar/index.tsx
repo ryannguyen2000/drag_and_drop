@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   Obj,
   setActiveData,
@@ -27,17 +27,25 @@ import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
 import { GetData, PutData } from "../../apis";
 import { alignList, justifyList } from "./const";
-import BtnHandleCreateFc from "./BtnHandleCreateFc";
-import BtnPublish from "./BtnPublish";
 import _ from "lodash";
-import DataSlice from "./dataSlice";
-import Position from "./position";
+import DataSlice from "./components/dataSlice";
+import Position from "./components/position";
+import TextStyles from "./components/textStyles";
+import Reponsive from "./components/responsive";
+import BtnPublish from "./components/btnPublish";
+import BtnHandleCreateFc from "./components/btnHandleCreateFc";
+import Border from "./components/border";
+import Padding from "./components/padding";
+import Dimension from "./components/dimension";
+import BorderRadius from "./components/borderRadius";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const { activeData, activeId, data } = useSelector(
+  const { activeData, activeId, data, layoutTypeScreen } = useSelector(
     (state: RootState) => state.dndSlice
   );
+
+  const dataLayout = data[layoutTypeScreen];
 
   const [justifyShow, setJustifyShow] = useState<boolean>(false);
   const [alignShow, setAlignShow] = useState<boolean>(false);
@@ -84,22 +92,22 @@ const PropertiesBar = () => {
 
   useEffect(() => {
     if (activeId) {
-      if (data.id === activeId) {
-        if (data.type === "grid") {
+      if (dataLayout.id === activeId) {
+        if (dataLayout.type === "grid") {
           setIsLayout("grid");
-        } else if (data.type === "flex") {
+        } else if (dataLayout.type === "flex") {
           setIsLayout("flex");
         } else {
           setIsLayout("content");
         }
-        setColumnsState(Number(data.columns));
-        setRowsState(Number(data.rows));
-        setColspanState(Number(data.colspan));
-        setRowspanState(Number(data.rowspan));
-        setGap(Number(data.gap));
-        setJustifyContent(data.justifyContent);
-        setAlignItems(data.alignItems);
-        setStyles(data.style);
+        setColumnsState(Number(dataLayout.columns));
+        setRowsState(Number(dataLayout.rows));
+        setColspanState(Number(dataLayout.colspan));
+        setRowspanState(Number(dataLayout.rowspan));
+        setGap(Number(dataLayout.gap));
+        setJustifyContent(dataLayout.justifyContent);
+        setAlignItems(dataLayout.alignItems);
+        setStyles(dataLayout.style);
         setDataSlice(_.get(data, "dataSlice"));
         return; // Kết thúc sớm, không cần kiểm tra các `childs`
       }
@@ -128,7 +136,7 @@ const PropertiesBar = () => {
           }
         });
       };
-      getDetail(data.childs);
+      getDetail(dataLayout.childs);
     }
   }, [activeId]);
 
@@ -139,31 +147,30 @@ const PropertiesBar = () => {
   };
 
   const SetPropertyJson = (id: any) => {
-    const copyData: Obj = JSON.parse(JSON.stringify(data));
+    const copyData: Obj = JSON.parse(JSON.stringify(dataLayout));
 
     if (id === copyData.id) {
       const childsList = copyData.childs;
-      dispatch(
-        setData({
-          ...copyData,
-          columns: columns?.toString(),
-          rows: rows?.toString(),
-          colspan: colspan?.toString(),
-          rowspan: rowspan?.toString(),
-          gap: gap?.toString(),
-          justifyContent: justifyContent?.toString(),
-          alignItems: alignItems?.toString(),
-          style: styles,
-          childs: childsList,
-          dataSlice,
-          // thumbnail: thumbnail,
-        })
-      );
+      const newData = {
+        ...copyData,
+        columns: columns?.toString(),
+        rows: rows?.toString(),
+        colspan: colspan?.toString(),
+        rowspan: rowspan?.toString(),
+        gap: gap?.toString(),
+        justifyContent: justifyContent?.toString(),
+        alignItems: alignItems?.toString(),
+        style: styles,
+        childs: childsList,
+        dataSlice,
+        // thumbnail: thumbnail,
+      };
+      dispatch(setData(newData));
       return;
     }
 
     function RefactorData(child: Obj[]): Obj[] {
-      return child.map((item) => {
+      return _.map(child, (item) => {
         if (item.id === id) {
           return {
             ...item,
@@ -194,6 +201,7 @@ const PropertiesBar = () => {
     const updatedChilds = RefactorData(copyData.childs);
 
     const newData = { ...copyData, childs: updatedChilds };
+
     dispatch(setData(newData));
     if (newData?.childs?.length > 0) {
       handleStoreDataToStorageAndState({ ...copyData, childs: updatedChilds });
@@ -237,58 +245,6 @@ const PropertiesBar = () => {
   };
   const handleAlignItemsChange = (value: string) => {
     setAlignItems(value);
-  };
-
-  const handleDimensionChange = (
-    value: string | number,
-    property: "width" | "height" | "maxWidth" | "maxHeight",
-    unit: string
-  ) => {
-    if (value === 0 || value === "0") {
-      // Không trả về giá trị nếu là 0
-      setStyles((prevStyles) => {
-        const newStyles = { ...prevStyles };
-        delete newStyles[property]; // Xóa thuộc tính nếu giá trị là 0
-        return newStyles;
-      });
-    } else {
-      setStyles((prevStyles) => ({
-        ...prevStyles,
-        [property]: `${value}${unit}`, // Cập nhật giá trị nếu khác 0
-      }));
-    }
-  };
-
-  const handlePaddingChange = (
-    value: string | number,
-    direction: "top" | "right" | "bottom" | "left",
-    unit: string
-  ) => {
-    setStyles((prevStyles) => {
-      const paddingValues = (prevStyles?.padding || "0px 0px 0px 0px")
-        .toString() // Đảm bảo là chuỗi
-        .split(" "); // Chuyển thành mảng
-
-      const directionIndex = { top: 0, right: 1, bottom: 2, left: 3 }[
-        direction
-      ]; // Lấy vị trí
-      paddingValues[directionIndex] = `${value}${unit}`; // Cập nhật giá trị kèm unit
-
-      const newPadding = paddingValues.join(" "); // Gộp lại thành chuỗi
-
-      // Kiểm tra nếu tất cả các giá trị là 0
-      if (
-        paddingValues.every(
-          (val) =>
-            val === "0px" || val === "0rem" || val === "0em" || val === "0%"
-        )
-      ) {
-        const { padding, ...rest } = prevStyles; // Loại bỏ padding nếu tất cả giá trị là 0
-        return rest;
-      }
-
-      return { ...prevStyles, padding: newPadding }; // Cập nhật padding nếu không phải 0
-    });
   };
 
   const handleMarginChange = (
@@ -355,65 +311,6 @@ const PropertiesBar = () => {
     }));
   };
 
-  const handleBorderChange = (
-    value: string | number,
-    property: "width" | "style" | "color",
-    unit?: string
-  ) => {
-    setStyles((prevStyles) => {
-      const newStyles = { ...prevStyles };
-
-      // Khởi tạo border nếu chưa tồn tại
-      if (!newStyles?.border) {
-        newStyles.border = "none"; // Giá trị mặc định
-      }
-
-      // Kiểm tra nếu border là chuỗi, nếu không thì chuyển thành chuỗi
-      const borderParts =
-        typeof newStyles?.border === "string"
-          ? newStyles?.border.split(" ")
-          : ["0px", "solid", "black"];
-
-      if (property === "width") {
-        borderParts[0] = `${value}${unit || "px"}`; // Cập nhật width
-      } else if (property === "style") {
-        borderParts[1] = value as string; // Cập nhật style
-      } else if (property === "color") {
-        borderParts[2] = value as string; // Cập nhật color
-      }
-
-      // Cập nhật lại chuỗi border
-      newStyles.border = borderParts.join(" ");
-
-      return newStyles;
-    });
-  };
-
-  const handleBorderRadiusChange = (
-    value: string | number,
-    corner:
-      | "borderTopLeftRadius"
-      | "borderTopRightRadius"
-      | "borderBottomLeftRadius"
-      | "borderBottomRightRadius",
-    unit: string
-  ) => {
-    if (value === 0 || value === "0") {
-      // Nếu giá trị là 0, xóa thuộc tính tương ứng
-      setStyles((prevStyles) => {
-        const newStyles = { ...prevStyles };
-        delete newStyles[corner];
-        return newStyles;
-      });
-    } else {
-      // Cập nhật giá trị của góc nếu giá trị khác 0
-      setStyles((prevStyles) => ({
-        ...prevStyles,
-        [corner]: `${value}${unit}`,
-      }));
-    }
-  };
-
   const handleDownloadAsJson = () => {
     const fileName = "JsonLayout";
     const exportType = exportFromJSON.types.json;
@@ -478,12 +375,12 @@ const PropertiesBar = () => {
         }
         return null;
       };
-      const currentActiveData = findActiveData(data);
+      const currentActiveData = findActiveData(dataLayout);
       if (currentActiveData) {
         dispatch(setActiveData(currentActiveData));
       }
     }
-  }, [activeId, data, dispatch]);
+  }, [activeId, dataLayout, dispatch]);
 
   if (!activeId || !activeData) {
     return null;
@@ -558,6 +455,8 @@ const PropertiesBar = () => {
           )}
 
           <div className="flex flex-col w-full z-10 mt-12">
+            <Reponsive />
+
             <div className="grid grid-cols-2 gap-6">
               {isLayout && (
                 <div className="flex flex-col items-start mt-3 animate-fade-up">
@@ -742,167 +641,11 @@ const PropertiesBar = () => {
                 )}
                 <div className="space-y-4 w-full mt-6">
                   {/* DIMENSION */}
-                  <details
-                    className="group w-full [&_summary::-webkit-details-marker]:hidden"
-                    open
-                  >
-                    <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
-                      <span className="font-semibold text-gray-800 capitalize">
-                        Dimension
-                      </span>
-                      <svg
-                        className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </summary>
-                    <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 border bg-white shadow-lg rounded-b-xl">
-                      {["width", "height", "maxWidth", "maxHeight"].map(
-                        (property) => {
-                          // Kiểm tra xem property có tồn tại trong styles hay không
-                          const styleValue = styles?.hasOwnProperty(property)
-                            ? styles[property as keyof typeof styles]
-                            : "0";
+                  <Dimension styles={styles} setStyles={setStyles} />
 
-                          // Tách giá trị và đơn vị
-                          const [defaultValue, defaultUnit] = styleValue
-                            ? splitValueAndUnit(String(styleValue))
-                            : ["", ""]; // Sử dụng chuỗi rỗng nếu không có giá trị
-                          return (
-                            <li key={property}>
-                              <span className="text-sm font-medium text-gray-400 capitalize">
-                                {property.replace(/([A-Z])/g, " $1")}{" "}
-                                {/* Format to "maxWidth" as "Max Width" */}
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(defaultValue)} // Set default value if available
-                                defaultUnit={defaultUnit} // Set default unit if available
-                                onChange={(value) =>
-                                  handleDimensionChange(
-                                    value.inputValue,
-                                    property as any,
-                                    value.unit
-                                    // "px"
-                                  )
-                                }
-                              />
-                            </li>
-                          );
-                        }
-                      )}
-                    </ul>
-                  </details>
                   {/* PADDING */}
-                  <details className="group w-full [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer items-center w-full justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
-                      <span className="font-semibold text-gray-800 capitalize">
-                        Padding
-                      </span>
-                      <svg
-                        className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </summary>
+                  <Padding styles={styles} setStyles={setStyles} />
 
-                    <ul className="grid grid-cols-2 gap-3 w-full mt-2 border p-4 bg-white shadow-lg rounded-b-xl">
-                      {["padding"].map((property, index) => {
-                        const paddingValue = styles?.hasOwnProperty(property)
-                          ? styles[property as keyof typeof styles]
-                          : "0px 0px 0px 0px";
-                        const [top, right, bottom, left] = splitDimensions(
-                          String(paddingValue)
-                        );
-
-                        return (
-                          <div key={index + "padding"}>
-                            <li key="top">
-                              <span className="text-sm font-medium text-gray-400">
-                                Top
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(top)} // Chuyển đổi thành số
-                                defaultUnit={top.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
-                                onChange={(value) =>
-                                  handlePaddingChange(
-                                    value.inputValue,
-                                    "top",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="right">
-                              <span className="text-sm font-medium text-gray-400">
-                                Right
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(right)}
-                                defaultUnit={right.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
-                                  handlePaddingChange(
-                                    value.inputValue,
-                                    "right",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="bottom">
-                              <span className="text-sm font-medium text-gray-400">
-                                Bottom
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(bottom)}
-                                defaultUnit={bottom.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
-                                  handlePaddingChange(
-                                    value.inputValue,
-                                    "bottom",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="left">
-                              <span className="text-sm font-medium text-gray-400">
-                                Left
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(left)}
-                                defaultUnit={left.replace(/[0-9]/g, "")}
-                                onChange={(value) =>
-                                  handlePaddingChange(
-                                    value.inputValue,
-                                    "left",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                          </div>
-                        );
-                      })}
-                    </ul>
-                  </details>
                   {/* MARGIN */}
                   <details className="group w-full [&_summary::-webkit-details-marker]:hidden">
                     <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
@@ -1005,6 +748,7 @@ const PropertiesBar = () => {
                       })}
                     </ul>
                   </details>
+
                   {/* BACKGROUND */}
                   <details className="group w-full  [&_summary::-webkit-details-marker]:hidden">
                     <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg border bg-white p-4 text-gray-900">
@@ -1175,198 +919,12 @@ const PropertiesBar = () => {
                       </ul>
                     )}
                   </details>
-                  {/* BORDER */}
-                  <details className="group w-full  [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
-                      <span className="font-semibold text-gray-800 capitalize">
-                        Border
-                      </span>
-                      <svg
-                        className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </summary>
-                    <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-                      <li>
-                        <span className="text-sm font-medium text-gray-400">
-                          Width
-                        </span>
-                        <DimensionInput
-                          defaultValue={parseInt(
-                            styles?.border && typeof styles?.border === "string"
-                              ? styles?.border.split(" ")[0]
-                              : "0"
-                          )}
-                          onChange={(value) =>
-                            handleBorderChange(
-                              value?.inputValue,
-                              "width",
-                              value?.unit
-                            )
-                          }
-                        />
-                      </li>
-                      <li>
-                        <span className="text-sm font-medium text-gray-400">
-                          Style
-                        </span>
-                        <select
-                          value={
-                            styles?.border && typeof styles?.border === "string"
-                              ? styles?.border.split(" ")[1]
-                              : "solid"
-                          }
-                          onChange={(e) =>
-                            handleBorderChange(e.target.value, "style")
-                          }
-                          className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
-                        >
-                          <option value="none">None</option>
-                          <option value="solid">Solid</option>
-                          <option value="dotted">Dotted</option>
-                          <option value="dashed">Dashed</option>
-                          <option value="double">Double</option>
-                          <option value="groove">Groove</option>
-                          <option value="ridge">Ridge</option>
-                          <option value="inset">Inset</option>
-                          <option value="outset">Outset</option>
-                        </select>
-                      </li>
-                      <li className="col-span-2">
-                        <span className="text-sm font-medium text-gray-400">
-                          Color
-                        </span>
-                        <ColorPickerInput
-                          value={
-                            styles?.border && typeof styles?.border === "string"
-                              ? styles?.border.split(" ")[2]
-                              : "#000000"
-                          }
-                          onChange={(color) =>
-                            handleBorderChange(color, "color")
-                          }
-                        />
-                      </li>
-                    </ul>
-                  </details>
-                  {/* BORDER RADIUS */}
-                  <details className="group w-full  [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
-                      <span className="font-semibold text-gray-800 capitalize">
-                        Radius
-                      </span>
-                      <svg
-                        className="size-5 shrink-0 transition duration-300 group-open:-rotate-180"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </summary>
-                    <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-                      {["borderRadius"].map((property, index) => {
-                        const radiusValue = styles?.hasOwnProperty(property)
-                          ? styles[property as keyof typeof styles]
-                          : "0px 0px 0px 0px";
-                        const [topLeft, topRight, bottomRight, bottomLeft] =
-                          splitDimensions(String(radiusValue));
 
-                        return (
-                          <div key={index + "radius"}>
-                            <li key="topLeft">
-                              <span className="text-sm font-medium text-gray-400">
-                                Top Left
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(topLeft)}
-                                defaultUnit={
-                                  topLeft.replace(/[0-9]/g, "") || "px"
-                                }
-                                onChange={(value) =>
-                                  handleBorderRadiusChange(
-                                    value.inputValue,
-                                    "borderTopLeftRadius",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="topRight">
-                              <span className="text-sm font-medium text-gray-400">
-                                Top Right
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(topRight)}
-                                defaultUnit={
-                                  topRight.replace(/[0-9]/g, "") || "px"
-                                }
-                                onChange={(value) =>
-                                  handleBorderRadiusChange(
-                                    value.inputValue,
-                                    "borderTopRightRadius",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="bottomRight">
-                              <span className="text-sm font-medium text-gray-400">
-                                Bottom Right
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(bottomRight)}
-                                defaultUnit={
-                                  bottomRight.replace(/[0-9]/g, "") || "px"
-                                }
-                                onChange={(value) =>
-                                  handleBorderRadiusChange(
-                                    value.inputValue,
-                                    "borderBottomRightRadius",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                            <li key="bottomLeft">
-                              <span className="text-sm font-medium text-gray-400">
-                                Bottom Left
-                              </span>
-                              <DimensionInput
-                                defaultValue={Number.parseInt(bottomLeft)}
-                                defaultUnit={
-                                  bottomLeft.replace(/[0-9]/g, "") || "px"
-                                }
-                                onChange={(value) =>
-                                  handleBorderRadiusChange(
-                                    value.inputValue,
-                                    "borderBottomLeftRadius",
-                                    value.unit
-                                  )
-                                }
-                              />
-                            </li>
-                          </div>
-                        );
-                      })}
-                    </ul>
-                  </details>
+                  {/* BORDER */}
+                  <Border styles={styles} setStyles={setStyles} />
+
+                  {/* BORDER RADIUS */}
+                  <BorderRadius styles={styles} setStyles={setStyles} />
 
                   {/* DATA */}
                   <DataSlice
@@ -1378,6 +936,9 @@ const PropertiesBar = () => {
 
                   {/* POSITION */}
                   <Position styles={styles} setStyles={setStyles} />
+
+                  {/* Text Styles */}
+                  <TextStyles styles={styles} setStyles={setStyles} />
                 </div>
               </div>
             </div>
