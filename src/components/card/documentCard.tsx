@@ -79,7 +79,7 @@ const DocumentCard = ({
 
           {/* MAIN NAME */}
           <div onClick={() => navigationEditor()}>
-            <div className="font-bold text-2xl">{document?.documentName}</div>
+            <div className="font-bold text-2xl">{_.get(document, "documentName")}</div>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ const DocumentCard = ({
       <div className="absolute bottom-2 right-2 flex justify-center items-center opacity-0 group-hover:animate-slide-in-left group-hover:opacity-100 transition-opacity duration-300 z-10">
         <div
           onClick={() => {
-            dispatch(setDocumentName(document.documentName));
+            dispatch(setDocumentName(_.get(document, "documentName")));
             dispatch(setUID(_.get(document, "uid")));
             navigationEditor();
           }}
