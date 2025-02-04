@@ -20,11 +20,15 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
+import SelectDocument from "../../pages/editor/selectDocument";
+
+const selector = (state: RootState) => [state.dndSlice, state.documentSlice];
 
 const Sidebar = () => {
-  const { data, lockScroll, sidebar, layoutTypeScreen } = useSelector(
-    (state: RootState) => state.dndSlice
-  );
+  const [dndSlice, documentSlice] = useSelector(selector, shallowEqual);
+  const { data, lockScroll, sidebar, typeScreen } = dndSlice;
+  // const { documentName } = documentSlice;
+
   // console.log("🚀 ~ Sidebar ~ data:", data);
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
@@ -127,13 +131,13 @@ const Sidebar = () => {
     traverse(data);
     return ids;
   };
-  const ids = getAllIdsFromData(data[layoutTypeScreen]);
+  const ids = getAllIdsFromData(data[typeScreen]);
 
   useEffect(() => {
-    if (data[layoutTypeScreen]) {
-      const ids = getAllIdsFromData(data[layoutTypeScreen]);
+    if (data[typeScreen]) {
+      const ids = getAllIdsFromData(data[typeScreen]);
     }
-  }, [data, layoutTypeScreen]);
+  }, [data, typeScreen]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -170,7 +174,7 @@ const Sidebar = () => {
 
   // Hàm xử lý và nhóm sidebar
   const processSidebar = useCallback(() => {
-    const ids = getAllIdsFromData(data[layoutTypeScreen]); // Lấy danh sách ids đã render
+    const ids = getAllIdsFromData(data[typeScreen]); // Lấy danh sách ids đã render
     const filteredSidebar = sidebar.filter((item) => !ids.includes(item.id)); // Loại bỏ object có id đã render
 
     const groupedSidebar = filteredSidebar.reduce((acc, item) => {
@@ -184,7 +188,7 @@ const Sidebar = () => {
 
     const groupedArray = Object.values(groupedSidebar); // Chuyển từ object sang array
     setGroupedSide(groupedArray); // Lưu vào state
-  }, [sidebar, data, layoutTypeScreen]);
+  }, [sidebar, data, typeScreen]);
 
   // Xử lý khi data hoặc sidebar thay đổi
   useEffect(() => {
@@ -248,6 +252,10 @@ const Sidebar = () => {
           )}
 
           <div className="gap-12 flex flex-col">
+            {/* <div className="mx-auto w-full  font-bold text-sm flex items-center justify-between">
+              {documentName}
+            </div> */}
+            <SelectDocument />
             <div className="mx-auto w-full  font-bold text-3xl flex items-center justify-between">
               <span>Elements</span>
               <div

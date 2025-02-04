@@ -104,6 +104,20 @@ const TextStyles = ({
     }));
   };
 
+  const handleBorderImageChange = (value: string) => {
+    setStyles((prevStyles) => ({
+      ...prevStyles,
+      borderImage: value,
+    }));
+  };
+
+  const handleBorderImageSliceChange = (value: string) => {
+    setStyles((prevStyles) => ({
+      ...prevStyles,
+      borderImageSlice: value,
+    }));
+  };
+
   return (
     <details>
       <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
@@ -153,7 +167,6 @@ const TextStyles = ({
             <input
               type="text"
               onChange={(e) => handleColorChange(e.target.value)}
-              defaultValue={_.get(styles, "color", "")}
               value={_.get(styles, "color", "")}
               placeholder="Enter color (#hex, rgba, etc.)"
               className="w-full border border-gray-300 p-2 rounded"
@@ -161,7 +174,6 @@ const TextStyles = ({
             <input
               type="color"
               onChange={(e) => handleColorChange(e.target.value)}
-              defaultValue={_.get(styles, "color", "#000000")}
               value={_.get(styles, "color", "")}
               className="mt-2"
             />
@@ -236,7 +248,6 @@ const TextStyles = ({
             <div className="w-full">Box Shadow:</div>
             <textarea
               onChange={(e) => handleBoxShadowChange(e.target.value)}
-              defaultValue={_.get(styles, "boxShadow", "")}
               value={_.get(styles, "boxShadow", "")}
               placeholder="Enter box-shadow (e.g., '0px 1px 1px rgba(0, 0, 0, 0.1)')"
               className="w-full border border-gray-300 p-2 rounded"
@@ -251,7 +262,6 @@ const TextStyles = ({
             <div className="w-full">Background:</div>
             <textarea
               onChange={(e) => handleBackgroundChange(e.target.value)}
-              defaultValue={_.get(styles, "background", "")}
               value={_.get(styles, "background", "")}
               placeholder="Enter background (e.g., 'radial-gradient(...)')"
               className="w-full border border-gray-300 p-2 rounded"
@@ -273,7 +283,6 @@ const TextStyles = ({
             <div className="w-full">Border:</div>
             <textarea
               onChange={(e) => handleBorderChange(e.target.value)}
-              defaultValue={_.get(styles, "border", "")}
               value={_.get(styles, "border", "")}
               placeholder='e.g., "1px solid rgba(255, 255, 255, 0.16)"'
               className="w-full border border-gray-300 p-2 rounded"
@@ -291,7 +300,6 @@ const TextStyles = ({
             <div className="w-full">Padding:</div>
             <textarea
               onChange={(e) => handlePaddingChange(e.target.value)}
-              defaultValue={_.get(styles, "padding", "")}
               value={_.get(styles, "padding", "")}
               placeholder='e.g., "10px 20px 15px 5px"'
               className="w-full border border-gray-300 p-2 rounded"
@@ -309,7 +317,6 @@ const TextStyles = ({
             <div className="w-full">Border Radius:</div>
             <textarea
               onChange={(e) => handleBorderRadiusChange(e.target.value)}
-              defaultValue={_.get(styles, "borderRadius", "")}
               value={_.get(styles, "borderRadius", "")}
               placeholder='e.g., "10px" or "50%"'
               className="w-full border border-gray-300 p-2 rounded"
@@ -349,7 +356,6 @@ const TextStyles = ({
               onChange={(e) =>
                 handleLineClampChange(parseInt(e.target.value, 10))
               }
-              defaultValue={_.get(styles, "WebkitLineClamp", 2)}
               value={_.get(styles, "WebkitLineClamp", 2)}
               placeholder="Enter number of lines"
               className="w-full border border-gray-300 p-2 rounded"
@@ -367,7 +373,6 @@ const TextStyles = ({
             <input
               type="text"
               onChange={(e) => handleLetterSpacingChange(e.target.value)}
-              defaultValue={_.get(styles, "letterSpacing", "0px")}
               value={_.get(styles, "letterSpacing", "")}
               placeholder='e.g., "1px", "0.1em", "0.05rem"'
               className="w-full border border-gray-300 p-2 rounded"
@@ -375,6 +380,41 @@ const TextStyles = ({
             <div className="text-sm text-gray-500">
               Example: <code>1px</code>, <code>0.1em</code>, or{" "}
               <code>0.05rem</code>.
+            </div>
+          </div>
+        </li>
+
+        {/* Border Image */}
+        <li>
+          <div className="flex flex-col items-center justify-start p-2 gap-1.5">
+            <div className="w-full">Border Image:</div>
+            <textarea
+              onChange={(e) => handleBorderImageChange(e.target.value)}
+              value={_.get(styles, "borderImage", "")}
+              placeholder='e.g., "linear-gradient(to right, #1ECC97, #5A60FC) 1"'
+              className="w-full border border-gray-300 p-2 rounded"
+              rows={2}
+            />
+            <div className="text-sm text-gray-500">
+              Example:{" "}
+              <code>linear-gradient(to right, #1ECC97, #5A60FC) 1</code>
+            </div>
+          </div>
+        </li>
+
+        {/* Border Image Slice */}
+        <li>
+          <div className="flex flex-col items-center justify-start p-2 gap-1.5">
+            <div className="w-full">Border Image Slice:</div>
+            <input
+              type="text"
+              onChange={(e) => handleBorderImageSliceChange(e.target.value)}
+              value={_.get(styles, "borderImageSlice", "")}
+              placeholder='e.g., "10%" or "20"'
+              className="w-full border border-gray-300 p-2 rounded"
+            />
+            <div className="text-sm text-gray-500">
+              Example: <code>10%</code> or <code>20</code>
             </div>
           </div>
         </li>

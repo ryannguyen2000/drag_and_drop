@@ -5,6 +5,8 @@ import { SpanCol, SpanRow } from "../utilities";
 import { formatText } from "../utilities/text";
 import { isValidColor } from "./BoxLayout";
 import { CSSProperties, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 type SliceItemProps = ItemsRenderProps & {
   activeId?: string;
@@ -22,7 +24,10 @@ const SliceItem = ({
   activeId,
   isParentBg,
   dataSlice,
+  ...props
 }: SliceItemProps) => {
+  const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
+
   const bgItems = isValidColor(isParentBg) ? "" : "bg-gray-100";
 
   const safeStyle = {

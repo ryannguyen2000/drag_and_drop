@@ -6,7 +6,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import _ from "lodash";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 
 import Droppable from "../../components/droppable";
@@ -14,7 +14,13 @@ import Sidebar from "../../components/sidebar";
 import TrashBin from "../../components/trashBin";
 import ItemsRenderer from "../../features";
 import { RootState } from "../../store";
-import { Obj, setData, setDataFetchData, setScrollLock, setSidebar } from "../../store/DndSlice";
+import {
+  Obj,
+  setData,
+  setDataFetchData,
+  setScrollLock,
+  setSidebar,
+} from "../../store/DndSlice";
 import PropertiesBar from "../../components/propertiesbar";
 import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
@@ -32,10 +38,12 @@ const Editor = () => {
     sidebar,
     deepLevel,
     activeCreateFunction,
-    layoutTypeScreen,
+    typeScreen,
   } = useSelector((state: RootState) => state.dndSlice);
 
-  const dataLayout = data[layoutTypeScreen];
+  const [scale, setScale] = useState(1);
+
+  const dataLayout = data[typeScreen];
 
   const dispatch = useDispatch();
 
@@ -48,8 +56,6 @@ const Editor = () => {
         )}`
       )) as any;
       if (response && response?.layoutJson) {
-        console.log("Editorresponse", response);
-
         dispatch(setDocumentName(response?.documentName));
         const newLayout = response?.layoutJson;
         dispatch(setDataFetchData(newLayout));
@@ -284,6 +290,18 @@ const Editor = () => {
 
   const renderSidebar = !activeCreateFunction && <Sidebar />;
   const renderPropertiesBar = !activeCreateFunction && <PropertiesBar />;
+
+  useEffect(() => {
+    function updateScale() {
+      const actualWidth = 1200; // Max-width của UI Builder
+      const currentWidth = window.innerWidth; // Kích thước màn hình hiện tại
+      setScale(currentWidth / actualWidth);
+    }
+
+    updateScale(); // Cập nhật ngay khi mở trang
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
 
   return (
     <DndContext

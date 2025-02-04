@@ -19,6 +19,35 @@ const BtnPublish = () => {
   const { data, activeId, dataComponent } = dndSlice as any;
   const { uid } = documentSlice as any;
 
+  // Cập nhật trên object gốc
+
+  // if (data) {
+  //   const updatedDocument = structuredClone(data);
+
+  //   function updateChilds(childs) {
+  //     return childs.map((child) => {
+  //       if (child.childs && Array.isArray(child.childs)) {
+  //         child.childs = updateChilds([...child.childs]); // Clone before modifying
+  //       }
+  //       return {
+  //         ...child,
+  //         style_pc: child.style || {},
+  //         style_laptop: child.style || {},
+  //       };
+  //     });
+  //   }
+
+  //   updatedDocument.desktop.childs = updateChilds([
+  //     ...updatedDocument.desktop.childs,
+  //   ]);
+  //   updatedDocument.desktop.style_pc = updatedDocument.desktop.style;
+  //   updatedDocument.desktop.style_laptop = updatedDocument.desktop.style;
+
+  //   delete updatedDocument.desktop.style;
+
+  //   console.log("BtnPublish", updatedDocument.desktop);
+  // }
+
   const handlePublishJsonData = async () => {
     setIsLoading(true);
     const getDoc = await axios.get(
@@ -27,12 +56,37 @@ const BtnPublish = () => {
         Enum.srkey
       )}`
     );
-    console.log("handlePublishJsonData", getDoc);
+
+    // const updatedDocument = structuredClone(data);
+    const updatedDocument = data
+
+    // function updateChilds(childs) {
+    //   return childs.map((child) => {
+    //     if (child.childs && Array.isArray(child.childs)) {
+    //       child.childs = updateChilds([...child.childs]); // Clone before modifying
+    //     }
+    //     return {
+    //       ...child,
+    //       style_pc: child.style || {},
+    //       style_laptop: child.style || {},
+    //     };
+    //   });
+    // }
+
+    // updatedDocument.desktop.childs = updateChilds([
+    //   ...updatedDocument.desktop.childs,
+    // ]);
+    // updatedDocument.desktop.style_pc = updatedDocument.desktop.style;
+    // updatedDocument.desktop.style_laptop = updatedDocument.desktop.style;
+
+    // delete updatedDocument.desktop.style;
+
+    // console.log("updatedDocument", updatedDocument);
 
     const documentData = {
       projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
       documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
-      layoutJson: data,
+      layoutJson: updatedDocument,
       documentName:
         (getDoc.status === 200 || getDoc.status === 201) &&
         getDoc.data?.documentName,
@@ -40,8 +94,9 @@ const BtnPublish = () => {
     };
 
     try {
+      // GIỮ NGUYÊN
       const finalData = transformData(
-        data,
+        updatedDocument,
         DecryptBasic(GetACookie("pid"), Enum.srkey),
         DecryptBasic(GetACookie("did"), Enum.srkey)
       );
@@ -56,7 +111,7 @@ const BtnPublish = () => {
           `${import.meta.env.VITE__API_HOST}/publish`,
           {
             uid: uid || "",
-            layout: data,
+            layout: updatedDocument,
             component: dataComponent,
           }
         );
@@ -85,7 +140,7 @@ const BtnPublish = () => {
 
   return (
     <button
-      disabled={isLoading}
+      // disabled={isLoading}
       onClick={() => handlePublishJsonData()}
       className={`h-10 px-4 text-sm text-white rounded-full relative bg-[#444]`}
     >

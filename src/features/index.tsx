@@ -47,9 +47,11 @@ const ItemsRenderer = ({
   thumbnail,
   dataSlice,
   isParentBg,
+  ...props
 }: ItemsRenderProps) => {
-  
-  const { activeId } = useSelector((state: RootState) => state.dndSlice);
+  const { activeId, breakpoint } = useSelector(
+    (state: RootState) => state.dndSlice
+  );
   const dispatch = useDispatch();
 
   const totalCells = Number(columns) * Number(rows);
@@ -81,7 +83,7 @@ const ItemsRenderer = ({
     colspan,
     alignItems,
     justifyContent,
-    style,
+    style: props[breakpoint],
     gap,
     id,
     childs,
@@ -91,6 +93,7 @@ const ItemsRenderer = ({
     currentDepth,
     activeId,
     emptyCells,
+    // [breakpoint]: props[breakpoint],
   };
   return (
     <div className="w-full h-full">

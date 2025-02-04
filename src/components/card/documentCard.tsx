@@ -1,6 +1,8 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import _ from "lodash";
+
 import { DeleteDocumentModal } from "../../pages/documents/components/deleteDocumentModal";
 import {
   setActiveDocument,
@@ -10,10 +12,9 @@ import {
 import { IDocument } from "../../store/documents/type";
 import { formatDateTimeAgo } from "../../utilities/dateTime";
 import DocumentDropdown from "../dropdown/documentDropdown";
-import { GetACookie, SaveACookie } from "../../utilities/cookies";
+import { SaveACookie } from "../../utilities/cookies";
 import { EncryptBasic } from "../../utilities/hash_aes";
 import { Enum } from "../../config/common";
-import _ from "lodash";
 
 const colors = ["#DA4D1D", "#2b26c3", "#01a439", "#394ca6", "#ffbe00"];
 
@@ -79,7 +80,9 @@ const DocumentCard = ({
 
           {/* MAIN NAME */}
           <div onClick={() => navigationEditor()}>
-            <div className="font-bold text-2xl">{_.get(document, "documentName")}</div>
+            <div className="font-bold text-2xl">
+              {_.get(document, "documentName")}
+            </div>
           </div>
         </div>
 

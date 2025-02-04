@@ -41,11 +41,11 @@ import BorderRadius from "./components/borderRadius";
 
 const PropertiesBar = () => {
   const dispatch = useDispatch();
-  const { activeData, activeId, data, layoutTypeScreen } = useSelector(
+  const { activeData, activeId, data, typeScreen, breakpoint } = useSelector(
     (state: RootState) => state.dndSlice
   );
 
-  const dataLayout = data[layoutTypeScreen];
+  const dataLayout = data[typeScreen];
 
   const [justifyShow, setJustifyShow] = useState<boolean>(false);
   const [alignShow, setAlignShow] = useState<boolean>(false);
@@ -107,9 +107,9 @@ const PropertiesBar = () => {
         setGap(Number(dataLayout.gap));
         setJustifyContent(dataLayout.justifyContent);
         setAlignItems(dataLayout.alignItems);
-        setStyles(dataLayout.style);
+        setStyles(dataLayout[breakpoint]);
         setDataSlice(_.get(data, "dataSlice"));
-        return; // Kết thúc sớm, không cần kiểm tra các `childs`
+        return;
       }
       const getDetail = (childs: any) => {
         childs.map((child) => {
@@ -128,7 +128,7 @@ const PropertiesBar = () => {
             setGap(Number(child.gap));
             setJustifyContent(child.justifyContent);
             setAlignItems(child.alignItems);
-            setStyles(child.style);
+            setStyles(child[breakpoint]);
             setDataSlice(_.get(child, "dataSlice"));
           }
           if (child.childs) {
@@ -160,7 +160,7 @@ const PropertiesBar = () => {
         gap: gap?.toString(),
         justifyContent: justifyContent?.toString(),
         alignItems: alignItems?.toString(),
-        style: styles,
+        [breakpoint]: styles,
         childs: childsList,
         dataSlice,
         // thumbnail: thumbnail,
@@ -181,7 +181,7 @@ const PropertiesBar = () => {
             gap: gap?.toString(),
             justifyContent: justifyContent?.toString(),
             alignItems: alignItems?.toString(),
-            style: styles,
+            [breakpoint]: styles,
             dataSlice,
             // thumbnail: thumbnail,
           };

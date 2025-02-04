@@ -47,7 +47,7 @@ const Dimension = ({ styles, setStyles }) => {
         </svg>
       </summary>
       <ul className="grid grid-cols-2 gap-3 w-full mt-2 p-4 border bg-white shadow-lg rounded-b-xl">
-        {["width", "height", "maxWidth", "maxHeight"].map((property) => {
+        {["width", "height", "maxWidth", "maxHeight", "minWidth", "minHeight"].map((property) => {
           // Kiểm tra xem property có tồn tại trong styles hay không
           const styleValue = styles?.hasOwnProperty(property)
             ? styles[property as keyof typeof styles]

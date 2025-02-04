@@ -10,6 +10,9 @@ import { setActiveData } from "../../../store/DndSlice";
 const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
   const dispatch = useDispatch();
   const [titles, setTitles] = useState(_.get(dataSlice, "titles", {}));
+  const [isBtnGradient, setIsBtnGradient] = useState(
+    _.get(dataSlice, "isBtnGradient", false)
+  );
 
   useEffect(() => {
     setDataSlice((prev) => ({ ...prev, titles }));
@@ -151,6 +154,13 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
     });
   };
 
+  const handleGradientToggle = () => {
+    const newValue = !isBtnGradient;
+    setIsBtnGradient(newValue);
+    setDataSlice((prev) => ({ ...prev, isBtnGradient: newValue }));
+    debouncedDispatch({ ...dataSlice, isBtnGradient: newValue });
+  };
+
   return (
     <details>
       <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
@@ -255,8 +265,6 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
 
             {Object.keys(_.get(dataSlice, "titles", {})).map((key) => {
               const item = _.get(dataSlice, "titles")[key];
-              console.log("dataSlice1", item);
-
               return (
                 <div key={key} className="flex flex-col gap-2 mt-2">
                   <div className="flex items-center gap-2">
@@ -284,6 +292,25 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
                 </div>
               );
             })}
+          </div>
+        </li>
+
+        {/* Checkbox for isBtnGradient */}
+        <li>
+          <div className="flex items-center gap-3 p-4">
+            <label
+              htmlFor="isBtnGradient"
+              className="text-sm font-medium text-gray-400"
+            >
+              Enable Button Gradient:
+            </label>
+            <input
+              id="isBtnGradient"
+              type="checkbox"
+              checked={_.get(dataSlice, "isBtnGradient", false)}
+              onChange={handleGradientToggle}
+              className="w-5 h-5"
+            />
           </div>
         </li>
       </ul>

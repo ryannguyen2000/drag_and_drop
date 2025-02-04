@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { getUniqueContentItems } from "../utilities";
 import { sample_data } from "../config/common";
 import { defaultCode } from "../components/monacoEditor/const";
+import { BREAKPOINTS } from "../utilities/const/common";
 
 export interface DndState {
   activeId: string | null;
@@ -18,7 +19,8 @@ export interface DndState {
   activeCreateFunction: boolean;
   dataComponent: string;
   loadingMonacoEditor: boolean;
-  layoutTypeScreen: string;
+  typeScreen: string;
+  breakpoint: string;
 }
 
 interface Properties {
@@ -36,6 +38,10 @@ interface Properties {
     | "space-evenly";
   alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
   style?: React.CSSProperties;
+  style_mobile?: React.CSSProperties;
+  style_tablet?: React.CSSProperties;
+  style_laptop?: React.CSSProperties;
+  style_pc?: React.CSSProperties;
   thumbnail?: string;
   dataSlice: {
     title?: string;
@@ -54,6 +60,10 @@ export interface Obj {
   justifyContent: string;
   alignItems: string;
   style?: React.CSSProperties;
+  style_mobile?: React.CSSProperties;
+  style_tablet?: React.CSSProperties;
+  style_laptop?: React.CSSProperties;
+  style_pc?: React.CSSProperties;
   childs: Obj[];
   thumbnail?: string;
   dataSlice: {
@@ -74,12 +84,17 @@ const initialData = {
   alignItems: "flex-start",
   justifyContent: "flex-start",
   style: {},
+  style_mobile: {},
+  style_tablet: {},
+  style_laptop: {},
+  style_pc: {},
   childs: [],
   dataSlice: {
     title: "",
     url: "",
   },
-  layoutTypeScreen: "desktop",
+  typeScreen: "mobile",
+  breakpoint: BREAKPOINTS.laptop.style,
 };
 
 const initialState: DndState = {
@@ -109,7 +124,9 @@ const initialState: DndState = {
   activeCreateFunction: false,
   dataComponent: defaultCode,
   loadingMonacoEditor: false,
-  layoutTypeScreen: "desktop",
+  typeScreen: "mobile",
+  // breakpoint:  BREAKPOINTS.laptop.style,
+  breakpoint: BREAKPOINTS.mobile.style,
 };
 
 const updateItem = (
@@ -150,7 +167,7 @@ export const dndSlice = createSlice({
       state.data = action.payload;
     },
     setData: (state, action) => {
-      const layoutType = state.layoutTypeScreen || "desktop";
+      const layoutType = state.typeScreen || "desktop";
       state.data[layoutType] = action.payload;
     },
     setSidebar: (state, action) => {
@@ -177,8 +194,11 @@ export const dndSlice = createSlice({
     setActiveCreateFunction: (state, action) => {
       state.activeCreateFunction = action.payload;
     },
-    setLayoutTypeScreen: (state, action) => {
-      state.layoutTypeScreen = action.payload;
+    setTypeScreen: (state, action) => {
+      state.typeScreen = action.payload;
+    },
+    setBreakpoint: (state, action) => {
+      state.breakpoint = action.payload;
     },
   },
 });
@@ -195,8 +215,9 @@ export const {
   setDataComponent,
   setActiveCreateFunction,
   setLoadingMonacoEditor,
-  setLayoutTypeScreen,
+  setTypeScreen,
   setDataFetchData,
+  setBreakpoint,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;

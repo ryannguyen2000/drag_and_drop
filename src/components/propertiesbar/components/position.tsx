@@ -84,42 +84,19 @@ const Position = ({
             <select
               id="position"
               className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
-              value={_.get(styles, "position")}
+              value={_.get(styles, "position", "none")}
               onChange={(e) => changePosition(e.target.value)}
             >
-              <option value="static">static</option>
+              <option value="">none</option>
               <option value="fixed">fixed</option>
               <option value="absolute">absolute</option>
               <option value="relative">relative</option>
+              <option value="sticky">static</option>
               <option value="sticky">sticky</option>
             </select>
           </div>
         </li>
 
-        {/* {["top", "right", "bottom", "left"].map((property, index) => {
-          const paddingValue = styles?.[property] || "0px"; // Kiểm tra từng thuộc tính cụ thể
-          const [top, right, bottom, left] = splitDimensions(
-            String(paddingValue)
-          );
-
-          return (
-            <div key={index + "positionXY"}>
-              <li key={property}>
-                <span className="text-sm font-medium text-gray-400">
-                  {property.charAt(0).toUpperCase() + property.slice(1)}
-                </span>
-                <DimensionInput
-                  isMin={false}
-                  defaultValue={Number.parseInt(paddingValue)} // Chuyển đổi thành số
-                  defaultUnit={paddingValue.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
-                  onChange={(value) =>
-                    handlePositionXY(value.inputValue, property, value.unit)
-                  }
-                />
-              </li>
-            </div>
-          );
-        })} */}
         {["top", "right", "bottom", "left"].map((property, index) => {
           const propertyValue = styles?.[property] || "0px"; // Kiểm tra giá trị thuộc tính
           return (
@@ -144,6 +121,32 @@ const Position = ({
             </div>
           );
         })}
+
+        {/* {["top", "right", "bottom", "left"].map((property, index) => {
+          const propertyValue = styles?.[property] || "0px";
+          const [numValue, unit] = splitDimensions(String(propertyValue));
+          return (
+            <div key={index + "positionXY"}>
+              <li key={property}>
+                <span className="text-sm font-medium text-gray-400">
+                  {property.charAt(0).toUpperCase() + property.slice(1)}
+                </span>
+                <DimensionInput
+                  isMin={false}
+                  defaultValue={parseFloat(numValue)}
+                  defaultUnit={unit || "px"}
+                  onChange={(value) =>
+                    handlePositionXY(
+                      value.inputValue,
+                      property as keyof React.CSSProperties,
+                      value.unit
+                    )
+                  }
+                />
+              </li>
+            </div>
+          );
+        })} */}
 
         <li>
           <div className="flex items-center justify-start p-4 gap-1.5">

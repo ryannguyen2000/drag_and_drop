@@ -142,6 +142,7 @@ const BoxLayout = ({
   currentDepth,
   activeId,
   emptyCells,
+  ...props
 }: BoxLayoutProps) => {
   return (
     <Droppable
@@ -176,7 +177,11 @@ const BoxLayout = ({
               key={child.id}
               id={child.id}
             >
-              <ItemsRenderer {...child} currentDepth={currentDepth + 1} isParentBg={_.get(style, "backgroundColor")} />
+              <ItemsRenderer
+                {...child}
+                currentDepth={currentDepth + 1}
+                isParentBg={_.get(style, "backgroundColor")}
+              />
             </Draggable>
           );
         })}
