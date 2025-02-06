@@ -19,111 +19,67 @@ const BtnPublish = () => {
   const { data, activeId, dataComponent } = dndSlice as any;
   const { uid } = documentSlice as any;
 
-  // Cập nhật trên object gốc
-
-  // if (data) {
-  //   const updatedDocument = structuredClone(data);
-
-  //   function updateChilds(childs) {
-  //     return childs.map((child) => {
-  //       if (child.childs && Array.isArray(child.childs)) {
-  //         child.childs = updateChilds([...child.childs]); // Clone before modifying
-  //       }
-  //       return {
-  //         ...child,
-  //         style_pc: child.style || {},
-  //         style_laptop: child.style || {},
-  //       };
-  //     });
-  //   }
-
-  //   updatedDocument.desktop.childs = updateChilds([
-  //     ...updatedDocument.desktop.childs,
-  //   ]);
-  //   updatedDocument.desktop.style_pc = updatedDocument.desktop.style;
-  //   updatedDocument.desktop.style_laptop = updatedDocument.desktop.style;
-
-  //   delete updatedDocument.desktop.style;
-
-  //   console.log("BtnPublish", updatedDocument.desktop);
-  // }
-
   const handlePublishJsonData = async () => {
     setIsLoading(true);
-    const getDoc = await axios.get(
-      `${import.meta.env.VITE__API_HOST}/api/documents?dId=${DecryptBasic(
-        GetACookie("did"),
-        Enum.srkey
-      )}`
-    );
-
-    // const updatedDocument = structuredClone(data);
-    const updatedDocument = data
-
-    // function updateChilds(childs) {
-    //   return childs.map((child) => {
-    //     if (child.childs && Array.isArray(child.childs)) {
-    //       child.childs = updateChilds([...child.childs]); // Clone before modifying
-    //     }
-    //     return {
-    //       ...child,
-    //       style_pc: child.style || {},
-    //       style_laptop: child.style || {},
-    //     };
-    //   });
-    // }
-
-    // updatedDocument.desktop.childs = updateChilds([
-    //   ...updatedDocument.desktop.childs,
-    // ]);
-    // updatedDocument.desktop.style_pc = updatedDocument.desktop.style;
-    // updatedDocument.desktop.style_laptop = updatedDocument.desktop.style;
-
-    // delete updatedDocument.desktop.style;
-
-    // console.log("updatedDocument", updatedDocument);
-
-    const documentData = {
-      projectId: DecryptBasic(GetACookie("pid"), Enum.srkey),
-      documentId: DecryptBasic(GetACookie("did"), Enum.srkey),
-      layoutJson: updatedDocument,
-      documentName:
-        (getDoc.status === 200 || getDoc.status === 201) &&
-        getDoc.data?.documentName,
-      thumbnail: "",
-    };
 
     try {
-      // GIỮ NGUYÊN
-      const finalData = transformData(
-        updatedDocument,
-        DecryptBasic(GetACookie("pid"), Enum.srkey),
-        DecryptBasic(GetACookie("did"), Enum.srkey)
+      const documentId = DecryptBasic(GetACookie("did"), Enum.srkey);
+      const projectId = DecryptBasic(GetACookie("pid"), Enum.srkey);
+
+      // Lấy thông tin documentName từ API
+      const { data: docData, status } = await axios.get(
+        `${import.meta.env.VITE__API_HOST}/api/documents?dId=${documentId}`
       );
 
-      if (finalData) {
-        const saveDocResponse = await axios.post(
-          `${import.meta.env.VITE__API_HOST}/api/documents`,
-          documentData
-        );
+      const documentName =
+        status === 200 || status === 201 ? docData?.documentName : "";
 
+      // Chuẩn bị dữ liệu gửi API
+      const documentData = {
+        projectId,
+        documentId,
+        layoutJson: data,
+        documentName,
+        thumbnail: "",
+      };
+      const layoutJsonData = { documentId, layoutJson: data, documentName };
+      const componentJsonData = {
+        documentId,
+        documentName,
+        component: dataComponent,
+      };
+
+      // Chuyển đổi dữ liệu trước khi gửi
+      const finalData = transformData(data, projectId, documentId);
+
+      if (finalData) {
+        // Gửi tất cả API đồng thời để tăng tốc độ xử lý
+        await Promise.all([
+          axios.post(
+            `${import.meta.env.VITE__API_HOST}/api/documents`,
+            documentData
+          ),
+          axios.post(
+            `${import.meta.env.VITE__API_HOST}/api/layoutJsons`,
+            layoutJsonData
+          ),
+          axios.post(
+            `${import.meta.env.VITE__API_HOST}/api/componentJsons`,
+            componentJsonData
+          ),
+        ]);
+
+        // Gửi yêu cầu publish
         const response = await axios.post(
           `${import.meta.env.VITE__API_HOST}/publish`,
           {
             uid: uid || "",
-            layout: updatedDocument,
+            layout: data,
             component: dataComponent,
           }
         );
 
-        const saveComponent = await axios.post(
-          `${import.meta.env.VITE__API_HOST}/api/components-config`,
-          {
-            sliceId: activeId,
-            component: dataComponent,
-          }
-        );
-
+        // Kiểm tra phản hồi của API publish
         if (response.status === 200 || response.status === 201) {
           ToastSuccess({ msg: "Published successfully" });
         } else {
@@ -133,9 +89,11 @@ const BtnPublish = () => {
         }
       }
     } catch (error) {
-      //
+      console.error("Error publishing data:", error);
+      ToastError({ msg: "An error occurred while publishing data." });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

@@ -4,6 +4,9 @@ import {
   DndContext,
   pointerWithin,
   DragOverlay,
+  closestCenter,
+  closestCorners,
+  rectIntersection,
 } from "@dnd-kit/core";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
@@ -16,6 +19,7 @@ import ItemsRenderer from "../../features";
 import { RootState } from "../../store";
 import {
   Obj,
+  setActiveId,
   setData,
   setDataFetchData,
   setScrollLock,
@@ -84,62 +88,178 @@ const Editor = () => {
     fetchData();
   }, []);
 
-  const FindToAdd = ({
-    id,
-    detail,
-    parent_id,
-  }: {
-    id: string;
-    detail: any;
-    parent_id: string;
-  }) => {
+  const FindToAdd = ({ id, detail, parent_id, over_id, type }) => {
     const newData = JSON.parse(JSON.stringify(dataLayout));
+    let layoutChilds = [];
+    let activeItemBackup = null; // ✅ Khôi phục biến lưu dữ liệu của `active.id`
+    let isNewObject = true;
 
-    let layoutChilds: Obj[] = [];
-
-    const removeChildFromParent = (nodes: Obj[]) => {
+    const checkIfExists = (nodes) => {
       nodes.forEach((node) => {
-        const targetChild = node.childs.find((child) => child.id === id);
-        if (targetChild) {
-          layoutChilds = targetChild.childs;
-        }
-        node.childs = node.childs.filter((child) => child.id !== id);
-
-        if (node.childs.length > 0) {
-          removeChildFromParent(node.childs);
-        }
+        if (node.id === id) isNewObject = false;
+        if (node.childs.length > 0) checkIfExists(node.childs);
       });
     };
 
-    removeChildFromParent([newData]);
+    checkIfExists([newData]);
 
-    const addChildToParent = (nodes: Obj[]) => {
+    // ✅ Hàm loại bỏ object đang kéo khỏi vị trí cũ (nếu cần)
+    const removeChildFromParent = (nodes, parent = null) => {
+      nodes.forEach((node) => {
+        // ✅ Kiểm tra nếu `over_id` và `activeId` cùng cấp
+        let overIndex = _.findIndex(node.childs, { id: over_id });
+        let activeIndex = _.findIndex(node.childs, { id: id });
+
+        if (parent && overIndex !== -1 && activeIndex !== -1) {
+          console.log("❌ Không xóa nếu `activeId` và `over_id` cùng cấp", {
+            node,
+            over_id,
+            id,
+            overIndex,
+            activeIndex,
+          });
+
+          return; // ❌ Không xóa nếu `activeId` và `over_id` cùng cấp
+        }
+
+        // ✅ Nếu `activeId` nằm trong `root.childs`, xóa trước
+        if (node.id === "root") {
+          node.childs = node.childs.filter((child) => {
+            if (child.id === id) {
+              console.log("🚨 Removing Object from Root:", child);
+              activeItemBackup = JSON.parse(JSON.stringify(child));
+              layoutChilds = child.childs;
+              return false;
+            }
+            return true;
+          });
+        }
+
+        node.childs = node.childs.filter((child) => {
+          if (child.id === id) {
+            console.log("🚨 Removing Object Before Replacing:", child);
+            activeItemBackup = JSON.parse(JSON.stringify(child));
+            layoutChilds = child.childs;
+            return false;
+          }
+          return true;
+        });
+
+        if (node.childs.length > 0) removeChildFromParent(node.childs, node);
+      });
+    };
+
+    // ✅ Nếu object đã tồn tại trong cây, loại bỏ nó trước khi chèn lại
+    if (!isNewObject) {
+      console.log("!isNewObject", parent_id);
+
+      removeChildFromParent([newData], null);
+    }
+
+    // ✅ Khi thêm vào `grid` hoặc `flex`, giữ lại `dataSlice`
+    const addToGridOrFlex = (nodes) => {
       nodes.forEach((node) => {
         if (
-          node.id === parent_id &&
-          !node.childs.some((child) => child.id === id)
+          node.id === over_id &&
+          (node.type === "grid" || node.type === "flex")
         ) {
-          node.childs.push({
+          console.log("addToGridOrFlex", {
+            node,
             id,
-            columns: detail.columns,
-            rows: detail.rows,
-            colspan: detail.colspan,
-            rowspan: detail.rowspan,
-            gap: detail.gap,
-            justifyContent: detail.justifyContent,
-            alignItems: detail.alignItems,
-            type: detail.type,
+            detail,
+            parent_id,
+            over_id,
+          });
+          console.log(`📌 Thêm object vào trong ${node.type} (ID: ${over_id})`);
+          node.childs.push({
+            ...(isNewObject ? detail : activeItemBackup),
+            id,
             childs: layoutChilds,
-            thumbnail: detail.thumbnail,
-            dataSlice: detail.dataSlice,
+            dataSlice: activeItemBackup?.dataSlice || detail.dataSlice, // ✅ Giữ `dataSlice`
           });
         } else if (node.childs.length > 0) {
-          addChildToParent(node.childs);
+          addToGridOrFlex(node.childs);
         }
       });
     };
 
-    if (newData.id === parent_id) {
+    const replaceAndShift = (nodes) => {
+      nodes.forEach((node, index) => {
+        // ✅ Lưu lại `childs` trước khi thay đổi
+        // let currentChilds = _.cloneDeep(node.childs);
+
+        // ✅ Lấy `overIndex` chính xác
+        let overIndex = _.findIndex(node.childs, { id: over_id });
+        let overItem = _.find(node.childs, { id: over_id });
+        let activeIndex = _.findIndex(node.childs, { id: id });
+
+        // ✅ Nếu `activeId` và `over_id` cùng cấp, hoán đổi vị trí
+        if (
+          overIndex !== -1 &&
+          activeIndex !== -1 &&
+          overIndex !== activeIndex
+        ) {
+          console.log("ssssssssssss", {
+            overIndex,
+            activeIndex,
+          });
+
+          // ✅ Hoán đổi vị trí giữa `activeId` và `over_id`
+          [node.childs[activeIndex], node.childs[overIndex]] = [
+            node.childs[overIndex],
+            node.childs[activeIndex],
+          ];
+          return; // ✅ Không cần thực hiện thay thế hoặc xóa thêm
+        }
+
+        if (
+          overIndex !== -1 &&
+          overItem &&
+          overItem.type !== "grid" &&
+          overItem.type !== "flex"
+        ) {
+          // ✅ Lưu toàn bộ dữ liệu của `overItem`
+          const backupOverItem = { ...overItem };
+
+          // ✅ Ensure Dragged Object is Not Lost
+          let activeItemData = isNewObject ? detail : activeItemBackup;
+          if (!activeItemData || !activeItemData.id) {
+            console.error("❌ ERROR: Dragged Object is Missing or Invalid!");
+            return;
+          }
+
+          // ✅ Kiểm tra nếu `activeId` đã tồn tại trong `node.childs`, thì không cần xóa `over_id`
+          const existingActiveIndex = _.findIndex(node.childs, { id: id });
+
+          if (existingActiveIndex !== -1) {
+            console.warn(
+              `⚠️ Object ${id} đã tồn tại trong danh sách child, bỏ qua xóa over_id.`
+            );
+          } else {
+            // ✅ Chỉ xóa `over_id` nếu object đang kéo không tồn tại sẵn
+            node.childs.splice(overIndex, 1);
+          }
+
+          // ✅ Chèn object đang kéo vào đúng vị trí `over_id`
+          node.childs.splice(overIndex, 0, {
+            ...activeItemData,
+            id,
+            childs: layoutChilds,
+          });
+
+          // ✅ Đẩy `overItem` xuống nếu nó chưa tồn tại
+          if (!node.childs.some((child) => child.id === backupOverItem.id)) {
+            node.childs.splice(overIndex + 1, 0, backupOverItem);
+          }
+        } else {
+          replaceAndShift(node.childs);
+        }
+      });
+    };
+
+    // 🛠 Nếu kéo vào `grid` tổng lớn nhất (`root`), thêm vào `childs` của `root`
+    if (parent_id === "root") {
+      console.log("📌 Kéo vào Grid tổng lớn nhất (root)");
       newData.childs.push({
         id,
         columns: detail.columns,
@@ -152,10 +272,17 @@ const Editor = () => {
         type: detail.type,
         childs: layoutChilds,
         thumbnail: detail.thumbnail,
+        dataSlice: activeItemBackup?.dataSlice || detail.dataSlice, // ✅ Giữ `dataSlice`
       });
     } else {
-      addChildToParent(newData.childs);
+      if (type === "flex" || type === "grid") {
+        addToGridOrFlex([newData]);
+      } else {
+        replaceAndShift([newData]);
+      }
     }
+    console.log("result newData", newData);
+
     dispatch(setData(newData));
   };
 
@@ -175,9 +302,12 @@ const Editor = () => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    dispatch(setScrollLock(false));
-
     const { over, active } = event;
+    console.log("handleDragEnd", {
+      over,
+      active,
+    });
+
     hideBin();
 
     if (over?.id === "trash-bin") {
@@ -262,18 +392,52 @@ const Editor = () => {
       return;
     }
 
+    dispatch(setActiveId(active.id));
+
     if (over && active.id !== over.id) {
+      console.log("handleDragEnd", {
+        event,
+        active: active.id,
+        over: over.id,
+      });
+
+      console.log("over.data.current?.parentId", over);
+
       FindToAdd({
         id: active.id.toString(),
         detail: active.data.current,
-        parent_id: over.id.toString(),
+        parent_id: over.data.current?.parentId ?? over.id.toString(), // 🔥 Lấy parent_id chính xác
+        over_id: over.id.toString(),
+        type: over.data.current.type,
       });
 
-      if (deepLevel <= 6) {
+      if (deepLevel <= 10) {
         const updatedSidebar = sidebar.filter((sb) => sb.id !== active.id);
         dispatch(setSidebar(updatedSidebar));
       }
     }
+  };
+
+  function findContainer(id, node) {
+    if (!node) return null; // If node is null, return null
+    if (node.id === id) return node; // Found the node, return it
+
+    // If node has children, search recursively in the children array
+    for (const child of node.childs || []) {
+      const found = findContainer(id, child);
+      if (found) return found;
+    }
+
+    return null; // If not found, return null
+  }
+
+  const handleDragOver = (event) => {
+    const { active, over } = event;
+
+    console.log("handleDragOver:", {
+      active,
+      over,
+    });
   };
 
   const renderBin = (
@@ -308,6 +472,7 @@ const Editor = () => {
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
     >
       <RenderToolbarMonaco hidden={!activeCreateFunction} />
       <div className="flex items-start w-full relative">

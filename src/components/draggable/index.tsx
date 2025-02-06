@@ -72,11 +72,13 @@ const Draggable = ({
     ...styling,
   };
 
-  const onActiveDraggle = async (event: any) => {
-    event.stopPropagation();
-    event.preventDefault();
-    dispatch(setActiveId(id));
-  };
+  // const onActiveDraggle = async (event: any) => {
+  //   console.log("onActiveDraggle", event);
+
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  //   dispatch(setActiveId(id));
+  // };
   return (
     <div
       ref={setNodeRef}
@@ -84,19 +86,10 @@ const Draggable = ({
       className={`${className} overflow-hidden cursor-pointer ${
         over ? "border-violet-500" : ""
       } relative group`}
-      onClick={onActiveDraggle}
+      // onClick={onActiveDraggle}
+      {...listeners}
+      {...attributes}
     >
-      <Icon
-        icon="ph:dots-six-vertical"
-        style={{
-          right: `${deepLevel > 1 ? deepLevel * 0.5 : "0"}rem`,
-          ...newStyleIcon,
-        }}
-        className="z-[999] group-hover:block hidden transition-all rounded-bl-lg absolute top-0 text-gray-700 !bg-white border-none cursor-grab focus-visible:border-none hover:border-none focus:border-none outline-none focus-visible:outline-none focus:outline-none hover:outline-none"
-        fontSize={24}
-        {...listeners}
-        {...attributes}
-      />
       {children}
     </div>
   );

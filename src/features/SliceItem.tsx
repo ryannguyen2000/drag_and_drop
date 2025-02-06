@@ -1,10 +1,11 @@
 import _ from "lodash";
-import ItemsRenderer, { ItemsRenderProps } from ".";
-import Draggable from "../components/draggable";
-import { SpanCol, SpanRow } from "../utilities";
-import { formatText } from "../utilities/text";
-import { isValidColor } from "./BoxLayout";
 import { CSSProperties, useEffect, useState } from "react";
+
+import Droppable from "../components/droppable";
+import Draggable from "../components/draggable";
+import ItemsRenderer, { ItemsRenderProps } from ".";
+import { SpanCol, SpanRow } from "../utilities";
+import { isValidColor } from "./BoxLayout";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 
@@ -24,6 +25,12 @@ const SliceItem = ({
   activeId,
   isParentBg,
   dataSlice,
+  columns,
+  rows,
+  gap,
+  alignItems,
+  justifyContent,
+  type,
   ...props
 }: SliceItemProps) => {
   const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
@@ -38,15 +45,24 @@ const SliceItem = ({
   };
 
   return (
-    <div
+    <Droppable
       className={`p-2 border text-center h-full border-dashed flex justify-center items-center ${
         activeId === id && "border-2 border-green-500"
       } ${SpanRow(Number(rowspan))} ${SpanCol(
         Number(colspan)
       )} ${bgItems} animate-jump-in`}
       style={safeStyle}
+      id={id}
+      columns={columns}
+      rows={rows}
+      colspan={colspan}
+      rowspan={rowspan}
+      gap={gap}
+      alignItems={alignItems}
+      justifyContent={justifyContent}
+      type={type}
     >
-      <RenderContent id={id} dataSlice={dataSlice} style={style} />
+      <RenderContent type={type} id={id} dataSlice={dataSlice} style={style} />
       {childs.map((child: any) => (
         <Draggable
           {...child}
@@ -57,18 +73,18 @@ const SliceItem = ({
           <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
         </Draggable>
       ))}
-    </div>
+    </Droppable>
   );
 };
 
-const RenderContent = ({ id, dataSlice, style }) => {
+const RenderContent = ({ id, dataSlice, style, type }) => {
   const title = _.get(dataSlice, "title");
   const url = _.get(dataSlice, "url");
   const isMedia = _.get(dataSlice, "isMedia");
   return (
     <div className="w-full">
       {/* <div className="w-full flex justify-end text-red-500 text-sm">{formatText(id)}</div> */}
-      <div className="">{title}</div>
+      <div className="">{title || type}</div>
       <Media style={style} url={url} />
     </div>
   );
