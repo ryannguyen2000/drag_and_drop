@@ -133,8 +133,8 @@ const GridLayout = ({
 }: GridLayoutProps) => {
   return (
     <Droppable
-      className={`p-2 min-h-12 w-full h-full border border-dashed bg-white animate-fade-down ${
-        activeId === id && "border-green-500 border-2 animate-jump-in"
+      className={`p-2 min-h-12 w-full h-full border border-dashed  animate-fade-down ${
+        activeId === id && "border-green-500 border-2 "
       }`}
       columns={columns}
       rows={rows}
@@ -155,20 +155,31 @@ const GridLayout = ({
         )} ${GridCol(Number(columns))} ${Gap(Number(gap))}`}
         style={style}
       >
-        {childs.map((child: any) => (
-          <Draggable
-            className={`
+        {childs.map((child: any) => {
+          if (child.id === "Box-ff56f2bb-36f9-40e6-a543-49c91c0648fd") {
+            console.log("propsChildCommon2", child);
+          }
+
+          return (
+            <Draggable
+              className={`
           } ${SpanCol(Number(child.colspan))} ${SpanRow(
-              Number(child.rowspan)
-            )}`}
-            {...child}
-            style=""
-            key={child.id}
-            id={child.id}
-          >
-            <ItemsRenderer {...child} currentDepth={currentDepth + 1} isParentBg={_.get(style, "backgroundColor")} />
-          </Draggable>
-        ))}
+                Number(child.rowspan)
+              )}`}
+              {...child}
+              style=""
+              key={child.id}
+              id={child.id}
+            >
+              <ItemsRenderer
+                {...child}
+                style={_.get(child, "style")}
+                currentDepth={currentDepth + 1}
+                isParentBg={_.get(style, "backgroundColor")}
+              />
+            </Draggable>
+          );
+        })}
         {Array.from({ length: emptyCells }).map((_, index) => (
           <div
             key={`empty-${index}`}

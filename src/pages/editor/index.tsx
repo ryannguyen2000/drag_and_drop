@@ -46,6 +46,7 @@ const Editor = () => {
   } = useSelector((state: RootState) => state.dndSlice);
 
   const [scale, setScale] = useState(1);
+  const [allowSwapGridFlex, setAllowSwapGridFlex] = useState(false);
 
   const dataLayout = data[typeScreen];
 
@@ -88,7 +89,14 @@ const Editor = () => {
     fetchData();
   }, []);
 
-  const FindToAdd = ({ id, detail, parent_id, over_id, type }) => {
+  const FindToAdd = ({
+    id,
+    detail,
+    parent_id,
+    over_id,
+    type,
+    liveUpdate = false,
+  }) => {
     const newData = JSON.parse(JSON.stringify(dataLayout));
     let layoutChilds = [];
     let activeItemBackup = null; // ✅ Khôi phục biến lưu dữ liệu của `active.id`
@@ -110,23 +118,20 @@ const Editor = () => {
         let overIndex = _.findIndex(node.childs, { id: over_id });
         let activeIndex = _.findIndex(node.childs, { id: id });
 
-        if (parent && overIndex !== -1 && activeIndex !== -1) {
-          console.log("❌ Không xóa nếu `activeId` và `over_id` cùng cấp", {
-            node,
-            over_id,
-            id,
-            overIndex,
-            activeIndex,
-          });
-
-          return; // ❌ Không xóa nếu `activeId` và `over_id` cùng cấp
+        if (
+          parent &&
+          overIndex !== -1 &&
+          activeIndex !== -1 &&
+          type !== "grid" &&
+          type !== "flex"
+        ) {
+          return;
         }
-
         // ✅ Nếu `activeId` nằm trong `root.childs`, xóa trước
         if (node.id === "root") {
           node.childs = node.childs.filter((child) => {
             if (child.id === id) {
-              console.log("🚨 Removing Object from Root:", child);
+              // console.log("🚨 Removing Object from Root:", child);
               activeItemBackup = JSON.parse(JSON.stringify(child));
               layoutChilds = child.childs;
               return false;
@@ -137,7 +142,7 @@ const Editor = () => {
 
         node.childs = node.childs.filter((child) => {
           if (child.id === id) {
-            console.log("🚨 Removing Object Before Replacing:", child);
+            // console.log("🚨 Removing Object Before Replacing:", child);
             activeItemBackup = JSON.parse(JSON.stringify(child));
             layoutChilds = child.childs;
             return false;
@@ -151,8 +156,6 @@ const Editor = () => {
 
     // ✅ Nếu object đã tồn tại trong cây, loại bỏ nó trước khi chèn lại
     if (!isNewObject) {
-      console.log("!isNewObject", parent_id);
-
       removeChildFromParent([newData], null);
     }
 
@@ -163,14 +166,6 @@ const Editor = () => {
           node.id === over_id &&
           (node.type === "grid" || node.type === "flex")
         ) {
-          console.log("addToGridOrFlex", {
-            node,
-            id,
-            detail,
-            parent_id,
-            over_id,
-          });
-          console.log(`📌 Thêm object vào trong ${node.type} (ID: ${over_id})`);
           node.childs.push({
             ...(isNewObject ? detail : activeItemBackup),
             id,
@@ -183,26 +178,50 @@ const Editor = () => {
       });
     };
 
+    // ✅ **Hàm hoán đổi vị trí Grid <-> Flex**
+    const swapGridFlex = (nodes, parent = null) => {
+      nodes.forEach((node) => {
+        let overIndex = _.findIndex(node.childs, { id: over_id });
+        let activeIndex = _.findIndex(node.childs, { id: id });
+
+        if (overIndex !== -1 && activeIndex !== -1) {
+          console.log("🔄 Hoán đổi vị trí Grid <-> Flex", {
+            active: node.childs[activeIndex],
+            over: node.childs[overIndex],
+          });
+
+          // ✅ **Lưu lại cả `activeItem` và `overItem`**
+          const activeBackup = { ...node.childs[activeIndex] };
+          const overBackup = { ...node.childs[overIndex] };
+
+          // ✅ **Hoán đổi vị trí giữa `activeItem` và `overItem`**
+          [node.childs[activeIndex], node.childs[overIndex]] = [
+            overBackup,
+            activeBackup,
+          ];
+
+          console.log("✅ Sau khi hoán đổi", {
+            active: node.childs[activeIndex],
+            over: node.childs[overIndex],
+          });
+        } else {
+          swapGridFlex(node.childs, node);
+        }
+      });
+    };
+
     const replaceAndShift = (nodes) => {
       nodes.forEach((node, index) => {
-        // ✅ Lưu lại `childs` trước khi thay đổi
-        // let currentChilds = _.cloneDeep(node.childs);
-
-        // ✅ Lấy `overIndex` chính xác
         let overIndex = _.findIndex(node.childs, { id: over_id });
         let overItem = _.find(node.childs, { id: over_id });
         let activeIndex = _.findIndex(node.childs, { id: id });
-
         // ✅ Nếu `activeId` và `over_id` cùng cấp, hoán đổi vị trí
         if (
           overIndex !== -1 &&
           activeIndex !== -1 &&
           overIndex !== activeIndex
         ) {
-          console.log("ssssssssssss", {
-            overIndex,
-            activeIndex,
-          });
+          console.log("replaceAndShift22");
 
           // ✅ Hoán đổi vị trí giữa `activeId` và `over_id`
           [node.childs[activeIndex], node.childs[overIndex]] = [
@@ -218,15 +237,13 @@ const Editor = () => {
           overItem.type !== "grid" &&
           overItem.type !== "flex"
         ) {
+          console.log("replaceAndShift33");
+
           // ✅ Lưu toàn bộ dữ liệu của `overItem`
           const backupOverItem = { ...overItem };
 
           // ✅ Ensure Dragged Object is Not Lost
           let activeItemData = isNewObject ? detail : activeItemBackup;
-          if (!activeItemData || !activeItemData.id) {
-            console.error("❌ ERROR: Dragged Object is Missing or Invalid!");
-            return;
-          }
 
           // ✅ Kiểm tra nếu `activeId` đã tồn tại trong `node.childs`, thì không cần xóa `over_id`
           const existingActiveIndex = _.findIndex(node.childs, { id: id });
@@ -252,6 +269,8 @@ const Editor = () => {
             node.childs.splice(overIndex + 1, 0, backupOverItem);
           }
         } else {
+          // console.log("replaceAndShift else");
+
           replaceAndShift(node.childs);
         }
       });
@@ -259,7 +278,6 @@ const Editor = () => {
 
     // 🛠 Nếu kéo vào `grid` tổng lớn nhất (`root`), thêm vào `childs` của `root`
     if (parent_id === "root") {
-      console.log("📌 Kéo vào Grid tổng lớn nhất (root)");
       newData.childs.push({
         id,
         columns: detail.columns,
@@ -275,13 +293,34 @@ const Editor = () => {
         dataSlice: activeItemBackup?.dataSlice || detail.dataSlice, // ✅ Giữ `dataSlice`
       });
     } else {
-      if (type === "flex" || type === "grid") {
+      const isActiveGridOrFlex =
+        detail.type === "grid" || detail.type === "flex";
+      const isOverGridOrFlex = type === "grid" || type === "flex";
+      if (allowSwapGridFlex && isActiveGridOrFlex && isOverGridOrFlex) {
+        console.log("allowSwapGridFlex");
+
+        swapGridFlex([newData]); // 🔄 Hoán đổi vị trí Grid <-> Flex
+      } else if (
+        (isActiveGridOrFlex && isOverGridOrFlex) ||
+        (!allowSwapGridFlex && !isActiveGridOrFlex && isOverGridOrFlex)
+      ) {
+        console.log("addToGridOrFlex");
         addToGridOrFlex([newData]);
-      } else {
+      } else if (
+        (!isActiveGridOrFlex && !isOverGridOrFlex) ||
+        (!allowSwapGridFlex && isActiveGridOrFlex && !isOverGridOrFlex)
+      ) {
+        console.log("replaceAndShift");
+
         replaceAndShift([newData]);
       }
     }
-    console.log("result newData", newData);
+
+    // ✅ Khi kéo, cập nhật vị trí nhưng KHÔNG dispatch Redux
+    if (liveUpdate) {
+      console.log("🔄 Cập nhật vị trí Live (Chưa lưu Redux)", { id, over_id });
+      return;
+    }
 
     dispatch(setData(newData));
   };
@@ -303,13 +342,7 @@ const Editor = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
-    console.log("handleDragEnd", {
-      over,
-      active,
-    });
-
     hideBin();
-
     if (over?.id === "trash-bin") {
       const newData = JSON.parse(JSON.stringify(dataLayout));
       const removeItemFromLayout = (nodes: Obj[]): Obj[] => {
@@ -395,14 +428,6 @@ const Editor = () => {
     dispatch(setActiveId(active.id));
 
     if (over && active.id !== over.id) {
-      console.log("handleDragEnd", {
-        event,
-        active: active.id,
-        over: over.id,
-      });
-
-      console.log("over.data.current?.parentId", over);
-
       FindToAdd({
         id: active.id.toString(),
         detail: active.data.current,
@@ -411,13 +436,13 @@ const Editor = () => {
         type: over.data.current.type,
       });
 
-      if (deepLevel <= 10) {
+      if (deepLevel <= 6) {
         const updatedSidebar = sidebar.filter((sb) => sb.id !== active.id);
         dispatch(setSidebar(updatedSidebar));
       }
     }
   };
-
+  
   function findContainer(id, node) {
     if (!node) return null; // If node is null, return null
     if (node.id === id) return node; // Found the node, return it
@@ -433,11 +458,22 @@ const Editor = () => {
 
   const handleDragOver = (event) => {
     const { active, over } = event;
+    if (!over || !active) return;
 
-    console.log("handleDragOver:", {
-      active,
-      over,
-    });
+    const tempData = JSON.parse(JSON.stringify(dataLayout)); // Tạo bản sao layout tạm thời
+
+    if (active.id !== over.id) {
+      console.log("🟢 Thay đổi vị trí ngay khi kéo", { active, over });
+
+      FindToAdd({
+        id: active.id.toString(),
+        detail: active.data.current,
+        parent_id: over.data.current?.parentId ?? over.id.toString(),
+        over_id: over.id.toString(),
+        type: over?.data?.current?.type || "",
+        liveUpdate: true, // ✅ Cập nhật trực tiếp mà không dispatch Redux
+      });
+    }
   };
 
   const renderBin = (
@@ -468,74 +504,87 @@ const Editor = () => {
   }, []);
 
   return (
-    <DndContext
-      collisionDetection={pointerWithin}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-    >
-      <RenderToolbarMonaco hidden={!activeCreateFunction} />
-      <div className="flex items-start w-full relative">
-        {renderBin}
-        {renderSidebar}
-        <div
-          className={`${
-            activeCreateFunction ? "w-1/3" : "w-full"
-          } bg-white p-6 z-10`}
-        >
-          <div className="bg-white mx-auto max-w-[75rem] w-full min-h-[calc(100vh-7rem)]">
-            <Droppable
-              columns={_.get(dataLayout, "columns")}
-              rows={_.get(dataLayout, "rows")}
-              colspan={_.get(dataLayout, "colspan")}
-              rowspan={_.get(dataLayout, "rowspan")}
-              alignItems={_.get(dataLayout, "alignItems")}
-              justifyContent={_.get(dataLayout, "justifyContent")}
-              gap={_.get(dataLayout, "gap")}
-              type={_.get(dataLayout, "type")}
-              id={_.get(dataLayout, "id")}
-              thumbnail={_.get(dataLayout, "thumbnail")}
-              dataSlice={_.get(dataLayout, "dataSlice")}
-            >
-              {dataLayout && (
-                <ItemsRenderer
-                  childs={_.get(dataLayout, "childs")}
-                  id={_.get(dataLayout, "id")}
-                  columns={_.get(dataLayout, "columns")}
-                  rows={_.get(dataLayout, "rows")}
-                  colspan={_.get(dataLayout, "colspan")}
-                  rowspan={_.get(dataLayout, "rowspan")}
-                  alignItems={_.get(dataLayout, "alignItems")}
-                  justifyContent={_.get(dataLayout, "justifyContent")}
-                  gap={_.get(dataLayout, "gap")}
-                  currentDepth={1}
-                  type={_.get(dataLayout, "type")}
-                  dataSlice={_.get(data, "dataSlice")}
-                  thumbnail={_.get(dataLayout, "thumbnail")}
-                />
-              )}
-            </Droppable>
-          </div>
-        </div>
-        <RenderMonacoEditor hidden={!activeCreateFunction} />
-        {renderPropertiesBar}
-      </div>
-      <DragOverlay
-        style={{
-          zIndex: 999,
-          pointerEvents: "none",
-          position: "fixed",
-          opacity: 0.4,
-        }}
+    <>
+      {/* Checkbox để bật/tắt chế độ cho phép Grid/Flex đổi chỗ */}
+      <label className="flex items-center gap-2 mb-4">
+        <input
+          type="checkbox"
+          checked={allowSwapGridFlex}
+          onChange={(e) => setAllowSwapGridFlex(e.target.checked)}
+        />
+        Cho phép Grid & Flex đổi vị trí thay vì lồng vào nhau
+      </label>
+
+      <DndContext
+        collisionDetection={pointerWithin}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
       >
-        {activeId ? (
+        <RenderToolbarMonaco hidden={!activeCreateFunction} />
+        <div className="flex items-start w-full relative">
+          {renderBin}
+          {renderSidebar}
           <div
-            className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
-            style={{ zIndex: 999 }}
-          />
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+            className={`${
+              activeCreateFunction ? "w-1/3" : "w-full"
+            } bg-white p-6 z-10`}
+          >
+            <div className="bg-white mx-auto w-full min-h-[calc(100vh-7rem)]">
+              <Droppable
+                columns={_.get(dataLayout, "columns")}
+                rows={_.get(dataLayout, "rows")}
+                colspan={_.get(dataLayout, "colspan")}
+                rowspan={_.get(dataLayout, "rowspan")}
+                alignItems={_.get(dataLayout, "alignItems")}
+                justifyContent={_.get(dataLayout, "justifyContent")}
+                gap={_.get(dataLayout, "gap")} 
+                type={_.get(dataLayout, "type")}
+                id={_.get(dataLayout, "id")}
+                thumbnail={_.get(dataLayout, "thumbnail")}
+                dataSlice={_.get(dataLayout, "dataSlice")}
+              >
+                {dataLayout && (
+                  <ItemsRenderer
+                    childs={_.get(dataLayout, "childs")}
+                    id={_.get(dataLayout, "id")}
+                    columns={_.get(dataLayout, "columns")}
+                    rows={_.get(dataLayout, "rows")}
+                    colspan={_.get(dataLayout, "colspan")}
+                    rowspan={_.get(dataLayout, "rowspan")}
+                    alignItems={_.get(dataLayout, "alignItems")}
+                    justifyContent={_.get(dataLayout, "justifyContent")}
+                    gap={_.get(dataLayout, "gap")}
+                    currentDepth={1}
+                    type={_.get(dataLayout, "type")}
+                    dataSlice={_.get(data, "dataSlice")}
+                    thumbnail={_.get(dataLayout, "thumbnail")}
+                    style={_.get(dataLayout, "style")}
+                  />
+                )}
+              </Droppable>
+            </div>
+          </div>
+          <RenderMonacoEditor hidden={!activeCreateFunction} />
+          {renderPropertiesBar}
+        </div>
+        <DragOverlay
+          style={{
+            zIndex: 999,
+            pointerEvents: "none",
+            position: "fixed",
+            opacity: 0.4,
+          }}
+        >
+          {activeId ? (
+            <div
+              className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
+              style={{ zIndex: 999 }}
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    </>
   );
 };
 

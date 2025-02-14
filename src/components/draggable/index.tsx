@@ -57,10 +57,6 @@ const Draggable = ({
       thumbnail,
     },
   });
-  const { deepLevel } = useSelector((state: RootState) => state.dndSlice);
-
-  const dispatch = useDispatch();
-
   const newStyleDiv = {
     transform: CSS.Translate.toString(transform),
     ...styling,
@@ -71,22 +67,13 @@ const Draggable = ({
     transform: CSS.Translate.toString(transform),
     ...styling,
   };
-
-  // const onActiveDraggle = async (event: any) => {
-  //   console.log("onActiveDraggle", event);
-
-  //   event.stopPropagation();
-  //   event.preventDefault();
-  //   dispatch(setActiveId(id));
-  // };
   return (
     <div
       ref={setNodeRef}
       style={newStyleDiv}
-      className={`${className} overflow-hidden cursor-pointer ${
+      className={`${className}  cursor-pointer ${
         over ? "border-violet-500" : ""
-      } relative group`}
-      // onClick={onActiveDraggle}
+      }`}
       {...listeners}
       {...attributes}
     >

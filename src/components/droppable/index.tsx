@@ -67,12 +67,15 @@ const Droppable = ({
       onDragOver={(e) => e.preventDefault()}
       className={`${className} ${
         isOver ? "border-red-400" : "border-gray-400"
-      } p-2 z-[9999]`}
+      } z-[9999]`}
       onClick={(event) => {
+        console.log('concac');
+        
         event.stopPropagation();
         event.preventDefault();
         dispatch(setActiveId(id));
       }}
+      style={style}
     >
       {children}
     </div>

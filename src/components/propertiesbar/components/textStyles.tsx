@@ -205,10 +205,10 @@ const TextStyles = ({
             <div className="w-full">Font Weight:</div>
             <select
               onChange={(e) => handleFontWeightChange(e.target.value)}
-              defaultValue={_.get(styles, "fontWeight", "")}
+              defaultValue={_.get(styles, "fontWeight", "default")}
               className="w-full border border-gray-300 p-2 rounded"
             >
-              <option value="">Default</option>
+              <option value="default">Default</option>
               <option value="normal">Normal</option>
               <option value="bold">Bold</option>
               <option value="bolder">Bolder</option>

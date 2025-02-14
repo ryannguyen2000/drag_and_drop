@@ -34,8 +34,9 @@ const SliceItem = ({
   ...props
 }: SliceItemProps) => {
   const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
+  const url = _.get(dataSlice, "url");
 
-  const bgItems = isValidColor(isParentBg) ? "" : "bg-gray-100";
+  const bgItems = "";
 
   const safeStyle = {
     ...style,
@@ -46,11 +47,11 @@ const SliceItem = ({
 
   return (
     <Droppable
-      className={`p-2 border text-center h-full border-dashed flex justify-center items-center ${
+      className={`${
+        url ? "" : "p-2"
+      }  border text-center h-full border-dashed flex justify-center items-center ${
         activeId === id && "border-2 border-green-500"
-      } ${SpanRow(Number(rowspan))} ${SpanCol(
-        Number(colspan)
-      )} ${bgItems} animate-jump-in`}
+      } ${SpanRow(Number(rowspan))} ${SpanCol(Number(colspan))} ${bgItems} `}
       style={safeStyle}
       id={id}
       columns={columns}
@@ -62,7 +63,13 @@ const SliceItem = ({
       justifyContent={justifyContent}
       type={type}
     >
-      <RenderContent type={type} id={id} dataSlice={dataSlice} style={style} />
+      <RenderContent
+        type={type}
+        id={id}
+        dataSlice={dataSlice}
+        style={style}
+        url={url}
+      />
       {childs.map((child: any) => (
         <Draggable
           {...child}
@@ -77,14 +84,22 @@ const SliceItem = ({
   );
 };
 
-const RenderContent = ({ id, dataSlice, style, type }) => {
-  const title = _.get(dataSlice, "title");
-  const url = _.get(dataSlice, "url");
-  const isMedia = _.get(dataSlice, "isMedia");
+const RenderContent = ({ id, dataSlice, style, type, url }) => {
+  const title = _.get(dataSlice, "title") || id.split("$")[0];
+
+  const styleUrlTitle: CSSProperties = url
+    ? {
+        position: "absolute",
+        zIndex: "",
+        top: "50%",
+        transform: "translateY(-50%) translateX(-50%)",
+        left: "50%",
+        color: "white",
+      }
+    : {};
   return (
     <div className="w-full">
-      {/* <div className="w-full flex justify-end text-red-500 text-sm">{formatText(id)}</div> */}
-      <div className="">{title || type}</div>
+      {!url && <div style={styleUrlTitle}>{title}</div>}
       <Media style={style} url={url} />
     </div>
   );
@@ -112,14 +127,14 @@ const Media = ({ url, style }: { url?: string; style }) => {
     handleScroll(); // Kiểm tra ngay khi component được render
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [url]);
 
   if (!url) {
     return;
   }
 
   return (
-    <div id="background-compo" style={{ minHeight: "200px" }}>
+    <div id="background-compo">
       {!_.isEmpty(url) &&
         isVisible &&
         (url?.match(/\.(jpeg|jpg|gif|png|svg|webp)$/i) ? (

@@ -146,7 +146,7 @@ const BoxLayout = ({
 }: BoxLayoutProps) => {
   return (
     <Droppable
-      className={`p-2 w-full h-full border border-dashed bg-white animate-jump-in ${
+      className={`p-2 border border-dashed  ${
         activeId === id && "border-green-500 border-2 "
       }`}
       columns={columns}
@@ -155,23 +155,23 @@ const BoxLayout = ({
       colspan={colspan}
       alignItems={alignItems}
       justifyContent={justifyContent}
-      style={style}
       gap={gap}
       type={type}
       key={id}
       id={id}
       thumbnail={thumbnail}
+      style={style}
     >
       <div
-        className={`flex  gap-1 w-full h-full animate-jump-in ${convertJustify(
+        className={`flex animate-fade-down ${convertJustify(
           justifyContent
         )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
-        style={style}
+        // style={style}
       >
         {childs.map((child: any) => {
           return (
             <Draggable
-              className={`animate-jump-in h-fit w-fit`}
+              className={`animate-jump-in`}
               {...child}
               style={{ ...child.style, padding: "" }}
               key={child.id}

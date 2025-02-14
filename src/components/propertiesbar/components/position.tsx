@@ -57,6 +57,13 @@ const Position = ({
     }));
   };
 
+  const handleObjectFit = (value: string) => {
+    setStyles((prevStyles) => ({
+      ...prevStyles,
+      objectFit: value,
+    }));
+  };
+
   return (
     <details>
       <summary className="flex cursor-pointer w-full items-center justify-between gap-1.5 rounded-lg bg-white p-4 text-gray-900">
@@ -167,6 +174,24 @@ const Position = ({
               defaultValue={_.get(styles, "transform", "")}
               placeholder="e.g. translateY(-10%)"
             />
+          </div>
+        </li>
+
+        {/* Object Fit */}
+        <li>
+          <div className="flex items-center justify-start p-4 gap-1.5">
+            <div className="w-[100px]">Object Fit:</div>
+            <select
+              onChange={(e) => handleObjectFit(e.target.value)}
+              value={_.get(styles, "objectFit", "none")}
+              className="border border-gray-300 h-10 px-2 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="contain">contain</option>
+              <option value="cover">cover</option>
+              <option value="fill">fill</option>
+              <option value="scale-down">scale-down</option>
+              <option value="none">none</option>
+            </select>
           </div>
         </li>
 

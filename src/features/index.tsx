@@ -83,7 +83,7 @@ const ItemsRenderer = ({
     colspan,
     alignItems,
     justifyContent,
-    style: props[breakpoint],
+    style: props[breakpoint] || style,
     gap,
     id,
     childs,
@@ -93,16 +93,26 @@ const ItemsRenderer = ({
     currentDepth,
     activeId,
     emptyCells,
-    // [breakpoint]: props[breakpoint],
   };
+
+  if (id === "Box-ff56f2bb-36f9-40e6-a543-49c91c0648fd") {
+    console.log("propsChildCommon1", {
+      propsChildCommon,
+      type,
+      props,
+      breakpoint,
+      style,
+    });
+  }
+
   return (
-    <div className="w-full h-full">
+    <>
       {type === "flex" && <BoxLayout {...propsChildCommon} />}
       {type === "grid" && <GridLayout {...propsChildCommon} />}
       {type === "content" && (
         <SliceItem {...propsChildCommon} isParentBg={isParentBg} />
       )}
-    </div>
+    </>
   );
 };
 
