@@ -106,28 +106,6 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
     });
   };
 
-  const handleInputChange = (key, value) => {
-    setTitles((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], text: value },
-    }));
-    debouncedDispatch({
-      ...dataSlice,
-      titles: { ...titles, [key]: { ...titles[key], text: value } },
-    });
-  };
-
-  const handleColorChange = (key, color) => {
-    setTitles((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], color },
-    }));
-    debouncedDispatch({
-      ...dataSlice,
-      titles: { ...titles, [key]: { ...titles[key], color } },
-    });
-  };
-
   const addTitle = () => {
     const newKey = `title_${Object.keys(titles).length + 1}`;
     setTitles((prev) => ({
@@ -141,17 +119,6 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
     delete updatedTitles[key];
     setTitles(updatedTitles);
     debouncedDispatch({ ...dataSlice, titles: updatedTitles });
-  };
-
-  const handleGradientChange = (key, value) => {
-    setTitles((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], gradient: value },
-    }));
-    debouncedDispatch({
-      ...dataSlice,
-      titles: { ...titles, [key]: { ...titles[key], gradient: value } },
-    });
   };
 
   const handleGradientToggle = () => {
@@ -250,7 +217,7 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
           </div>
         </li>
 
-        {/* TITLE SECTION */}
+        {/* TITLE SECTIONS */}
         <li>
           <div className="flex flex-col p-4 gap-2">
             <div className="flex items-center justify-between">
@@ -263,35 +230,17 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
               </button>
             </div>
 
-            {Object.keys(_.get(dataSlice, "titles", {})).map((key) => {
-              const item = _.get(dataSlice, "titles")[key];
-              return (
-                <div key={key} className="flex flex-col gap-2 mt-2">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      onChange={(e) => handleInputChange(key, e)}
-                      defaultValue={item?.text || ""}
-                    />
-                    <input
-                      type="color"
-                      onChange={(e) => handleColorChange(key, e.target.value)}
-                      defaultValue={item?.color || "#000000"}
-                      className="w-10 h-10 rounded-full border"
-                    />
-                    <button
-                      onClick={() => removeTitle(key)}
-                      className="px-2 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <Input
-                    onChange={(e) => handleGradientChange(key, e)}
-                    defaultValue={item?.gradient || ""}
-                  />
-                </div>
-              );
-            })}
+            {Object.keys(_.get(dataSlice, "titles", {})).map((key) => (
+              <TitleSectionsItem
+                dataSlice={dataSlice}
+                key={key}
+                keyItem={key}
+                removeTitle={removeTitle}
+                debouncedDispatch={debouncedDispatch}
+                setTitles={setTitles}
+                titles={titles}
+              />
+            ))}
           </div>
         </li>
 
@@ -304,6 +253,7 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
             >
               Enable Button Gradient:
             </label>
+
             <input
               id="isBtnGradient"
               type="checkbox"
@@ -315,6 +265,97 @@ const DataSlice = ({ activeData, activeId, dataSlice, setDataSlice }) => {
         </li>
       </ul>
     </details>
+  );
+};
+
+const TitleSectionsItem = ({
+  dataSlice,
+  removeTitle,
+  keyItem,
+  setTitles,
+  titles,
+  debouncedDispatch,
+}) => {
+  const item = _.get(dataSlice, "titles")[keyItem];
+
+  const handleInputChange = (key, value) => {
+    setTitles((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], text: value },
+    }));
+    debouncedDispatch({
+      ...dataSlice,
+      titles: { ...titles, [key]: { ...titles[key], text: value } },
+    });
+  };
+
+  const handleCheckboxChange = (key, value) => {
+    setTitles((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], isSpecial: value },
+    }));
+    debouncedDispatch({
+      ...dataSlice,
+      titles: { ...titles, [key]: { ...titles[key], isSpecial: value } },
+    });
+  };
+
+  const handleColorChange = (key, color) => {
+    setTitles((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], color },
+    }));
+    debouncedDispatch({
+      ...dataSlice,
+      titles: { ...titles, [key]: { ...titles[key], color } },
+    });
+  };
+
+  const handleGradientChange = (key, value) => {
+    setTitles((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], gradient: value },
+    }));
+    debouncedDispatch({
+      ...dataSlice,
+      titles: { ...titles, [key]: { ...titles[key], gradient: value } },
+    });
+  };
+
+  return (
+    <div key={keyItem} className="flex flex-col gap-2 mt-2 border-b-[1px] pb-2">
+      <div className="flex items-center gap-2">
+        <Input
+          onChange={(e) => handleInputChange(keyItem, e)}
+          defaultValue={item?.text || ""}
+        />
+        <button
+          onClick={() => removeTitle(keyItem)}
+          className="px-2 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >
+          X
+        </button>
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        <input
+          type="checkbox"
+          checked={_.get(item, "isSpecial")}
+          onChange={(e) => handleCheckboxChange(keyItem, e.target.checked)}
+          className="w-5 h-5"
+        />
+        <label className="text-sm font-medium text-gray-500">
+          Special Text
+        </label>
+      </div>
+      {_.get(item, "isSpecial") && (
+        <div className="flex gap-2">
+          <Input
+            onChange={(e) => handleGradientChange(keyItem, e)}
+            defaultValue={item?.color || ""}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

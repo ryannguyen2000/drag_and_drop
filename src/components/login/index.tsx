@@ -36,11 +36,11 @@ const LoginPage = () => {
           positionY="0%"
         />
         <div className="w-full min-w-[1200px] h-screen relative pl-12 pb-12 pt-6 grid grid-cols-12 gap-48 overflow-hidden z-10">
-          <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-none">
+          {/* <div className="w-full col-span-7 h-[calc(100vh-10rem)] mt-12 overflow-y-scroll scrollbar-none">
             <div className="w-full h-fit grid grid-cols-4 gap-4 p-6"></div>
-          </div>
-          <div className="col-start-9 col-span-4 relative">
-            <div className="w-[600px] h-[800px] bg-white border-l border-gray-100 shadow-xl right-0 absolute rounded-lg -translate-y-[-20%] -translate-x-[20%]">
+          </div> */}
+          <div className="col-start-9 col-span-4 absolute">
+            <div className="w-[600px] h-[800px] bg-white border-l border-gray-100 shadow-xl right-0 absolute rounded-lg -translate-y-[-20%] -translate-x-[50%]">
               <div className="absolute top-[7%] w-full flex flex-col items-center">
                 <div className="w-fit flex ">
                   <span className={`text-c1 font-bold text-[3rem] contrast-75`}>

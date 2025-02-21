@@ -9,12 +9,12 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-import SelectDocument from "./selectDocument";
 import BackToPage from "./backToPage";
 import FrameBoxAndFlex from "./frame";
 import ListDraggle from "./listDraggle";
 import ModalAddJson from "./modalAddJson";
 import Header from "./header";
+import CheckboxMoveSlice from "../../pages/editor/checkboxMoveSlice";
 
 const selector = (state: RootState) => [state.dndSlice, state.documentSlice];
 
@@ -130,16 +130,17 @@ const Sidebar = () => {
     const filteredSidebar = sidebar.filter((item) => !ids.includes(item.id)); // Loại bỏ object có id đã render
 
     const groupedSidebar = filteredSidebar.reduce((acc, item) => {
-      const name = item.id.split("$")[0]; // Lấy phần trước dấu `$`
+      const name = item.id.split("$")[0];
       if (!acc[name]) {
-        acc[name] = { ...item, count: 0 }; // Tạo nhóm mới
+        acc[name] = { ...item, count: 0 };
       }
-      acc[name].count += 1; // Tăng số lượng object trong nhóm
+      acc[name].count += 1;
       return acc;
     }, {});
 
-    const groupedArray = Object.values(groupedSidebar); // Chuyển từ object sang array
-    setGroupedSide(groupedArray); // Lưu vào state
+    const groupedArray = Object.values(groupedSidebar);
+
+    setGroupedSide(groupedArray);
   }, [sidebar, data, typeScreen]);
 
   // Xử lý khi data hoặc sidebar thay đổi
@@ -152,10 +153,9 @@ const Sidebar = () => {
       <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-4 flex bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center">
         <div className="flex gap-12 flex-col w-full h-full">
           <ModalAddJson modal={modal} setModal={setModal} />
-
           <div className="gap-12 flex flex-col">
-            {/* <SelectDocument /> */}
             <Header setModal={setModal} />
+            <CheckboxMoveSlice />
             <FrameBoxAndFlex />
           </div>
 

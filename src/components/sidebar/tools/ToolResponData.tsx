@@ -6,7 +6,7 @@ import { setBreakpoint, setTypeScreen } from "../../../store/DndSlice";
 import { RootState } from "../../../store";
 import { BREAKPOINTS } from "../../../utilities/const/common";
 
-const Reponsive = () => {
+const ReponsiveData = () => {
   const { typeScreen, breakpoint } = useSelector(
     (state: RootState) => state.dndSlice
   );
@@ -31,28 +31,28 @@ const Reponsive = () => {
   };
 
   return (
-    <div className="">
-      <div className="flex items-center justify-start p-4 gap-1.5">
-        <div className="">Screen's Type:</div>
+    <div className="mb-4 flex items-center gap-2 text-[12px]">
+      <div className="border rounded text-center flex px-[6px] py-[4px]">
+        <div className="self-center">Screen's Type:</div>
         <select
           name="screenType"
           id="screenType"
           value={typeScreen}
           onChange={(e) => handleChange(e.target.value, "type")}
-          className="flex-1 p-2 rounded-md"
+          className="rounded-md cursor-pointer"
         >
           <option value="desktop">Desktop</option>
           <option value="mobile">Mobile</option>
         </select>
       </div>
       {!isMobileType && (
-        <div className="flex items-center justify-start p-4 gap-1.5">
-          <div className="">Screen's Size</div>
+        <div className="border rounded text-center flex px-[6px] py-[4px]">
+          <div className="self-center">Screen's Size</div>
           <select
             name="breakpoint"
             id="breakpoint"
             value={breakpoint}
-            className="flex-1 p-2 rounded-md"
+            className="rounded-md cursor-pointer"
             onChange={(e) => handleChange(e.target.value, "size")}
           >
             {Object.values(filteredBreakpoints).map((bp) => (
@@ -68,4 +68,4 @@ const Reponsive = () => {
   );
 };
 
-export default Reponsive;
+export default ReponsiveData;

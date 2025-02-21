@@ -2,6 +2,7 @@ import React from "react";
 import { splitDimensions } from "../../../utilities/text";
 import DimensionInput, { Input } from "../../commom/input";
 import _ from "lodash";
+import PositionSelect from "../../ui/positionSelect";
 
 const Position = ({
   styles,
@@ -85,27 +86,13 @@ const Position = ({
       </summary>
 
       <ul className="flexgap-3 w-full mt-2 p-4 bg-white shadow-lg rounded-b-xl">
-        <li>
-          <span className="text-sm font-medium text-gray-400">Position</span>
-          <div className="flex items-center justify-center gap-2">
-            <select
-              id="position"
-              className="border border-gray-300 appearance-none h-10 px-2 text-sm w-full rounded-lg focus:ring-blue-500 focus:border-blue-500 block cursor-pointer"
-              value={_.get(styles, "position", "none")}
-              onChange={(e) => changePosition(e.target.value)}
-            >
-              <option value="">none</option>
-              <option value="fixed">fixed</option>
-              <option value="absolute">absolute</option>
-              <option value="relative">relative</option>
-              <option value="sticky">static</option>
-              <option value="sticky">sticky</option>
-            </select>
-          </div>
-        </li>
+        <PositionSelect
+          changePosition={(e: any) => changePosition(e.target.value)}
+          styles={styles}
+        />
 
         {["top", "right", "bottom", "left"].map((property, index) => {
-          const propertyValue = styles?.[property] || "0px"; // Kiểm tra giá trị thuộc tính
+          const propertyValue = styles?.[property] || "0px";
           return (
             <div key={index + "positionXY"}>
               <li key={property}>
@@ -114,8 +101,8 @@ const Position = ({
                 </span>
                 <DimensionInput
                   isMin={false}
-                  defaultValue={Number.parseInt(propertyValue)} // Chuyển đổi thành số
-                  defaultUnit={propertyValue.replace(/[0-9]/g, "")} // Lấy đơn vị (px, em, rem, ...)
+                  defaultValue={Number.parseInt(propertyValue)}
+                  defaultUnit={propertyValue.replace(/[0-9]/g, "")}
                   onChange={(value) =>
                     handlePositionXY(
                       value.inputValue,
@@ -128,32 +115,6 @@ const Position = ({
             </div>
           );
         })}
-
-        {/* {["top", "right", "bottom", "left"].map((property, index) => {
-          const propertyValue = styles?.[property] || "0px";
-          const [numValue, unit] = splitDimensions(String(propertyValue));
-          return (
-            <div key={index + "positionXY"}>
-              <li key={property}>
-                <span className="text-sm font-medium text-gray-400">
-                  {property.charAt(0).toUpperCase() + property.slice(1)}
-                </span>
-                <DimensionInput
-                  isMin={false}
-                  defaultValue={parseFloat(numValue)}
-                  defaultUnit={unit || "px"}
-                  onChange={(value) =>
-                    handlePositionXY(
-                      value.inputValue,
-                      property as keyof React.CSSProperties,
-                      value.unit
-                    )
-                  }
-                />
-              </li>
-            </div>
-          );
-        })} */}
 
         <li>
           <div className="flex items-center justify-start p-4 gap-1.5">

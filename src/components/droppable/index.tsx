@@ -69,8 +69,6 @@ const Droppable = ({
         isOver ? "border-red-400" : "border-gray-400"
       } z-[9999]`}
       onClick={(event) => {
-        console.log('concac');
-        
         event.stopPropagation();
         event.preventDefault();
         dispatch(setActiveId(id));

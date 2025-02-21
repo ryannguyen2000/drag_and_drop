@@ -21,6 +21,15 @@ export interface DndState {
   loadingMonacoEditor: boolean;
   typeScreen: string;
   breakpoint: string;
+  moveSliceParent: boolean;
+  viewport: ViewportSettings;
+}
+
+interface ViewportSettings {
+  dimensions: string;
+  width: number;
+  height: number;
+  zoomMode: string;
 }
 
 interface Properties {
@@ -127,6 +136,13 @@ const initialState: DndState = {
   typeScreen: "mobile",
   // breakpoint:  BREAKPOINTS.laptop.style,
   breakpoint: BREAKPOINTS.mobile.style,
+  moveSliceParent: false,
+  viewport: {
+    dimensions: "Responsive",
+    width: 1400,
+    height: 513,
+    zoomMode: "100%",
+  },
 };
 
 const updateItem = (
@@ -200,6 +216,12 @@ export const dndSlice = createSlice({
     setBreakpoint: (state, action) => {
       state.breakpoint = action.payload;
     },
+    setMoveSliceParent: (state, action) => {
+      state.moveSliceParent = action.payload;
+    },
+    setViewport: (state, action) => {
+      state.viewport = action.payload;
+    },
   },
 });
 
@@ -218,6 +240,8 @@ export const {
   setTypeScreen,
   setDataFetchData,
   setBreakpoint,
+  setMoveSliceParent,
+  setViewport,
 } = dndSlice.actions;
 
 export default dndSlice.reducer;

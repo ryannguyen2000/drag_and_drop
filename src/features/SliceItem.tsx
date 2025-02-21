@@ -8,6 +8,7 @@ import { SpanCol, SpanRow } from "../utilities";
 import { isValidColor } from "./BoxLayout";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
+import { CsDiv, CsStrong } from "./styles";
 
 type SliceItemProps = ItemsRenderProps & {
   activeId?: string;
@@ -40,7 +41,10 @@ const SliceItem = ({
 
   const safeStyle = {
     ...style,
-    backgroundColor: isValidColor(style?.backgroundColor)
+    padding: "",
+    border: "",
+    // borderRadius: "",
+    backgroundColor: isValidColor(_.get(style, "backgroundColor"))
       ? style.backgroundColor
       : undefined,
   };
@@ -49,7 +53,7 @@ const SliceItem = ({
     <Droppable
       className={`${
         url ? "" : "p-2"
-      }  border text-center h-full border-dashed flex justify-center items-center ${
+      }  border text-center h-full border-dashed ${
         activeId === id && "border-2 border-green-500"
       } ${SpanRow(Number(rowspan))} ${SpanCol(Number(colspan))} ${bgItems} `}
       style={safeStyle}
@@ -73,11 +77,16 @@ const SliceItem = ({
       {childs.map((child: any) => (
         <Draggable
           {...child}
+          style={child[breakpoint]}
           key={child.id}
           dataSlice={dataSlice}
           id={child.id}
         >
-          <ItemsRenderer {...child} currentDepth={currentDepth + 1} />
+          <ItemsRenderer
+            {...child}
+            style={child[breakpoint]}
+            currentDepth={currentDepth + 1}
+          />
         </Draggable>
       ))}
     </Droppable>
@@ -85,21 +94,43 @@ const SliceItem = ({
 };
 
 const RenderContent = ({ id, dataSlice, style, type, url }) => {
+  const titles = _.get(dataSlice, "titles");
   const title = _.get(dataSlice, "title") || id.split("$")[0];
 
-  const styleUrlTitle: CSSProperties = url
-    ? {
-        position: "absolute",
-        zIndex: "",
-        top: "50%",
-        transform: "translateY(-50%) translateX(-50%)",
-        left: "50%",
-        color: "white",
-      }
-    : {};
+  if (titles) {
+    return (
+      <div
+        style={{
+          display: "inline",
+          ...style,
+        }}
+      >
+        {Object.keys(titles).map((key, index) => {
+          const isSpecial = titles[key].isSpecial;
+          return isSpecial ? (
+            <CsStrong
+              key={index}
+              style={{
+                color: _.get(titles, "[key].color"),
+                flexShrink: 0,
+                fontWeight: "normal",
+                ...style,
+              }}
+              gradient={titles[key].gradient}
+            >
+              {titles[key].text}
+            </CsStrong>
+          ) : (
+            titles[key].text
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
-      {!url && <div style={styleUrlTitle}>{title}</div>}
+      {!url && <CsDiv style={style}>{title}</CsDiv>}
       <Media style={style} url={url} />
     </div>
   );
@@ -111,7 +142,7 @@ const Media = ({ url, style }: { url?: string; style }) => {
   const newStyle: CSSProperties | undefined = {
     ...style,
     inset: 0,
-    objectFit: "fill",
+    // objectFit: "fill",
   };
 
   useEffect(() => {
@@ -146,7 +177,6 @@ const Media = ({ url, style }: { url?: string; style }) => {
             loop
             muted
             playsInline
-            className="w-full aspect-video absolute top-0 left-0"
             src={url}
             preload="metadata"
           >

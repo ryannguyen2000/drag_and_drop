@@ -6,7 +6,15 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      path: "path-browserify"
-    }
+      path: "path-browserify",
+    },
+  },
+  optimizeDeps: {
+    include: [
+      "react-frame-component",
+      "styled-components",
+      "lodash",
+      "prop-types",
+    ],
   },
 });

@@ -120,6 +120,8 @@ import ItemsRenderer, { ItemsRenderProps } from ".";
 import { convertAlign, convertJustify } from "../utilities/flex";
 import { Gap } from "../utilities/grid";
 import _ from "lodash";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 type BoxLayoutProps = ItemsRenderProps & {
   activeId?: string;
@@ -144,6 +146,8 @@ const BoxLayout = ({
   emptyCells,
   ...props
 }: BoxLayoutProps) => {
+  const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
+
   return (
     <Droppable
       className={`p-2 border border-dashed  ${
@@ -166,19 +170,26 @@ const BoxLayout = ({
         className={`flex animate-fade-down ${convertJustify(
           justifyContent
         )} ${convertAlign(alignItems)} ${Gap(Number(gap))}`}
-        // style={style}
       >
         {childs.map((child: any) => {
+          const styleDraggle = {
+            ...child[breakpoint],
+            padding: "",
+            border: "",
+            borderRadius: "",
+          };
+
           return (
             <Draggable
               className={`animate-jump-in`}
               {...child}
-              style={{ ...child.style, padding: "" }}
+              style={{ ...styleDraggle }}
               key={child.id}
               id={child.id}
             >
               <ItemsRenderer
                 {...child}
+                style={child[breakpoint]}
                 currentDepth={currentDepth + 1}
                 isParentBg={_.get(style, "backgroundColor")}
               />

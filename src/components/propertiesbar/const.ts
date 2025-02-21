@@ -36,3 +36,13 @@ export const alignList = [
     title: "baseline",
   },
 ];
+
+export const propertiesAfterBefore = [
+  "content",
+  "background-image",
+  "color",
+  "z-index",
+  "width",
+  "height",
+  "border-radius",
+];

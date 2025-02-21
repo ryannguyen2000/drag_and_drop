@@ -29,9 +29,9 @@ const ListDraggle = ({ lockScroll, groupedSide }) => {
           return (
             <Draggable
               styling={{ backgroundColor: getPastelColor(index, 4) }}
-              className={`col-span-1 w-full flex-col text-white flex items-center justify-center rounded-xl ${
-                lockScroll && "fixed"
-              }`}
+              className={`col-span-1 w-full flex-col text-white flex items-center justify-center rounded-xl 
+                ${lockScroll ? "fixed" : "relative"} 
+              `}
               {...item}
               key={index}
               id={item.id}

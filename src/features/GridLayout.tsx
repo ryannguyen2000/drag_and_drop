@@ -108,6 +108,8 @@ import Draggable from "../components/draggable";
 import Droppable from "../components/droppable";
 import { GridRow } from "../utilities";
 import { Gap, GridCol, SpanCol, SpanRow } from "../utilities/grid";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 type GridLayoutProps = ItemsRenderProps & {
   activeId?: string;
@@ -131,6 +133,8 @@ const GridLayout = ({
   activeId,
   emptyCells,
 }: GridLayoutProps) => {
+  const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
+
   return (
     <Droppable
       className={`p-2 min-h-12 w-full h-full border border-dashed  animate-fade-down ${
@@ -156,9 +160,12 @@ const GridLayout = ({
         style={style}
       >
         {childs.map((child: any) => {
-          if (child.id === "Box-ff56f2bb-36f9-40e6-a543-49c91c0648fd") {
-            console.log("propsChildCommon2", child);
-          }
+          const styleDraggle = {
+            ...child[breakpoint],
+            padding: "",
+            border: "",
+            borderRadius: "",
+          };
 
           return (
             <Draggable
@@ -167,13 +174,13 @@ const GridLayout = ({
                 Number(child.rowspan)
               )}`}
               {...child}
-              style=""
+              style={{ ...styleDraggle }}
               key={child.id}
               id={child.id}
             >
               <ItemsRenderer
                 {...child}
-                style={_.get(child, "style")}
+                style={child[breakpoint]}
                 currentDepth={currentDepth + 1}
                 isParentBg={_.get(style, "backgroundColor")}
               />
