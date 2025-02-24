@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import Sidebar from "../../components/sidebar";
-import TrashBin from "../../components/trashBin";
 import { RootState } from "../../store";
 import {
   Obj,
@@ -32,6 +31,8 @@ import { findObjectById, FindToAdd } from "./const";
 import RenderMonacoEditor from "./renderMonacoEditor";
 import RenderToolbarMonaco from "./renderToolbarMonaco";
 import FrameEditor from "./frameEditor";
+import ListSliceOfActiveIdSticky from "./ListSliceOfActiveIdSticky";
+import TrashBin from "../../components/trashBin";
 
 const Editor = () => {
   const {
@@ -43,8 +44,6 @@ const Editor = () => {
     typeScreen,
     moveSliceParent,
   } = useSelector((state: RootState) => state.dndSlice);
-
-  const [scale, setScale] = useState(1);
 
   const dataLayout = data[typeScreen];
 
@@ -95,11 +94,24 @@ const Editor = () => {
     return isParent;
   };
 
+  const renderBin = (
+    <div
+      id="bin_id"
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[6.25rem]  justify-center items-center"
+      style={{
+        zIndex: 9999,
+      }}
+    >
+      <TrashBin />
+    </div>
+  );
+
   const hideBin = () => {
     const bin = document.getElementById("bin_id");
     if (!bin) return;
     bin.style.display = "none";
   };
+
   const showBin = () => {
     const bin = document.getElementById("bin_id");
     if (!bin) return;
@@ -236,32 +248,8 @@ const Editor = () => {
     }
   };
 
-  const renderBin = (
-    <div
-      id="bin_id"
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 mb-[6.25rem] hidden justify-center items-center"
-      style={{
-        zIndex: 9999,
-      }}
-    >
-      <TrashBin />
-    </div>
-  );
-
   const renderSidebar = !activeCreateFunction && <Sidebar />;
   const renderPropertiesBar = !activeCreateFunction && <PropertiesBar />;
-
-  useEffect(() => {
-    function updateScale() {
-      const actualWidth = 1200; // Max-width của UI Builder
-      const currentWidth = window.innerWidth; // Kích thước màn hình hiện tại
-      setScale(currentWidth / actualWidth);
-    }
-
-    updateScale(); // Cập nhật ngay khi mở trang
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, []);
 
   return (
     <>
@@ -273,7 +261,6 @@ const Editor = () => {
         sensors={useSensors(useSensor(PointerSensor))}
       >
         <RenderToolbarMonaco hidden={!activeCreateFunction} />
-
         <div className="flex items-start w-full relative">
           {renderBin}
           {renderSidebar}
@@ -282,7 +269,6 @@ const Editor = () => {
             data={data}
             dataLayout={dataLayout}
           />
-
           <RenderMonacoEditor hidden={!activeCreateFunction} />
           {renderPropertiesBar}
         </div>
@@ -291,17 +277,19 @@ const Editor = () => {
             zIndex: 999,
             pointerEvents: "none",
             position: "fixed",
-            opacity: 0.4,
+            opacity: 1,
+            // background: "red",
           }}
         >
-          {activeId ? (
+          {/* {activeId ? (
             <div
-              className="bg-slate-50 opacity-40 w-full h-full rounded-xl"
+              className="bg-slate-50 opacity-1 w-full h-full rounded-xl"
               style={{ zIndex: 999 }}
             />
-          ) : null}
+          ) : null} */}
         </DragOverlay>
       </DndContext>
+      <ListSliceOfActiveIdSticky />
     </>
   );
 };

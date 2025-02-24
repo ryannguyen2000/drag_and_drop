@@ -574,40 +574,6 @@ const PropertiesBar = () => {
             <div className="flex flex-col w-full mt-6">
               <div className="border border-slate-300 h-[1px]"></div>
               <div className="flex flex-col items-start mt-3 animate-fade-up">
-                <span className="text-xl font-medium text-gray-700">
-                  Styling
-                </span>
-                {isLayout === "content" && (
-                  <div className="flex flex-col mt-3 mb-4  animate-fade-up ">
-                    <label className="text-sm font-medium text-gray-400">
-                      Upload Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="h-10 w-full border rounded-lg px-3 mt-2"
-                    />
-                    {!activeData.thumbnail && (
-                      <div className="mt-2">
-                        <img
-                          src={activeData.thumbnail}
-                          alt="Preview"
-                          className="w-full h-auto rounded-lg"
-                        />
-                      </div>
-                    )}
-                    {activeData.thumbnail && (
-                      <div className="mt-2">
-                        <img
-                          src={activeData.thumbnail}
-                          alt="Preview"
-                          className="w-full h-auto rounded-lg"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
                 <div className="space-y-4 w-full mt-6">
                   {/* DIMENSION */}
                   <Dimension styles={styles} setStyles={setStyles} />

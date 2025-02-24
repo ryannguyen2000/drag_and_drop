@@ -13,8 +13,6 @@ const AfterStyles = ({ styles, setStyles }) => {
     }));
   };
 
-  console.log("sdsd", _.get(styles, "after.position"));
-
   return (
     <details
       className="group w-full [&_summary::-webkit-details-marker]:hidden"

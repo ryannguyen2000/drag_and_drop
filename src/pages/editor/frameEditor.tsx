@@ -1,8 +1,6 @@
-import Frame from "react-frame-component";
 import _ from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { StyleSheetManager } from "styled-components";
 
 import Droppable from "../../components/droppable";
 import ItemsRenderer from "../../features";
@@ -10,31 +8,8 @@ import { RootState } from "../../store";
 import ToolEditor from "../../components/sidebar/tools";
 
 const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
-  const iframeRef = useRef(null);
-  const [iframeHead, setIframeHead] = useState(null);
   const [scale, setScale] = useState(1);
   const { viewport } = useSelector((state: RootState) => state.dndSlice);
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-
-    const handleLoad = () => {
-      if (iframe && iframe.contentWindow?.document) {
-        setIframeHead(iframe.contentWindow.document.head);
-      }
-    };
-
-    // Nếu iframe đã load xong, gọi trực tiếp
-    if (iframe?.contentWindow?.document.readyState === "complete") {
-      handleLoad();
-    } else {
-      iframe?.addEventListener("load", handleLoad);
-    }
-
-    return () => {
-      iframe?.removeEventListener("load", handleLoad);
-    };
-  }, []);
 
   useEffect(() => {
     const updateScale = () => {
@@ -84,24 +59,24 @@ const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
             height: viewport.height,
           }}
         >
-          <Frame
-            ref={iframeRef}
-            style={{
-              width: "100%",
-              height: "100%",
-              border: "none",
-              display: "block",
-            }}
-            head={
-              <>
-                <link rel="stylesheet" href="/src/index.css" />
-                <style>{"body { margin: 0; overflow: hidden; }"}</style>
-              </>
-            }
-          >
-            <StyleSheetManager target={iframeHead}>
-              <div className="bg-white mx-auto w-full min-h-[calc(100vh-7rem)]">
-                <Droppable
+          <div className="bg-white mx-auto w-full min-h-[calc(100vh-7rem)]">
+            <Droppable
+              columns={_.get(dataLayout, "columns")}
+              rows={_.get(dataLayout, "rows")}
+              colspan={_.get(dataLayout, "colspan")}
+              rowspan={_.get(dataLayout, "rowspan")}
+              alignItems={_.get(dataLayout, "alignItems")}
+              justifyContent={_.get(dataLayout, "justifyContent")}
+              gap={_.get(dataLayout, "gap")}
+              type={_.get(dataLayout, "type")}
+              id={_.get(dataLayout, "id")}
+              thumbnail={_.get(dataLayout, "thumbnail")}
+              dataSlice={_.get(dataLayout, "dataSlice")}
+            >
+              {dataLayout && (
+                <ItemsRenderer
+                  childs={_.get(dataLayout, "childs")}
+                  id={_.get(dataLayout, "id")}
                   columns={_.get(dataLayout, "columns")}
                   rows={_.get(dataLayout, "rows")}
                   colspan={_.get(dataLayout, "colspan")}
@@ -109,33 +84,15 @@ const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
                   alignItems={_.get(dataLayout, "alignItems")}
                   justifyContent={_.get(dataLayout, "justifyContent")}
                   gap={_.get(dataLayout, "gap")}
+                  currentDepth={1}
                   type={_.get(dataLayout, "type")}
-                  id={_.get(dataLayout, "id")}
+                  dataSlice={_.get(data, "dataSlice")}
                   thumbnail={_.get(dataLayout, "thumbnail")}
-                  dataSlice={_.get(dataLayout, "dataSlice")}
-                >
-                  {dataLayout && (
-                    <ItemsRenderer
-                      childs={_.get(dataLayout, "childs")}
-                      id={_.get(dataLayout, "id")}
-                      columns={_.get(dataLayout, "columns")}
-                      rows={_.get(dataLayout, "rows")}
-                      colspan={_.get(dataLayout, "colspan")}
-                      rowspan={_.get(dataLayout, "rowspan")}
-                      alignItems={_.get(dataLayout, "alignItems")}
-                      justifyContent={_.get(dataLayout, "justifyContent")}
-                      gap={_.get(dataLayout, "gap")}
-                      currentDepth={1}
-                      type={_.get(dataLayout, "type")}
-                      dataSlice={_.get(data, "dataSlice")}
-                      thumbnail={_.get(dataLayout, "thumbnail")}
-                      style={_.get(dataLayout, "style")}
-                    />
-                  )}
-                </Droppable>
-              </div>
-            </StyleSheetManager>
-          </Frame>
+                  style={_.get(dataLayout, "style")}
+                />
+              )}
+            </Droppable>
+          </div>
         </div>
       </div>
     </div>
