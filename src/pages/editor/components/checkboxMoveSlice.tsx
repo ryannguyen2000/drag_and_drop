@@ -1,6 +1,6 @@
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { setMoveSliceParent } from "../../store/DndSlice";
+import { RootState } from "../../../store";
+import { setMoveSliceParent } from "../../../store/DndSlice";
 
 const selector = (state: RootState) => [state.dndSlice];
 

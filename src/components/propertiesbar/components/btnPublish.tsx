@@ -55,7 +55,7 @@ const BtnPublish = () => {
       if (finalData) {
         // Gửi tất cả API đồng thời để tăng tốc độ xử lý
         await Promise.all([
-          axios.post(
+          axios.put(
             `${import.meta.env.VITE__API_HOST}/api/documents`,
             documentData
           ),

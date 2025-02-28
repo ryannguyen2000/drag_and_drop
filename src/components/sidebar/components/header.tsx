@@ -3,7 +3,7 @@ import SelectDocument from "./selectDocument";
 
 const Header = ({ setModal }) => {
   return (
-    <div className="mx-auto w-full  font-bold text-xl flex items-center justify-between">
+    <div className="mx-auto w-full font-bold text-xl flex items-center justify-between">
       <SelectDocument />
       <div
         onClick={() => setModal(true)}

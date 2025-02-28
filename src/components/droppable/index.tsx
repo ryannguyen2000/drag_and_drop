@@ -67,7 +67,7 @@ const Droppable = ({
       onDragOver={(e) => e.preventDefault()}
       className={`${className} ${
         isOver ? "border-red-400" : "border-gray-400"
-      } z-[9999]`}
+      } bg-white h-full`}
       onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();

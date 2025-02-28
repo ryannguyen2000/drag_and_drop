@@ -1,11 +1,9 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
-import Droppable from "../../components/droppable";
-import ItemsRenderer from "../../features";
-import { RootState } from "../../store";
-import ToolEditor from "../../components/sidebar/tools";
+import Droppable from "../../../components/droppable";
+import ItemsRenderer from "../../../features";
+import { RootState } from "../../../store";
 
 const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
   const [scale, setScale] = useState(1);
@@ -42,13 +40,12 @@ const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
     <div
       className={`${
         activeCreateFunction ? "w-1/3" : "w-full"
-      } bg-white p-6 z-10 flex items-end justify-center flex-col overflow-hidden`}
+      } bg-[#1E2428] p-6 z-10 flex items-end justify-center flex-col overflow-hidden`}
     >
-      <ToolEditor />
       <div
         className={`${
           activeCreateFunction ? "w-1/3" : "w-full"
-        } bg-white z-10 flex items-end justify-center overflow-hidden`}
+        } z-10 flex items-end justify-center overflow-hidden`}
       >
         <div
           style={{
@@ -59,7 +56,7 @@ const FrameEditor = ({ activeCreateFunction, dataLayout, data }) => {
             height: viewport.height,
           }}
         >
-          <div className="bg-white mx-auto w-full min-h-[calc(100vh-7rem)]">
+          <div className="mx-auto w-full h-full">
             <Droppable
               columns={_.get(dataLayout, "columns")}
               rows={_.get(dataLayout, "rows")}

@@ -9,12 +9,13 @@ import { GetData } from "../../apis";
 import { DecryptBasic } from "../../utilities/hash_aes";
 import { GetACookie } from "../../utilities/cookies";
 import { Enum } from "../../config/common";
-import BackToPage from "./backToPage";
-import FrameBoxAndFlex from "./frame";
-import ListDraggle from "./listDraggle";
-import ModalAddJson from "./modalAddJson";
-import Header from "./header";
-import CheckboxMoveSlice from "../../pages/editor/checkboxMoveSlice";
+import BackToPage from "./components/backToPage";
+import FrameBoxAndFlex from "./components/frame";
+import ListDraggle from "./components/listDraggle";
+import ModalAddJson from "./components/modalAddJson";
+import Header from "./components/header";
+import CheckboxMoveSlice from "../../pages/editor/components/checkboxMoveSlice";
+import Menu from "./menu";
 
 const selector = (state: RootState) => [state.dndSlice, state.documentSlice];
 
@@ -23,7 +24,6 @@ const Sidebar = () => {
   const { data, lockScroll, sidebar, typeScreen } = dndSlice;
 
   const dispatch = useDispatch();
-  const [modal, setModal] = useState(false);
 
   const [groupedSide, setGroupedSide] = useState<any>([]);
 
@@ -54,6 +54,7 @@ const Sidebar = () => {
       }
     } catch (error) {}
   };
+
   const getDocumentsData = async () => {
     try {
       const response = (await GetData(
@@ -150,18 +151,8 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="h-[calc(100vh)] w-full sticky top-4 rounded-r-xl flex-col gap-4 flex bg-gray-100 rounded-lg p-6 max-w-[25rem] z-50 items-center">
-        <div className="flex gap-12 flex-col w-full h-full">
-          <ModalAddJson modal={modal} setModal={setModal} />
-          <div className="gap-12 flex flex-col">
-            <Header setModal={setModal} />
-            <CheckboxMoveSlice />
-            <FrameBoxAndFlex />
-          </div>
-
-          <ListDraggle groupedSide={groupedSide} lockScroll={lockScroll} />
-          <BackToPage />
-        </div>
+      <div className="z-[999]">
+        <Menu />
       </div>
     </>
   );

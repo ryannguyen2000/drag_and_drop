@@ -2,10 +2,10 @@ import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { DndContext } from "@dnd-kit/core";
 import { useDispatch } from "react-redux";
-import { setData } from "../../store/DndSlice";
-import { serializeFromJsonToString } from "../../utilities/text";
-import { cacheDataToIndexedDB } from "../../services/indexedDB/services";
-import { ToastError, ToastSuccess } from "../toast";
+import { setData } from "../../../store/DndSlice";
+import { serializeFromJsonToString } from "../../../utilities/text";
+import { cacheDataToIndexedDB } from "../../../services/indexedDB/services";
+import { ToastError, ToastSuccess } from "../../toast";
 
 const ModalAddJson = ({ modal, setModal }) => {
   const dispatch = useDispatch();

@@ -5,7 +5,11 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import Modal from "react-modal";
+
 import Middleware from "../middleware";
+
+Modal.setAppElement("#root");
 
 type RouteConfig = {
   path: string;

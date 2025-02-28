@@ -1,5 +1,5 @@
-import BtnHandleCreateFc from "../../components/propertiesbar/components/btnHandleCreateFc";
-import BtnPublish from "../../components/propertiesbar/components/btnPublish";
+import BtnHandleCreateFc from "../../../components/propertiesbar/components/btnHandleCreateFc";
+import BtnPublish from "../../../components/propertiesbar/components/btnPublish";
 
 const RenderToolbarMonaco = ({ hidden }) => {
   return (

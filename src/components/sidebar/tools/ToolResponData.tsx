@@ -31,28 +31,27 @@ const ReponsiveData = () => {
   };
 
   return (
-    <div className="mb-4 flex items-center gap-2 text-[12px]">
-      <div className="border rounded text-center flex px-[6px] py-[4px]">
-        <div className="self-center">Screen's Type:</div>
+    <div className="flex items-center gap-2 text-[12px] text-[#c3c3c3]">
+      <div className=" text-center flex gap-2">
+        <div className="self-center font-semibold">Screen's data:</div>
         <select
           name="screenType"
           id="screenType"
           value={typeScreen}
           onChange={(e) => handleChange(e.target.value, "type")}
-          className="rounded-md cursor-pointer"
+          className="rounded cursor-pointer border py-[4px] text-gray-700 font-semibold"
         >
           <option value="desktop">Desktop</option>
           <option value="mobile">Mobile</option>
         </select>
       </div>
       {!isMobileType && (
-        <div className="border rounded text-center flex px-[6px] py-[4px]">
-          <div className="self-center">Screen's Size</div>
+        <div className="text-center flex gap-2">
           <select
             name="breakpoint"
             id="breakpoint"
             value={breakpoint}
-            className="rounded-md cursor-pointer"
+            className="rounded cursor-pointer border px-[6px] py-[4px] text-gray-700 font-semibold"
             onChange={(e) => handleChange(e.target.value, "size")}
           >
             {Object.values(filteredBreakpoints).map((bp) => (

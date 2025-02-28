@@ -10,44 +10,48 @@ import { IDocument } from "../../../store/documents/type";
 import ShiningButton from "../../../components/button/shiningButton";
 import { RootState } from "../../../store";
 import { setTriggerFetchListDocument } from "../../../store/global/globalSlice";
-import { SaveDocumentModal } from "./saveDocumentModal";
+// import { SaveDocumentModal } from "./saveDocumentModal";
 import { GetData } from "../../../apis";
 import { DecryptBasic } from "../../../utilities/hash_aes";
 import { GetACookie } from "../../../utilities/cookies";
 import { Enum } from "../../../config/common";
 import { setListDocumnetStore } from "../../../store/documents/documentSlice";
+import ModalActionDocument from "./modalActionDocument";
 
 export const ListDocument = () => {
-  // redux
   const globalState = useSelector((state: RootState) => state.globalSlice);
   const dispath = useDispatch();
 
-  // state
   const [listDocuments, setListDocuments] = useState<IDocument[] | any[]>([]);
   const [isLoading, setIsloading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const onToggleModal = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const getListDocumentsData = async () => {
+    setIsloading(true);
+    const response = (await GetData(
+      `${import.meta.env.VITE__API_HOST}/api/documents?pId=${DecryptBasic(
+        GetACookie("pid"),
+        Enum.srkey
+      )}`
+    )) as any as any[];
+    if (response) {
+      setListDocuments(response);
+      dispath(setListDocumnetStore(response));
+    }
+    setIsloading(false);
+  };
 
   useEffect(() => {
     dispath(setTriggerFetchListDocument(true));
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsloading(true);
-      const response = (await GetData(
-        `${import.meta.env.VITE__API_HOST}/api/documents?pId=${DecryptBasic(
-          GetACookie("pid"),
-          Enum.srkey
-        )}`
-      )) as any as any[];
-      if (response) {
-        setListDocuments(response);
-        dispath(setListDocumnetStore(response))
-      }
-      setIsloading(false);
-    };
-
     if (globalState.trigger.isTriggerFetchListDocument) {
-      fetchData();
+      getListDocumentsData();
     }
   }, [globalState.trigger.isTriggerFetchListDocument]);
 
@@ -68,10 +72,16 @@ export const ListDocument = () => {
         </Link>
 
         <div className="flex items-center gap-3">
-          <SaveDocumentModal />
+          {/* <SaveDocumentModal /> */}
+          <ModalActionDocument
+            isOpen={isOpen}
+            onToggleModal={onToggleModal}
+            refreshListDocument={getListDocumentsData}
+          />
 
           {/* Right */}
-          <div>Some Stuff Here</div>
+          {/* <div>Some Stuff Here</div> */}
+          <div>Create new documnent</div>
         </div>
       </div>
 

@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
-
-import { RootState } from "../../store";
-import { setDocumentName, setUID } from "../../store/documents/documentSlice";
-import { SaveACookie } from "../../utilities/cookies";
-import { EncryptBasic } from "../../utilities/hash_aes";
-import { Enum } from "../../config/common";
+import { RootState } from "../../../store";
+import { SaveACookie } from "../../../utilities/cookies";
+import { EncryptBasic } from "../../../utilities/hash_aes";
+import { Enum } from "../../../config/common";
+import {
+  setDocumentName,
+  setUID,
+} from "../../../store/documents/documentSlice";
 
 const SelectDocument = () => {
   const dispatch = useDispatch();
@@ -64,7 +66,7 @@ const SelectDocument = () => {
   }, [uid]);
 
   return (
-    <div className="relative w-64" ref={dropdownRef}>
+    <div className="relative w-full" ref={dropdownRef}>
       {/* Ô tìm kiếm (hiển thị tài liệu đang chọn ban đầu) */}
       <input
         type="text"

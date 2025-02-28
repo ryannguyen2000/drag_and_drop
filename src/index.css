@@ -14,3 +14,15 @@
 .animate-hue {
   animation: hueRotate 20s linear infinite;
 }
+
+.root-modal {
+  background-color: transparent;
+  top: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 20px 20px;
+}

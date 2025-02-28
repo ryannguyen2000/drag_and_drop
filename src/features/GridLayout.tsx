@@ -132,12 +132,13 @@ const GridLayout = ({
   currentDepth,
   activeId,
   emptyCells,
+  ...props
 }: GridLayoutProps) => {
   const { breakpoint } = useSelector((state: RootState) => state.dndSlice);
 
   return (
     <Droppable
-      className={`p-2 min-h-12 w-full h-full border border-dashed  animate-fade-down ${
+      className={`p-2 min-h-12 w-full h-full border border-dashed animate-fade-down ${
         activeId === id && "border-green-500 border-2 "
       }`}
       columns={columns}

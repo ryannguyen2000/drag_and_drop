@@ -25,7 +25,7 @@ const ToolFrameEditor = () => {
   };
 
   return (
-    <div className="mb-4 flex items-center gap-2 text-[12px]">
+    <div className="flex items-center gap-2 text-[12px]">
       {/* Dropdown for Dimensions */}
       <select
         className="border p-1 rounded"
@@ -49,7 +49,7 @@ const ToolFrameEditor = () => {
           handleChange("width", parseInt(e.target.value, 10) || 0)
         }
       />
-      <span className="text-gray-600">x</span>
+      <span className="text-[#c3c3c3]">x</span>
 
       {/* Input for Height */}
       <input

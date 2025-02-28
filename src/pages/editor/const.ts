@@ -34,12 +34,24 @@ export const FindToAdd = ({
   let activeItemBackup = null; // ✅ Khôi phục biến lưu dữ liệu của `active.id`
   let isNewObject = true;
 
+  const isActiveGridOrFlex = detail.type === "grid" || detail.type === "flex";
+  const isOverGridOrFlex = type === "grid" || type === "flex";
+
   const checkIfExists = (nodes) => {
     nodes.forEach((node) => {
       if (node.id === id) isNewObject = false;
       if (node.childs.length > 0) checkIfExists(node.childs);
     });
   };
+
+  let randomString =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+
+  const newId =
+    isActiveGridOrFlex || !isNewObject
+      ? id
+      : _.get(detail, "value") + "$" + randomString;
 
   checkIfExists([newData]);
 
@@ -99,7 +111,7 @@ export const FindToAdd = ({
       ) {
         node.childs.push({
           ...(isNewObject ? detail : activeItemBackup),
-          id,
+          id: isNewObject ? newId : id,
           childs: layoutChilds,
           dataSlice: activeItemBackup?.dataSlice || detail.dataSlice, // ✅ Giữ `dataSlice`
         });
@@ -126,7 +138,25 @@ export const FindToAdd = ({
             overBackup,
             activeBackup,
           ];
+        } else if (isNewObject) {
+          console.log("isNewObject");
+
+          if (overIndex !== -1) {
+            // ✅ **Tạo một node mới**
+            const activeNode = {
+              ...detail,
+              id: newId,
+              childs: [],
+            };
+
+            // ✅ **Lưu lại dữ liệu của `over` trước khi thay đổi**
+            const overBackup = { ...node.childs[overIndex] };
+
+            // ✅ **Chèn active vào vị trí `overIndex`**
+            node.childs.splice(overIndex, 1, activeNode, overBackup);
+          }
         } else {
+          // Nếu không phải là node mới, tiếp tục kiểm tra
           callbackFC(node.childs);
         }
       });
@@ -193,8 +223,11 @@ export const FindToAdd = ({
 
   // 🛠 Nếu kéo vào `grid` tổng lớn nhất (`root`), thêm vào `childs` của `root`
   if (parent_id === "root") {
+    console.log("parent_id root");
+
     newData.childs.push({
-      id,
+      ...detail,
+      id: isNewObject ? newId : id,
       columns: detail.columns,
       rows: detail.rows,
       colspan: detail.colspan,
@@ -208,248 +241,31 @@ export const FindToAdd = ({
       dataSlice: activeItemBackup?.dataSlice || detail.dataSlice, // ✅ Giữ `dataSlice`
     });
   } else {
-    const isActiveGridOrFlex = detail.type === "grid" || detail.type === "flex";
-    const isOverGridOrFlex = type === "grid" || type === "flex";
     if (moveSliceParent && isActiveGridOrFlex && isOverGridOrFlex) {
       const result = swapGridFlex([JSON.parse(JSON.stringify(dataLayout))]); // 🔄 Hoán đổi vị trí Grid <-> Flex
+      console.log("swapGridFlex");
+
       newData = result[0];
     } else if (
       (isActiveGridOrFlex && isOverGridOrFlex) ||
       (!moveSliceParent && !isActiveGridOrFlex && isOverGridOrFlex)
     ) {
+      console.log("addToGridOrFlex", {
+        isNewObject,
+        isActiveGridOrFlex,
+        newId,
+        id,
+      });
+
       addToGridOrFlex([newData]);
     } else if (
       (!isActiveGridOrFlex && !isOverGridOrFlex) ||
       (!moveSliceParent && isActiveGridOrFlex && !isOverGridOrFlex)
     ) {
+      console.log("replaceAndShift");
+
       replaceAndShift([newData]);
     }
   }
   dispatch(setData(newData));
-};
-
-const xx = {
-  id: "root",
-  thumnail: "_",
-  type: "grid",
-  columns: "1",
-  gap: "1",
-  rows: "1",
-  colspan: "1",
-  rowspan: "1",
-  alignItems: "flex-start",
-  justifyContent: "flex-start",
-  childs: [
-    {
-      id: "Box-f5988b19-1931-4498-87c2-4ac646a8a650",
-      columns: "1",
-      rows: "1",
-      colspan: "1",
-      rowspan: "1",
-      gap: "3",
-      justifyContent: "flex-start",
-      alignItems: "flex-start",
-      type: "flex",
-      childs: [
-        {
-          colspan: "1",
-          rowspan: "1",
-          columns: "1",
-          rows: "1",
-          type: "flex",
-          gap: "1",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-          thumbnail: "_",
-          id: "Box-74270b67-65d4-4b87-86df-d91d0cd562f2",
-          childs: [
-            {
-              id: "test_box1$28ed46e0-08db-46b3-826a-f7b7f6f67c82",
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              gap: "1",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              type: "content",
-              childs: [],
-              thumbnail: "_",
-            },
-          ],
-        },
-        {
-          colspan: "1",
-          rowspan: "1",
-          columns: "1",
-          rows: "1",
-          type: "flex",
-          gap: "1",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-          thumbnail: "_",
-          id: "Box-e383ed6c-25cf-4295-8abe-371776e7d264",
-          childs: [
-            {
-              id: "title_complex$507d56c3-55e4-4786-87d9-999ab0552f6b",
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              gap: "1",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              type: "content",
-              childs: [],
-              thumbnail: "_",
-            },
-            {
-              colspan: "1",
-              rowspan: "1",
-              columns: "1",
-              rows: "1",
-              type: "content",
-              gap: "1",
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-              thumbnail: "_",
-              id: "text$5315ae68-3332-49e7-a932-6962544a8713",
-              childs: [],
-              dataSlice: {
-                title: "3",
-              },
-            },
-            {
-              colspan: "1",
-              rowspan: "1",
-              columns: "1",
-              rows: "1",
-              type: "content",
-              gap: "1",
-              alignItems: "flex-start",
-              justifyContent: "flex-start",
-              thumbnail: "_",
-              id: "link$188bf6c9-5e15-48f3-9a68-344505d46748",
-              childs: [],
-              dataSlice: {
-                title: "4",
-              },
-            },
-            {
-              id: "vertical_steps$f518f389-2935-48df-8c4a-60928f41ba4b",
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              gap: "1",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              type: "content",
-              childs: [],
-              thumbnail: "_",
-            },
-          ],
-        },
-      ],
-      thumbnail: "_",
-    },
-    {
-      id: "Box-c96a2ffd-9ddd-4c62-94d5-f2593230d129",
-      columns: "1",
-      rows: "1",
-      colspan: "1",
-      rowspan: "1",
-      gap: "1",
-      justifyContent: "flex-start",
-      alignItems: "flex-start",
-      type: "flex",
-      childs: [],
-      thumbnail: "_",
-    },
-    {
-      id: "Box-908569a0-0580-435a-a9df-53c45c872ac7",
-      columns: "1",
-      rows: "1",
-      colspan: "1",
-      rowspan: "1",
-      gap: "1",
-      justifyContent: "flex-start",
-      alignItems: "flex-start",
-      type: "flex",
-      childs: [
-        {
-          id: "Box-ff05349a-f7d7-46b1-b94a-1859f1d77e43",
-          columns: "1",
-          rows: "1",
-          colspan: "1",
-          rowspan: "1",
-          gap: "1",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-          type: "flex",
-          childs: [
-            {
-              id: "text$9eea41dc-d595-4d05-b0ea-57f25b717d41",
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              gap: "1",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              type: "content",
-              childs: [],
-              thumbnail: "_",
-            },
-          ],
-          thumbnail: "_",
-        },
-      ],
-      thumbnail: "_",
-      dataSlice: {
-        titles: {},
-      },
-    },
-    {
-      id: "Box-a53a0670-71ea-4506-81c9-27cded549e88",
-      columns: "1",
-      rows: "1",
-      colspan: "1",
-      rowspan: "1",
-      gap: "1",
-      justifyContent: "flex-start",
-      alignItems: "flex-start",
-      type: "flex",
-      childs: [
-        {
-          colspan: "1",
-          rowspan: "1",
-          columns: "1",
-          rows: "1",
-          type: "flex",
-          gap: "1",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-          thumbnail: "_",
-          id: "Box-e558b3fa-bc77-4903-9a35-e232b169aeb2",
-          childs: [
-            {
-              id: "text$28c64bb2-10d6-4ef8-89ee-b00751d72039",
-              columns: "1",
-              rows: "1",
-              colspan: "1",
-              rowspan: "1",
-              gap: "1",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              type: "content",
-              childs: [],
-              thumbnail: "_",
-            },
-          ],
-        },
-      ],
-      thumbnail: "_",
-    },
-  ],
 };

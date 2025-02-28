@@ -67,12 +67,12 @@ export const SaveDocumentModal = (props: SaveDocumentModalDrawerType) => {
               placeholder="Enter document name"
               value={documentName}
               onChange={(e) => setDocumentName(e.target.value)}
-              className={`block w-full rounded-md border p-2.5 shadow-sm sm:text-sm ${
-                errors.documentName
-                  ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-              }`}
-              required
+              // className={`block w-full rounded-md border p-2.5 shadow-sm sm:text-sm ${
+              //   errors.documentName
+              //     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+              //     : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              // }`}
+              // required
             />
             <Icon
               icon="mdi:file-document-outline"

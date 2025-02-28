@@ -24,6 +24,8 @@ interface DraggableProps {
   style?: CSSProperties;
   identify?: string;
   styling?: CSSProperties;
+  _id?: string;
+  value?: string;
 }
 
 const Draggable = ({
@@ -42,9 +44,11 @@ const Draggable = ({
   styling,
   thumbnail = "",
   identify,
+  _id,
+  value,
 }: DraggableProps) => {
   const { attributes, listeners, setNodeRef, over, transform } = useDraggable({
-    id: _.toString(id),
+    id: _.toString(id || _id),
     data: {
       colspan,
       rowspan,
@@ -55,6 +59,7 @@ const Draggable = ({
       alignItems,
       justifyContent,
       thumbnail,
+      value,
     },
   });
   const newStyleDiv = {
@@ -71,7 +76,7 @@ const Draggable = ({
     <div
       ref={setNodeRef}
       style={newStyleDiv}
-      className={`${className}  cursor-pointer ${
+      className={`${className} cursor-pointer ${
         over ? "border-violet-500" : ""
       }`}
       {...listeners}
