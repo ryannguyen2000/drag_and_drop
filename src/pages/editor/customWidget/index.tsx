@@ -1,19 +1,16 @@
 import Sidebar from "../../../components/sidebar";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
-import MonacoEditor from "../../../components/monacoEditor";
-import {
-  setDataCustomWidget,
-  setListWidgetElements,
-} from "../../../store/DndWidget";
+import { setDataCustomWidget } from "../../../store/DndWidget";
 import _ from "lodash";
 import axios from "axios";
 import { ToastSuccess } from "../../../components/toast";
 import { DecryptBasic } from "../../../utilities/hash_aes";
 import { Enum } from "../../../config/common";
 import { GetACookie } from "../../../utilities/cookies";
-import { useEffect } from "react";
-import { defaultContent } from "./const";
+import { getWidgetElements } from "../../../apis/commons";
+import SandpackEditor from "../../../components/sandpack";
+import MonacoEditor from "../../../components/monacoEditor";
 
 function toSnakeCase(str) {
   return str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
@@ -22,10 +19,11 @@ function toSnakeCase(str) {
 const CustomWidget = () => {
   const projectId = DecryptBasic(GetACookie("pid"), Enum.srkey);
 
-  const [{ dataCustomWidget }, { activeCreateFunction }] = useSelector(
-    (state: RootState) => [state.dndWidgets, state.dndSlice],
-    shallowEqual
-  );
+  const [{ dataCustomWidget, activeWidgetId }, { activeCreateFunction }] =
+    useSelector(
+      (state: RootState) => [state.dndWidgets, state.dndSlice],
+      shallowEqual
+    );
 
   const dispatch = useDispatch();
 
@@ -56,35 +54,20 @@ const CustomWidget = () => {
           import.meta.env.VITE__API_HOST
         }/api/elements/pushFileELementToGitHub`,
         {
-          repoName: "prismic-test-160",
           fileName: dataCustomWidget.name,
           fileContent: dataCustomWidget.data,
           projectId,
+          value: toSnakeCase(dataCustomWidget.name),
         }
       );
       if (respon.status === 201) {
         ToastSuccess({ msg: "Created new widget!" });
+        getWidgetElements({ projectId, dispatch });
       }
     } catch (error) {}
   };
 
-  const getWidgetElements = async () => {
-    try {
-      const res = await axios.get(
-        `${
-          import.meta.env.VITE__API_HOST
-        }/api/elements/widgetElements?projectId=${projectId}`
-      );
-      console.log("res", res.data.data);
-      dispatch(setListWidgetElements(res.data.data));
-    } catch (error) {}
-  };
-
   const renderSidebar = !activeCreateFunction && <Sidebar />;
-
-  useEffect(() => {
-    getWidgetElements();
-  }, []);
 
   return (
     <div className="flex">
@@ -94,7 +77,7 @@ const CustomWidget = () => {
           <div className="pb-2 ">
             <div className="flex flex-col items-start justify-start p-2 gap-1.5">
               <span className="text-sm font-medium text-gray-700">
-                Widget Name
+                {activeWidgetId ? "Widget Name" : "New Widget Name"}
               </span>
               <textarea
                 onChange={(e) => handleChangeWidgetName(e.target.value)}
@@ -110,13 +93,17 @@ const CustomWidget = () => {
               className="border p-2 rounded-lg text-[#c3c3c3] font-semibold hover:bg-gray-800"
               onClick={onSaveWidget}
             >
-              Save Widget
+              {activeWidgetId ? "Save Widget" : "Save New Widget"}
             </button>
           </div>
         </div>
-        <MonacoEditor
+        {/* <MonacoEditor
           data={_.get(dataCustomWidget, "data")}
-          defaultCode={defaultContent}
+          defaultCode={""}
+          handleEditorChange={handleEditorChange}
+        /> */}
+        <SandpackEditor
+          data={_.get(dataCustomWidget, "data", "")}
           handleEditorChange={handleEditorChange}
         />
       </div>

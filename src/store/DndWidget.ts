@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { defaultContentWidgetElement } from "../utilities/consts";
 
 export interface DndWidgetsState {
   data: any[];
@@ -9,6 +10,8 @@ export interface DndWidgetsState {
     data: string;
     name: string;
   };
+  activeWidgetId: string | null;
+  dataEnv: any[];
 }
 
 const initialState: DndWidgetsState = {
@@ -17,9 +20,11 @@ const initialState: DndWidgetsState = {
   loading: false,
   isCustomElement: false,
   dataCustomWidget: {
-    data: "",
+    data: defaultContentWidgetElement,
     name: "",
   },
+  activeWidgetId: null,
+  dataEnv: [],
 };
 
 export const dndWidgets = createSlice({
@@ -33,10 +38,16 @@ export const dndWidgets = createSlice({
       state.isCustomElement = action.payload;
     },
     setDataCustomWidget: (state, action) => {
-      state.dataCustomWidget = action.payload;
+      state.dataCustomWidget = { ...state.dataCustomWidget, ...action.payload };
     },
     setListWidgetElements: (state, action) => {
       state.listWidgetElements = action.payload;
+    },
+    setActiveWidgetId: (state, action) => {
+      state.activeWidgetId = action.payload;
+    },
+    setDataEnv: (state, action) => {
+      state.dataEnv = action.payload;
     },
   },
 });
@@ -46,6 +57,8 @@ export const {
   setIsCustomElement,
   setDataCustomWidget,
   setListWidgetElements,
+  setActiveWidgetId,
+  setDataEnv,
 } = dndWidgets.actions;
 
 export default dndWidgets.reducer;

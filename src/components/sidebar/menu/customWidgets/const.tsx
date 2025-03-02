@@ -1,4 +1,4 @@
-export const defaultContent = `import _ from "lodash";
+export const initialNewDataWidget = `import _ from "lodash";
 import { CSSProperties } from "react";
 
 interface TextProps {

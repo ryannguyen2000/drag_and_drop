@@ -23,10 +23,7 @@ const ModalActionDocument = ({
   });
 
   const handleSubmit = async () => {
-    console.log("handleSubmit");
     const projectId = DecryptBasic(GetACookie("pid"), Enum.srkey);
-
-    // e.preventDefault();
 
     if (state.documentName && state.uid) {
       const dataReq = {
@@ -37,10 +34,9 @@ const ModalActionDocument = ({
         layoutJson: {},
       };
       const res = await axios.post(
-        "http://localhost:5000/api/documents",
+        `${import.meta.env.VITE__API_HOST}/api/documents`,
         dataReq
       );
-      console.log("res", res);
       if (res.status === 201) {
         ToastSuccess({ msg: "Create document successfully 🍾" });
         refreshListDocument();

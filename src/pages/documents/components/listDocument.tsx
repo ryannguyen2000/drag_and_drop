@@ -17,6 +17,7 @@ import { GetACookie } from "../../../utilities/cookies";
 import { Enum } from "../../../config/common";
 import { setListDocumnetStore } from "../../../store/documents/documentSlice";
 import ModalActionDocument from "./modalActionDocument";
+import ModalImportTemplate from "./ModalImportTemplate";
 
 export const ListDocument = () => {
   const globalState = useSelector((state: RootState) => state.globalSlice);
@@ -25,9 +26,14 @@ export const ListDocument = () => {
   const [listDocuments, setListDocuments] = useState<IDocument[] | any[]>([]);
   const [isLoading, setIsloading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenTemplate, setIsOpenTemplate] = useState(false);
 
   const onToggleModal = () => {
     setIsOpen(!isOpen);
+  };
+
+  const onToggleModalTemplate = () => {
+    setIsOpenTemplate(!isOpenTemplate);
   };
 
   const getListDocumentsData = async () => {
@@ -72,16 +78,16 @@ export const ListDocument = () => {
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* <SaveDocumentModal /> */}
           <ModalActionDocument
             isOpen={isOpen}
             onToggleModal={onToggleModal}
             refreshListDocument={getListDocumentsData}
           />
-
-          {/* Right */}
-          {/* <div>Some Stuff Here</div> */}
-          <div>Create new documnent</div>
+          <ModalImportTemplate
+            isOpen={isOpenTemplate}
+            onToggleModal={onToggleModalTemplate}
+          />
+          {/* <div>Create new documnent</div> */}
         </div>
       </div>
 
