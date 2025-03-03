@@ -14,6 +14,7 @@ import Sidebar from "../../components/sidebar";
 import DndContentComponent from "./dndContext";
 import Setting from "./setting";
 import customWidget from "./customWidget";
+import { getDataSandpackSetting } from "../../apis/commons";
 
 const components = {
   1: DndContentComponent,
@@ -29,11 +30,21 @@ const Editor = () => {
     shallowEqual
   );
 
+  const projectId = DecryptBasic(GetACookie("pid"), Enum.srkey);
+
   const dispatch = useDispatch();
 
   const renderSidebar = !activeCreateFunction && <Sidebar />;
 
   const Component = components[menuSelected];
+
+  const settingConfigSandpack = async () => {
+    await getDataSandpackSetting({ dispatch, projectId });
+  };
+
+  useEffect(() => {
+    settingConfigSandpack();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {

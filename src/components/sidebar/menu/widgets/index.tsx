@@ -10,7 +10,6 @@ const Widgets = ({ projectId, ...props }) => {
         <CheckboxMoveSlice />
         <FrameBoxAndFlex />
         <ListDraggle groupedSide={[]} lockScroll={true} />
-        <CustomDraggle />
       </div>
     </div>
   );

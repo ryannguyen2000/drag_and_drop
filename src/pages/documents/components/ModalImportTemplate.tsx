@@ -1,5 +1,4 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
-import Modal from "react-modal";
 import { useEffect, useState } from "react";
 import _ from "lodash";
 
@@ -9,6 +8,7 @@ import { ToastSuccess } from "../../../components/toast";
 import { DecryptBasic } from "../../../utilities/hash_aes";
 import { GetACookie } from "../../../utilities/cookies";
 import { Enum } from "../../../config/common";
+import ModalReact from "../../../components/modalReact";
 
 const ModalImportTemplate = ({ onToggleModal, isOpen }) => {
   const [state, setState] = useState({
@@ -19,7 +19,7 @@ const ModalImportTemplate = ({ onToggleModal, isOpen }) => {
   const projectId = DecryptBasic(GetACookie("pid"), Enum.srkey);
 
   const getListTemplateComponents = async () => {
-    const res = await axiosInstance("templateGitComponent");
+    const res = await axiosInstance("templateGitComponent");  
     if (res.status === 200) {
       setState((prev) => ({ ...prev, dataList: _.get(res, "data.data") }));
     }
@@ -40,7 +40,7 @@ const ModalImportTemplate = ({ onToggleModal, isOpen }) => {
   const onSave = async () => {
     try {
       const res = await axiosInstance.post("/migrate-components", {
-        targetRepo: "project_1",
+        targetRepo: "teknix-nextjs-test-1",
         components: state.listSelected,
         projectId,
       });
@@ -57,45 +57,44 @@ const ModalImportTemplate = ({ onToggleModal, isOpen }) => {
 
   return (
     <div>
-      <ShiningButton
-        icon={
-          <Icon icon="ph:plus-thin" className="size-8 font-bold text-white" />
-        }
-        buttonWrapperClassName="!rounded-full"
-        buttonClassName="!rounded-full !bg-neutral-800 !text-black !px-2 !py-1 !text-white"
-        onClick={() => onToggleModal()}
-      />
-      <Modal
-        isOpen={isOpen}
-        onRequestClose={onToggleModal}
-        contentLabel="Modal"
-        className="root-modal"
-        shouldCloseOnOverlayClick={true}
-      >
-        <h4>Add templates for all pages</h4>
-        <div className="flex flex-col gap-2">
-          {_.map(state.dataList, (d, index) => {
-            const name = _.get(d, "name", "");
-            return (
-              <label key={index} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  value={name}
-                  checked={state.listSelected.includes(name)}
-                  onChange={() => onSelected(name)}
-                />
-                {name}
-              </label>
-            );
-          })}
+      <div className="group relative">
+        <ShiningButton
+          icon={
+            <Icon icon="ph:plus-thin" className="size-8 font-bold text-white" />
+          }
+          buttonWrapperClassName="!rounded-full"
+          buttonClassName="!rounded-full !bg-neutral-800 !text-black !px-2 !py-1 !text-white"
+          onClick={() => onToggleModal()}
+        />
+        <div className="absolute w-[120px] -top-2/4 -left-2/4 ml-2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          Add Template
         </div>
-        <button
-          className="p-2 bg-slate-400 border rounded-lg"
-          onClick={() => onSave()}
-        >
-          Save
-        </button>
-      </Modal>
+      </div>
+      <ModalReact
+        isOpen={isOpen}
+        onToggleModal={onToggleModal}
+        onSubmit={onSave}
+      >
+        <h4 className="font-bold">Add templates for all pages</h4>
+        <div className="flex flex-col gap-2 mt-4">
+          <div className="flex flex-col gap-2 h-full min-h-[20rem] max-h-[25rem]">
+            {_.map(state.dataList, (d, index) => {
+              const name = _.get(d, "name", "");
+              return (
+                <label key={index} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={name}
+                    checked={state.listSelected.includes(name)}
+                    onChange={() => onSelected(name)}
+                  />
+                  {name}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      </ModalReact>
     </div>
   );
 };

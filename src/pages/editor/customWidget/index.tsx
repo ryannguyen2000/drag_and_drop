@@ -11,6 +11,8 @@ import { GetACookie } from "../../../utilities/cookies";
 import { getWidgetElements } from "../../../apis/commons";
 import SandpackEditor from "../../../components/sandpack";
 import MonacoEditor from "../../../components/monacoEditor";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useState } from "react";
 
 function toSnakeCase(str) {
   return str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
@@ -26,6 +28,8 @@ const CustomWidget = () => {
     );
 
   const dispatch = useDispatch();
+
+  const [loadingSave, setLoadingSave] = useState<boolean>(false);
 
   const handleEditorChange = (value: any) => {
     console.log(value);
@@ -48,6 +52,7 @@ const CustomWidget = () => {
   };
 
   const onSaveWidget = async () => {
+    setLoadingSave(true);
     try {
       const respon = await axios.post(
         `${
@@ -65,6 +70,7 @@ const CustomWidget = () => {
         getWidgetElements({ projectId, dispatch });
       }
     } catch (error) {}
+    setLoadingSave(false);
   };
 
   const renderSidebar = !activeCreateFunction && <Sidebar />;
@@ -75,7 +81,7 @@ const CustomWidget = () => {
       <div className="w-full">
         <div className="flex gap-12 justify-between px-4">
           <div className="pb-2 ">
-            <div className="flex flex-col items-start justify-start p-2 gap-1.5">
+            <div className="flex flex-col items-start justify-start py-2 gap-1.5">
               <span className="text-sm font-medium text-gray-700">
                 {activeWidgetId ? "Widget Name" : "New Widget Name"}
               </span>
@@ -90,22 +96,34 @@ const CustomWidget = () => {
           </div>
           <div className="self-center">
             <button
-              className="border p-2 rounded-lg text-[#c3c3c3] font-semibold hover:bg-gray-800"
+              type="button"
+              disabled={loadingSave}
               onClick={onSaveWidget}
+              className={`${
+                loadingSave && "pointer-events-none select-none"
+              } w-fit rounded-xl border px-5 py-2.5 text-sm text-white shadow-sm transition-all duration-500 hover:bg-gray-700`}
             >
-              {activeWidgetId ? "Save Widget" : "Save New Widget"}
+              {loadingSave ? (
+                <Icon
+                  icon="ph:circle-notch"
+                  fontSize={16}
+                  className="animate-spin"
+                />
+              ) : activeWidgetId ? (
+                "Save Widget"
+              ) : (
+                "Save New Widget"
+              )}
             </button>
           </div>
         </div>
-        {/* <MonacoEditor
-          data={_.get(dataCustomWidget, "data")}
-          defaultCode={""}
-          handleEditorChange={handleEditorChange}
-        /> */}
-        <SandpackEditor
-          data={_.get(dataCustomWidget, "data", "")}
-          handleEditorChange={handleEditorChange}
-        />
+        <div className="w-full px-[1rem]">
+          <SandpackEditor
+            data={_.get(dataCustomWidget, "data", "")}
+            handleEditorChange={handleEditorChange}
+            fileNameShow="/App.tsx"
+          />
+        </div>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { DecryptBasic } from "../../../utilities/hash_aes";
 import { GetACookie } from "../../../utilities/cookies";
 import { Enum } from "../../../config/common";
 import { ToastSuccess } from "../../../components/toast";
+import ModalReact from "../../../components/modalReact";
 
 const ModalActionDocument = ({
   onToggleModal,
@@ -53,20 +54,24 @@ const ModalActionDocument = ({
 
   return (
     <div>
-      <ShiningButton
-        icon={
-          <Icon icon="ph:plus-thin" className="size-8 font-bold text-white" />
-        }
-        buttonWrapperClassName="!rounded-full"
-        buttonClassName="!rounded-full !bg-neutral-800 !text-black !px-2 !py-1 !text-white"
-        onClick={() => onToggleModal()}
-      />
-      <Modal
+      <div className="group relative">
+        <ShiningButton
+          icon={
+            <Icon icon="ph:plus-thin" className="size-8 font-bold text-white" />
+          }
+          buttonWrapperClassName="!rounded-full"
+          buttonClassName="!rounded-full !bg-neutral-800 !text-black !px-2 !py-1 !text-white"
+          onClick={() => onToggleModal()}
+        />
+        <div className="absolute w-[120px] -top-2/4 -left-2/4 ml-2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          Create document
+        </div>
+      </div>
+
+      <ModalReact
         isOpen={isOpen}
-        onRequestClose={onToggleModal}
-        contentLabel="Modal"
-        className="root-modal"
-        shouldCloseOnOverlayClick={true}
+        onToggleModal={onToggleModal}
+        onSubmit={handleSubmit}
       >
         <h4>Create new document</h4>
         <form className="space-y-6 p-4">
@@ -107,25 +112,8 @@ const ModalActionDocument = ({
               />
             </div>
           </div>
-
-          <div className="flex flex-col items-start justify-start gap-2 mt-10">
-            <button
-              type="button"
-              onClick={() => handleSubmit()}
-              className="w-full rounded-md bg-neutral-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-black"
-            >
-              Create document
-            </button>
-            <button
-              type="button"
-              className="w-full rounded-md bg-white px-4 py-2 text-sm font-semibold text-black border border-black"
-              onClick={onToggleModal}
-            >
-              Close
-            </button>
-          </div>
         </form>
-      </Modal>
+      </ModalReact>
     </div>
   );
 };

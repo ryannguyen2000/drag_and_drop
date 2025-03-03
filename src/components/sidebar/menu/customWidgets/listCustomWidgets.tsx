@@ -5,7 +5,6 @@ import {
   setActiveWidgetId,
   setDataCustomWidget,
 } from "../../../../store/DndWidget";
-import { getTailwindConfig } from "../../../../apis/commons";
 import { RootState } from "../../../../store";
 
 const ListCustomWidgets = ({ data }) => {
@@ -32,7 +31,6 @@ const Item = ({
   const dispatch = useDispatch();
 
   const handleActive = async (value: string) => {
-    await getTailwindConfig({ targetRepo: "project_1", dispatch });
     const contentWidgetSelected = _.find(listWidgetElements, { _id: value });
     dispatch(setActiveWidgetId(value));
     dispatch(

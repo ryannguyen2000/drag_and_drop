@@ -41,7 +41,7 @@ const menus = [
     label: "Custom Widgets",
     icon: (
       <Icon
-        icon="mingcute:baseball-2-fill"
+        icon="carbon:chart-custom"
         className="transition-all group-hover:translate-x-1 group-hover:scale-110"
       />
     ),

@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store";
-import { setDataEnv } from "../../../store/DndWidget";
+import { RootState } from "../../../../store";
+import { setDataEnv } from "../../../../store/sandpackSetting";
 
 interface EnvironmentVariable {
   key: string;
@@ -12,7 +11,7 @@ interface EnvironmentVariable {
 
 const EnvConfig = () => {
   const dispatch = useDispatch();
-  const { dataEnv } = useSelector((state: RootState) => state.dndWidgets);
+  const { dataEnv } = useSelector((state: RootState) => state.sandpackSetting);
 
   const initialData: EnvironmentVariable[] = [
     /* Your initial data array here */
@@ -57,9 +56,8 @@ const EnvConfig = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="w-full mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Environment Variables</h1>
         <button
           onClick={handleAddNew}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
@@ -102,11 +100,6 @@ const EnvConfig = () => {
           </div>
         ))}
       </div>
-
-      {/* Debug output */}
-      {/* <div className="mt-8 p-4 bg-gray-50 rounded">
-        <pre>{JSON.stringify(dataEnv, null, 2)}</pre>
-      </div> */}
     </div>
   );
 };

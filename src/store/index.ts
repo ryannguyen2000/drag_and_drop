@@ -5,6 +5,7 @@ import { GlobalSlice } from "./global/globalSlice";
 import { projectsSlice } from "./ProjectSlice";
 import { dndWidgets } from "./DndWidget";
 import { sidebar } from "./sidebar";
+import { sandpackSetting } from "./sandpackSetting";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     projects: projectsSlice.reducer,
     dndWidgets: dndWidgets.reducer,
     sidebar: sidebar.reducer,
+    sandpackSetting: sandpackSetting.reducer,
   },
 });
 

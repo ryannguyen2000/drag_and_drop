@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { setDataCustomWidget, setListWidgetElements } from "../store/DndWidget";
 import axiosInstance from "./axiosInstance";
+import { setDataPackage, setDataTailwind } from "../store/sandpackSetting";
 
 export const getWidgetElements = async ({
   projectId,
@@ -17,17 +18,49 @@ export const getWidgetElements = async ({
   dispatch(setListWidgetElements(res.data.data));
 };
 
-export const getTailwindConfig = async ({
-  targetRepo,
-  dispatch,
+export const getDataConfigGit = async ({
+  projectId,
+  path,
 }: {
-  targetRepo: string;
-  dispatch: any;
+  projectId: string;
+  path: string;
 }) => {
-  const res = await axiosInstance.get(`/tailwindConfig`, {
+  const res = await axiosInstance.get(`/${path}`, {
     params: {
-      targetRepo,
+      projectId,
     },
   });
-  dispatch(setDataCustomWidget({ data: _.get(res, "data.data.content", "") }));
+  return _.get(res, "data.data.content", "");
+};
+
+const listFileSandpackSetting = [
+  {
+    name: "package",
+    setDataRedux: (value: any, dispatch: any) =>
+      dispatch(setDataPackage(value)),
+  },
+  {
+    name: "tailwind",
+    setDataRedux: (value: any, dispatch: any) =>
+      dispatch(setDataTailwind(value)),
+  },
+];
+
+export const getDataSandpackSetting = async ({
+  dispatch,
+  projectId,
+}: {
+  dispatch: any;
+  projectId: string;
+}) => {
+  const [] = await Promise.all(
+    _.map(listFileSandpackSetting, async ({ name, setDataRedux }) => {
+      const content = await getDataConfigGit({
+        projectId,
+        path: name,
+      });
+      setDataRedux(content, dispatch);
+      return content;
+    })
+  );
 };

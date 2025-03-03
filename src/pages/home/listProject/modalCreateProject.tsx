@@ -34,6 +34,7 @@ const ModalCreateProject = ({
       if (response) {
         fetchDataProjects();
         ToastSuccess({ msg: "Projects created successfully" });
+        setOpenProjectModal(!openProjectModal)
       }
     } catch (error) {
     } finally {
