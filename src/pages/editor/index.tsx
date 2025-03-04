@@ -86,7 +86,10 @@ const Editor = () => {
   return (
     <div className="bg-[#1E2428]">
       <ToolEditor />
-      {Component && <Component />}
+      <div className="flex">
+        {renderSidebar}
+        {Component && <Component />}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,12 @@
 import _ from "lodash";
-import { setDataCustomWidget, setListWidgetElements } from "../store/DndWidget";
+import {
+  setDataCustomWidget,
+  setDataElements,
+  setListWidgetElements,
+} from "../store/DndWidget";
 import axiosInstance from "./axiosInstance";
 import { setDataPackage, setDataTailwind } from "../store/sandpackSetting";
+import { GetData } from ".";
 
 export const getWidgetElements = async ({
   projectId,
@@ -63,4 +68,31 @@ export const getDataSandpackSetting = async ({
       return content;
     })
   );
+};
+
+export const getElements = async (dispatch: any) => {
+  try {
+    const response = await GetData(
+      `${import.meta.env.VITE__API_HOST}/api/elements`
+    );
+    if (response) {
+      let newData = _.get(response, "data", []);
+      newData = _.map(newData, (item: any) => ({
+        ...item,
+        id: item?.sliceId,
+        columns: "1",
+        rows: "1",
+        colspan: "1",
+        rowspan: "1",
+        gap: "1",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+        type: "content",
+        childs: [],
+        style: {},
+        thumbnail: item?.thumbnail || "",
+      }));
+      dispatch(setDataElements(newData));
+    }
+  } catch (error) {}
 };

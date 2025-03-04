@@ -205,7 +205,6 @@ const DndContentComponent = () => {
     >
       <RenderToolbarMonaco hidden={!activeCreateFunction} />
       <div className="flex items-start w-full relative">
-      {renderSidebar}
         {renderBin}
         <FrameEditor
           activeCreateFunction={activeCreateFunction}

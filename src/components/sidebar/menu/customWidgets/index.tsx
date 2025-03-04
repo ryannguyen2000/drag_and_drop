@@ -1,27 +1,29 @@
-import CheckboxMoveSlice from "../../../../pages/editor/components/checkboxMoveSlice";
-import CustomDraggle from "../../components/customDraggle";
-import FrameBoxAndFlex from "../../components/frame";
-import axiosInstance from "../../../../apis/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { Icon } from "@iconify/react/dist/iconify.js";
+
+import ListCustomWidgets from "./listCustomWidgets";
+import { RootState } from "../../../../store";
+import { getElements, getWidgetElements } from "../../../../apis/commons";
+import { initialNewDataWidget } from "./const";
+import ListBaseElements from "./ListBaseElements";
 import {
   setActiveWidgetId,
   setDataCustomWidget,
-  setListWidgetElements,
 } from "../../../../store/DndWidget";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import ListCustomWidgets from "./listCustomWidgets";
-import { RootState } from "../../../../store";
-import { getWidgetElements } from "../../../../apis/commons";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { initialNewDataWidget } from "./const";
 
 const CustomWidgets = ({ projectId, ...props }) => {
   const dispatch = useDispatch();
-  const { listWidgetElements } = useSelector(
+  const { listWidgetElements, data } = useSelector(
     (state: RootState) => state.dndWidgets
   );
 
-  const getData = async () => await getWidgetElements({ projectId, dispatch });
+  const getData = async () => {
+    await Promise.all([
+      getWidgetElements({ projectId, dispatch }),
+      getElements(dispatch),
+    ]);
+  };
 
   const onNewCustomElement = () => {
     dispatch(setActiveWidgetId(null));
@@ -55,6 +57,7 @@ const CustomWidgets = ({ projectId, ...props }) => {
             </button>
           </div>
         </div>
+        <ListBaseElements data={data} />
         <ListCustomWidgets data={listWidgetElements} />
       </div>
     </div>

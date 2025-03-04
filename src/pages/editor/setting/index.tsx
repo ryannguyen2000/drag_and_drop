@@ -97,7 +97,7 @@ const Setting = () => {
       const respon = await axiosInstance.put(
         `/${urls[activeFileSetting]}`,
         bodyReq[activeFileSetting]
-      );  
+      );
       if (respon.status === 200) {
         await getDataSandpackSetting({ dispatch, projectId });
         ToastSuccess({ msg: "Upload successfully!" });
@@ -126,49 +126,46 @@ const Setting = () => {
   );
 
   return (
-    <div className="flex">
-      {renderSidebar}
-      <div className="w-full">
-        <div className="flex gap-12 justify-between px-4">
-          <div className="pb-2 ">
-            <div className="flex flex-col items-start justify-start py-2 gap-1.5">
-              <span className="text-sm font-medium text-gray-700">
-                Widget Name
-              </span>
-              <textarea
-                disabled={true}
-                // value={activeWidgetId}
-                placeholder={`Enter widget name`}
-                className="w-[20rem] border border-gray-300 p-2 rounded"
-                rows={1}
+    <div className="w-full">
+      <div className="flex gap-12 justify-between px-4">
+        <div className="pb-2 ">
+          <div className="flex flex-col items-start justify-start py-2 gap-1.5">
+            <span className="text-sm font-medium text-gray-700">
+              Widget Name
+            </span>
+            <textarea
+              disabled={true}
+              // value={activeWidgetId}
+              placeholder={`Enter widget name`}
+              className="w-[20rem] border border-gray-300 p-2 rounded"
+              rows={1}
+            />
+          </div>
+        </div>
+        <div className="self-center">
+          <button
+            type="button"
+            disabled={loadingSave}
+            onClick={onSave}
+            className={`${
+              loadingSave && "pointer-events-none select-none"
+            } w-fit rounded-xl border px-5 py-2.5 text-sm text-white shadow-sm transition-all duration-500 hover:bg-gray-700`}
+          >
+            {loadingSave ? (
+              <Icon
+                icon="ph:circle-notch"
+                fontSize={16}
+                className="animate-spin"
               />
-            </div>
-          </div>
-          <div className="self-center">
-            <button
-              type="button"
-              disabled={loadingSave}
-              onClick={onSave}
-              className={`${
-                loadingSave && "pointer-events-none select-none"
-              } w-fit rounded-xl border px-5 py-2.5 text-sm text-white shadow-sm transition-all duration-500 hover:bg-gray-700`}
-            >
-              {loadingSave ? (
-                <Icon
-                  icon="ph:circle-notch"
-                  fontSize={16}
-                  className="animate-spin"
-                />
-              ) : (
-                "Save"
-              )}
-            </button>
-          </div>
+            ) : (
+              "Save"
+            )}
+          </button>
         </div>
-        <div className="flex px-[1rem]">
-          {renderEditorBody}
-          {isPackage && <LibraryManager onDependenciesChange={() => {}} />}
-        </div>
+      </div>
+      <div className="flex px-[1rem]">
+        {renderEditorBody}
+        {isPackage && <LibraryManager onDependenciesChange={() => {}} />}
       </div>
     </div>
   );

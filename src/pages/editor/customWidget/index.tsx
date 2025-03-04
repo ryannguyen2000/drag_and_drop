@@ -76,54 +76,51 @@ const CustomWidget = () => {
   const renderSidebar = !activeCreateFunction && <Sidebar />;
 
   return (
-    <div className="flex">
-      {renderSidebar}
-      <div className="w-full">
-        <div className="flex gap-12 justify-between px-4">
-          <div className="pb-2 ">
-            <div className="flex flex-col items-start justify-start py-2 gap-1.5">
-              <span className="text-sm font-medium text-gray-700">
-                {activeWidgetId ? "Widget Name" : "New Widget Name"}
-              </span>
-              <textarea
-                onChange={(e) => handleChangeWidgetName(e.target.value)}
-                value={_.get(dataCustomWidget, "name")}
-                placeholder={`Enter widget name`}
-                className="w-[20rem] border border-gray-300 p-2 rounded"
-                rows={1}
+    <div className="w-full">
+      <div className="flex gap-12 justify-between px-4">
+        <div className="pb-2 ">
+          <div className="flex flex-col items-start justify-start py-2 gap-1.5">
+            <span className="text-sm font-medium text-gray-700">
+              {activeWidgetId ? "Widget Name" : "New Widget Name"}
+            </span>
+            <textarea
+              onChange={(e) => handleChangeWidgetName(e.target.value)}
+              value={_.get(dataCustomWidget, "name")}
+              placeholder={`Enter widget name`}
+              className="w-[20rem] border border-gray-300 p-2 rounded"
+              rows={1}
+            />
+          </div>
+        </div>
+        <div className="self-center">
+          <button
+            type="button"
+            disabled={loadingSave}
+            onClick={onSaveWidget}
+            className={`${
+              loadingSave && "pointer-events-none select-none"
+            } w-fit rounded-xl border px-5 py-2.5 text-sm text-white shadow-sm transition-all duration-500 hover:bg-gray-700`}
+          >
+            {loadingSave ? (
+              <Icon
+                icon="ph:circle-notch"
+                fontSize={16}
+                className="animate-spin"
               />
-            </div>
-          </div>
-          <div className="self-center">
-            <button
-              type="button"
-              disabled={loadingSave}
-              onClick={onSaveWidget}
-              className={`${
-                loadingSave && "pointer-events-none select-none"
-              } w-fit rounded-xl border px-5 py-2.5 text-sm text-white shadow-sm transition-all duration-500 hover:bg-gray-700`}
-            >
-              {loadingSave ? (
-                <Icon
-                  icon="ph:circle-notch"
-                  fontSize={16}
-                  className="animate-spin"
-                />
-              ) : activeWidgetId ? (
-                "Save Widget"
-              ) : (
-                "Save New Widget"
-              )}
-            </button>
-          </div>
+            ) : activeWidgetId ? (
+              "Save Widget"
+            ) : (
+              "Save New Widget"
+            )}
+          </button>
         </div>
-        <div className="w-full px-[1rem]">
-          <SandpackEditor
-            data={_.get(dataCustomWidget, "data", "")}
-            handleEditorChange={handleEditorChange}
-            fileNameShow="/App.tsx"
-          />
-        </div>
+      </div>
+      <div className="w-full px-[1rem]">
+        <SandpackEditor
+          data={_.get(dataCustomWidget, "data", "")}
+          handleEditorChange={handleEditorChange}
+          fileNameShow="/App.tsx"
+        />
       </div>
     </div>
   );
